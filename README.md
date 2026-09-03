@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 个税规划器（cn-tax）
 
-## Getting Started
+算清中国大陆居民一年的工资薪金个税：输入工作经历（哪几个月有收入、每段税前月薪）和专项附加扣除，自动得到逐月预扣税、年度汇算退/补税、年终奖单独/并入对比与最优拆分、期权/RSU 跨年行权对比，以及按节省金额排序的减税建议。
 
-First, run the development server:
+- 纯前端，无后端；数据只存浏览器 localStorage。
+- 支持：多段工作、空档月份、兼职重叠、应届生减除费用从 1 月累计、由税后到手反推五险一金、手动填社保/公积金基数与比例。
+- 规则口径见 [docs/PRODUCT.md](docs/PRODUCT.md)。
+
+## 开发
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
+npm test         # 计算引擎单测（vitest）
+npm run check    # tsc
+npm run lint
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 目录
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `src/lib/tax/` 计算引擎（纯函数）：`constants` 税率表与城市参考值、`withholding` 累计预扣、`social` 五险一金与反推、`annual` 汇算、`bonus` 年终奖、`equity` 股权激励、`advice` 建议。
+- `src/components/` UI；`src/lib/store.ts` 本地状态。
+- `tests/` 引擎单测。
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 部署
 
-## Learn More
+Vercel（项目 `cn-tax`）。`npx vercel --prod` 即可。
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+免责声明：仅供测算参考，不构成税务建议。社保/公积金基数按各城市年度公布值取参考，实际以工资条为准。

@@ -1,0 +1,32 @@
+"use client";
+
+import { ANNUAL_BRACKETS, type AnnualResult } from "@/lib/tax";
+import { fmtMoney, fmtPct } from "@/lib/format";
+import { Stat } from "./ui";
+
+export function Summary({ a }: { a: AnnualResult }) {
+  const settlementLabel = a.settlement < -0.5 ? "汇算清缴预计退税" : a.settlement > 0.5 ? "汇算清缴预计补税" : "汇算清缴";
+  const settlementTone = a.settlement < -0.5 ? "good" : a.settlement > 0.5 ? "bad" : "default";
+  const next = ANNUAL_BRACKETS[a.bracketIndex + 1];
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div className="col-span-2 rounded-xl bg-ink px-5 py-4 text-white">
+          <div className="text-xs text-white/70">全年到手（含年终奖，不含期权）</div>
+          <div className="mt-1 text-4xl font-semibold tabular-nums">{fmtMoney(a.netTotal)}</div>
+          <div className="mt-2 text-xs text-white/70">
+            税前 {fmtMoney(a.grossTotal)} → 五险一金 −{fmtMoney(a.totalSocial)} → 个税 −{fmtMoney(a.totalTax)}
+          </div>
+        </div>
+        <Stat label="全年个税" value={fmtMoney(a.totalTax)} sub={`综合税负 ${fmtPct(a.effectiveRate)}${a.bonusTax > 0 ? ` · 含年终奖 ${fmtMoney(a.bonusTax)}` : ""}`} />
+        <Stat label={settlementLabel} value={a.settlement < -0.5 ? `+${fmtMoney(-a.settlement)}` : fmtMoney(a.settlement)} tone={settlementTone} sub={`预扣合计 ${fmtMoney(a.withheld)}，应纳 ${fmtMoney(a.totalTax)}`} />
+      </div>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Stat label="应纳税所得额" value={fmtMoney(a.taxable)} sub={`收入 − 6 万 − 五险一金 − 专项附加 ${fmtMoney(a.sadAnnual + a.otherDeductions)}`} />
+        <Stat label="所处税率档" value={a.taxable > 0 ? fmtPct(a.marginalRate, 0) : "免税"} tone="accent" sub={next ? `再多 ${fmtMoney(a.roomToNextBracket)} 应纳税所得进入 ${fmtPct(next.rate, 0)} 档` : "已是最高档"} />
+        <Stat label="五险一金（个人）" value={fmtMoney(a.totalSocial)} sub="全部税前扣除" />
+        <Stat label="无收入月份" value={a.gapMonths.length ? `${a.gapMonths.length} 个月` : "无"} sub={a.gapMonths.length ? "6 万减除按全年算，汇算可退税" : "全年都有收入"} />
+      </div>
+    </div>
+  );
+}

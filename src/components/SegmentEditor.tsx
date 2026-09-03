@@ -1,6 +1,6 @@
 "use client";
 
-import { getCity, type ResolvedSocial, type Segment, type SocialConfig } from "@/lib/tax";
+import { MONTH_NAMES, getCity, type ResolvedSocial, type Segment, type SocialConfig } from "@/lib/tax";
 import { fmtMoney } from "@/lib/format";
 import { Button, Details, Field, MonthSelect, NumberInput, TextInput } from "./ui";
 import { segmentColor } from "./Timeline";
@@ -27,6 +27,8 @@ export function SegmentEditor({
   const patchSocial = (p: Partial<SocialConfig>) => onChange({ social: { ...social, ...p } });
   const months = seg.endMonth - seg.startMonth + 1;
   const hasSample = !!seg.netSample;
+  const monthsInSegment = Array.from({ length: months }, (_, i) => seg.startMonth + i);
+  const overrideCount = monthsInSegment.filter((m) => seg.monthOverrides?.[m] !== undefined).length;
 
   const sourceLabel = {
     preset: `按${city.name}参考值估算（公积金 ${((social.housingRate ?? city.housingRateDefault) * 100).toFixed(0)}%）`,
@@ -58,6 +60,29 @@ export function SegmentEditor({
         <Field label="税前月薪" className="col-span-2">
           <NumberInput value={seg.monthlySalary} onChange={(monthlySalary) => onChange({ monthlySalary })} prefix="¥" step={1000} />
         </Field>
+      </div>
+
+      <div className="mt-2">
+        <Details summary={overrideCount > 0 ? `个别月份工资不同（已改 ${overrideCount} 个月）` : "个别月份工资不同？（试用期 / 请假 / 月中入职）"} open={overrideCount > 0}>
+          <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+            {monthsInSegment.map((m) => (
+              <Field key={m} label={MONTH_NAMES[m - 1]}>
+                <NumberInput
+                  value={seg.monthOverrides?.[m]}
+                  placeholder={String(seg.monthlySalary)}
+                  step={1000}
+                  onChange={(v) => {
+                    const next = { ...(seg.monthOverrides ?? {}) };
+                    if (v > 0 && Math.abs(v - seg.monthlySalary) > 0.5) next[m] = v;
+                    else delete next[m];
+                    onChange({ monthOverrides: next });
+                  }}
+                />
+              </Field>
+            ))}
+          </div>
+          <p className="mt-2 text-[11px] text-muted">留空 = 按正常月薪。五险一金仍按正常月薪估算。</p>
+        </Details>
       </div>
 
       <div className="mt-3 rounded-lg bg-paper p-3">

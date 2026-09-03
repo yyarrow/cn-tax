@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import type { EquityGrant, Profile, Segment, SpecialDeductions } from "@/lib/tax";
+import type { EquityEvent, EquityPlan, Profile, Segment, SpecialDeductions } from "@/lib/tax";
 import { uid } from "./format";
 
 const KEY = "cn-tax-profile-v1";
@@ -33,8 +33,26 @@ export function newSegment(over: Partial<Segment> = {}): Segment {
   };
 }
 
-export function newGrant(over: Partial<EquityGrant> = {}): EquityGrant {
-  return { id: uid(), name: "", kind: "rsu", quantity: 1000, strikePrice: 0, fairValue: 100, month: 12, ...over };
+export function newEvent(over: Partial<EquityEvent> = {}): EquityEvent {
+  return { id: uid(), name: "", amount: 100000, month: 12, ...over };
+}
+
+/** 兼容旧版本（grants + companyType）的本地数据 */
+function migrateEquity(raw: unknown): EquityPlan {
+  const base: EquityPlan = { taxMode: "combined", events: [] };
+  if (!raw || typeof raw !== "object") return base;
+  const r = raw as Record<string, unknown>;
+  if (Array.isArray(r.events) && typeof r.taxMode === "string") return { ...base, ...(r as unknown as EquityPlan) };
+  const grants = Array.isArray(r.grants) ? (r.grants as Record<string, number | string>[]) : [];
+  return {
+    taxMode: r.companyType === "unlisted" ? "unlisted" : "listed",
+    events: grants.map((g) => ({
+      id: String(g.id ?? uid()),
+      name: String(g.name ?? ""),
+      amount: Math.max(0, (Number(g.fairValue) - (g.kind === "rsu" ? 0 : Number(g.strikePrice))) * Number(g.quantity)) || 0,
+      month: Number(g.month) || 12,
+    })),
+  };
 }
 
 export function defaultProfile(): Profile {
@@ -44,7 +62,7 @@ export function defaultProfile(): Profile {
     segments: [newSegment({ name: "当前公司" })],
     deductions: defaultDeductions(),
     bonusMode: "auto",
-    equity: { companyType: "listed", grants: [] },
+    equity: { taxMode: "combined", events: [] },
   };
 }
 
@@ -55,7 +73,7 @@ function load(): Profile | null {
     if (!raw) return null;
     const p = JSON.parse(raw) as Profile;
     if (!p || !Array.isArray(p.segments)) return null;
-    return { ...defaultProfile(), ...p, deductions: { ...defaultDeductions(), ...p.deductions } };
+    return { ...defaultProfile(), ...p, deductions: { ...defaultDeductions(), ...p.deductions }, equity: migrateEquity(p.equity) };
   } catch {
     return null;
   }

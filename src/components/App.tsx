@@ -11,7 +11,7 @@ import { EquityEditor } from "./EquityEditor";
 import { Summary } from "./Summary";
 import { MonthlyChart } from "./MonthlyChart";
 import { BonusPanel } from "./BonusPanel";
-import { EquityPanel } from "./EquityPanel";
+import { EquityChart } from "./EquityChart";
 import { AdviceList } from "./AdviceList";
 
 export function App() {
@@ -73,7 +73,7 @@ export function App() {
             <DeductionsEditor d={profile.deductions} onChange={patchDeductions} />
           </Card>
 
-          <Card title="3 · 期权 / RSU（可选）" subtitle="股权激励不并入工资，单独算；这里用来比较行权节奏。">
+          <Card title="3 · 期权 / RSU（可选）" subtitle="先选计税方式，再填今年已兑现的金额。">
             <EquityEditor plan={profile.equity} onChange={(equity) => patch({ equity })} />
           </Card>
         </div>
@@ -100,11 +100,11 @@ export function App() {
                 </Card>
               )}
 
-              {result.equity && (
-                <Card title="期权 / RSU 行权节奏">
-                  <EquityPanel e={result.equity} />
+              {profile.equity.taxMode !== "unlisted" || result.equity.income > 0 ? (
+                <Card title="期权 / RSU 兑现规划" subtitle="在现有收入基础上，今年再兑现不同金额各要交多少税；橙点是税率跳档的拐点（甜点值）。">
+                  <EquityChart e={result.equity} plan={profile.equity} onChange={(equity) => patch({ equity })} />
                 </Card>
-              )}
+              ) : null}
 
               <Card title="减税建议" subtitle="按预计节省金额排序，都是合法合规的常规操作。">
                 <AdviceList items={result.advice} />

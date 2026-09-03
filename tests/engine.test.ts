@@ -30,7 +30,7 @@ function seg(over: Partial<Segment>): Segment {
 }
 
 function profile(over: Partial<Profile>): Profile {
-  return { year: 2026, cityId: "beijing", segments: [], deductions: baseDeductions, bonusMode: "auto", equity: { companyType: "listed", grants: [] }, ...over };
+  return { year: 2026, cityId: "beijing", segments: [], deductions: baseDeductions, bonusMode: "auto", equity: { taxMode: "combined", events: [] }, ...over };
 }
 
 describe("税率表", () => {
@@ -139,5 +139,46 @@ describe("年终奖", () => {
     const a = analyzeBonus(200000, 150000, 400000);
     expect(a.optimalSplit.bestTotalTax).toBeLessThanOrEqual(a.optimalSplit.currentTotalTax);
     expect(a.trap).toBeDefined(); // 150000 在 144000–160500 陷阱区
+  });
+});
+
+describe("个别月份工资与期权", () => {
+  it("月份覆盖生效：试用期半薪", () => {
+    const s = seg({ monthlySalary: 30000, monthOverrides: { 1: 15000 }, social: { mode: "manual", socialBase: 0, housingBase: 0, housingRate: 0, medicalFixed: 0 } });
+    const e = simulateSegment(s, 0, 0, true, 12);
+    expect(e[0].salary).toBe(15000);
+    expect(e[0].tax).toBe(300); // (15000-5000)*3%
+    expect(e[1].salary).toBe(30000);
+  });
+  it("并入工资的回购随工资预扣，汇算无退补", () => {
+    const p = profile({
+      segments: [seg({ monthlySalary: 30000 })],
+      equity: { taxMode: "combined", events: [{ id: "e", name: "", amount: 200000, month: 6 }] },
+    });
+    const r = computeAll(p, 12);
+    expect(r.rows[5].equity).toBe(200000);
+    expect(r.annual.equityIncome).toBe(200000);
+    expect(r.annual.equityTax).toBeGreaterThan(0);
+    expect(Math.abs(r.annual.settlement)).toBeLessThan(1);
+    // 规划曲线拐点在年度税率边界 − 当前应纳税所得额
+    expect(r.equity.kinks.every((k) => k.x > 0)).toBe(true);
+    expect(r.equity.curve[0].tax).toBe(0);
+  });
+  it("上市公司单独计税：不影响工资，拐点从 36000 起", () => {
+    const p = profile({
+      segments: [seg({ monthlySalary: 30000 })],
+      equity: { taxMode: "listed", events: [], plannedExtra: 100000 },
+    });
+    const r = computeAll(p, 12);
+    expect(r.equity.kinks[0].x).toBe(36000);
+    expect(r.equity.planned?.tax).toBe(annualTax(100000));
+    expect(r.equity.planned?.deferKink).toBe(36000);
+    expect(r.equity.planned!.deferSaving).toBeGreaterThan(0);
+  });
+  it("递延 20%：线性无拐点", () => {
+    const p = profile({ segments: [seg({})], equity: { taxMode: "unlisted", events: [{ id: "e", name: "", amount: 100000, month: 3 }] } });
+    const r = computeAll(p, 12);
+    expect(r.annual.equityTax).toBe(20000);
+    expect(r.equity.kinks.length).toBe(0);
   });
 });

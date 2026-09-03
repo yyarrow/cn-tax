@@ -14,12 +14,20 @@ export function effectiveBonusMonth(seg: Segment): number | undefined {
  * 累计预扣法：对一段工作逐月模拟预扣预缴。
  * 减除费用 = 5000 × 本单位任职月数（应届/首次就业可从 1 月起算）。
  */
+/** 某月税前工资（考虑个别月份覆盖） */
+export function salaryFor(seg: Segment, month: number): number {
+  const o = seg.monthOverrides?.[month];
+  return o !== undefined && o !== null && !Number.isNaN(o) ? Math.max(0, o) : seg.monthlySalary;
+}
+
 export function simulateSegment(
   seg: Segment,
   socialMonthly: number,
   sadMonthly: number,
   bonusSeparate: boolean,
   currentMonth: number,
+  /** 并入工资计税的期权 / RSU：月份 → 金额 */
+  equityByMonth: Record<number, number> = {},
 ): MonthEntry[] {
   const entries: MonthEntry[] = [];
   let cumIncome = 0;
@@ -34,7 +42,9 @@ export function simulateSegment(
     const hasBonus = bonusMonth === m;
     const bonus = hasBonus ? seg.bonus! : 0;
     const bonusCombined = hasBonus && !bonusSeparate;
-    cumIncome += seg.monthlySalary + (bonusCombined ? bonus : 0);
+    const salary = salaryFor(seg, m);
+    const equity = equityByMonth[m] ?? 0;
+    cumIncome += salary + equity + (bonusCombined ? bonus : 0);
     cumSocial += socialMonthly;
     cumSad += sadMonthly;
     const cumTaxable = Math.max(
@@ -46,15 +56,16 @@ export function simulateSegment(
     withheld += tax;
     const bonusTax = hasBonus && bonusSeparate ? bonusSeparateTax(bonus) : 0;
     const rate = cumTaxable > 0 ? ANNUAL_BRACKETS[findBracket(cumTaxable)].rate : 0;
-    const net = round2(seg.monthlySalary + bonus - socialMonthly - tax - bonusTax);
+    const net = round2(salary + equity + bonus - socialMonthly - tax - bonusTax);
     entries.push({
       month: m,
       segmentId: seg.id,
       segmentName: seg.name,
       indexInSegment,
-      salary: seg.monthlySalary,
+      salary,
       bonus,
       bonusCombined,
+      equity,
       social: socialMonthly,
       sad: sadMonthly,
       cumIncome,
@@ -74,7 +85,8 @@ export function mergeRows(allEntries: MonthEntry[], currentMonth: number): Month
   const rows: MonthRow[] = [];
   for (let m = 1; m <= 12; m++) {
     const entries = allEntries.filter((e) => e.month === m);
-    const gross = entries.reduce((s, e) => s + e.salary + e.bonus, 0);
+    const gross = entries.reduce((s, e) => s + e.salary + e.bonus + e.equity, 0);
+    const equity = entries.reduce((s, e) => s + e.equity, 0);
     const social = entries.reduce((s, e) => s + e.social, 0);
     const tax = entries.reduce((s, e) => s + e.tax, 0);
     const bonusTax = entries.reduce((s, e) => s + e.bonusTax, 0);
@@ -86,6 +98,7 @@ export function mergeRows(allEntries: MonthEntry[], currentMonth: number): Month
       tax: round2(tax),
       bonusTax: round2(bonusTax),
       net: round2(gross - social - tax - bonusTax),
+      equity: round2(equity),
       rate: entries.reduce((r, e) => Math.max(r, e.rate), 0),
       isGap: entries.length === 0,
       isFuture: m > currentMonth,

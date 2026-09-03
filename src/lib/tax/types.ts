@@ -36,6 +36,8 @@ export interface Segment {
   social: SocialConfig;
   /** 今年首次就业（应届生等）：减除费用从 1 月起累计 */
   firstJobOfYear?: boolean;
+  /** 个别月份工资不同（试用期、请假、半月入职等）：月份 → 当月税前 */
+  monthOverrides?: Record<number, number>;
 }
 
 export interface SpecialDeductions {
@@ -57,23 +59,30 @@ export interface SpecialDeductions {
 
 export type BonusMode = "auto" | "separate" | "combined";
 
-export interface EquityGrant {
+/** 一次期权 / RSU 兑现（行权、归属、回购），直接填税前到账金额 */
+export interface EquityEvent {
   id: string;
   name: string;
-  kind: "option" | "rsu";
-  quantity: number;
-  /** 行权价（期权） */
-  strikePrice: number;
-  /** 行权/归属时市价 */
-  fairValue: number;
-  /** 行权月份 1–12 */
+  /** 税前兑现金额 */
+  amount: number;
+  /** 兑现月份 1–12 */
   month: number;
 }
 
+/**
+ * combined: 并入工资薪金，由公司随工资代扣（回购、非上市未备案等）
+ * listed: 上市公司股权激励，不并入综合所得，全年合并按年度税率表单独计税
+ * unlisted: 非上市公司已备案递延，转让时按财产转让所得 20%
+ */
+export type EquityTaxMode = "combined" | "listed" | "unlisted";
+
 export interface EquityPlan {
-  /** listed: 上市公司股权激励单独计税；unlisted: 非上市公司备案递延纳税 */
-  companyType: "listed" | "unlisted";
-  grants: EquityGrant[];
+  taxMode: EquityTaxMode;
+  events: EquityEvent[];
+  /** 规划：今年再兑现多少（用于规划图上的标记） */
+  plannedExtra?: number;
+  /** 规划图横轴上限 */
+  chartMax?: number;
 }
 
 export interface Profile {
@@ -118,6 +127,8 @@ export interface MonthEntry {
   salary: number;
   bonus: number;
   bonusCombined: boolean;
+  /** 并入工资计税的期权 / RSU 兑现 */
+  equity: number;
   social: number;
   sad: number;
   cumIncome: number;
@@ -140,6 +151,7 @@ export interface MonthRow {
   tax: number;
   bonusTax: number;
   net: number;
+  equity: number;
   /** 最高预扣率（多段并存时取最高） */
   rate: number;
   isGap: boolean;
@@ -150,6 +162,11 @@ export interface AnnualResult {
   totalSalary: number;
   totalBonus: number;
   bonusSeparate: boolean;
+  /** 期权 / RSU 已兑现收入 */
+  equityIncome: number;
+  equityMode: EquityTaxMode;
+  /** 期权 / RSU 的税（并入模式下为归因于期权的增量税） */
+  equityTax: number;
   totalSocial: number;
   basicDeduction: number;
   sadAnnual: number;
@@ -160,7 +177,7 @@ export interface AnnualResult {
   /** 综合所得应纳税额（不含单独计税的奖金） */
   comprehensiveTax: number;
   bonusTax: number;
-  /** 全年应纳税额（综合 + 奖金单独） */
+  /** 全年应纳税额（综合 + 奖金单独 + 期权单独） */
   totalTax: number;
   withheld: number;
   /** 正数补税，负数退税 */
@@ -197,13 +214,37 @@ export interface BonusAnalysis {
   };
 }
 
+export interface EquityKink {
+  /** 再兑现到这个金额之前，边际税率是 rateBefore */
+  x: number;
+  rateBefore: number;
+  rateAfter: number;
+  /** 兑现 x 时的累计税 */
+  tax: number;
+}
+
 export interface EquityResult {
-  totalIncome: number;
-  companyType: "listed" | "unlisted";
-  taxOneYear: number;
-  rateOneYear: number;
-  splitTwoYears: { perYear: number; totalTax: number; saving: number };
-  splitThreeYears: { perYear: number; totalTax: number; saving: number };
+  mode: EquityTaxMode;
+  /** 已录入的兑现收入 */
+  income: number;
+  /** 已录入兑现对应的税 */
+  tax: number;
+  /** 当前（再兑现 0 元时）的边际税率 */
+  currentRate: number;
+  /** 规划曲线：再兑现 x 元 → 增量税 */
+  curve: { x: number; tax: number }[];
+  kinks: EquityKink[];
+  maxX: number;
+  planned?: {
+    amount: number;
+    tax: number;
+    net: number;
+    effectiveRate: number;
+    marginalRate: number;
+    /** 若把超过上一个拐点的部分推到明年，能省多少 */
+    deferKink?: number;
+    deferSaving: number;
+  };
 }
 
 export interface Advice {

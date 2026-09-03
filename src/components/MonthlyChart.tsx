@@ -75,7 +75,10 @@ export function MonthlyChart({ rows, currentMonth }: { rows: MonthRow[]; current
               </div>
               {!rows[hover].isGap && (
                 <div className="mt-1 space-y-0.5 tabular-nums text-muted">
-                  <div>税前 {fmtMoney(rows[hover].gross)}</div>
+                  <div>
+                    税前 {fmtMoney(rows[hover].gross)}
+                    {rows[hover].equity > 0 ? `（含期权 ${fmtMoney(rows[hover].equity)}）` : ""}
+                  </div>
                   <div>五险一金 −{fmtMoney(rows[hover].social)}</div>
                   <div>
                     个税 −{fmtMoney(rows[hover].tax + rows[hover].bonusTax)}

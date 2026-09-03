@@ -17,7 +17,7 @@ export function buildAdvice(
   profile: Profile,
   annual: AnnualResult,
   bonus: BonusAnalysis | null,
-  equity: EquityResult | null,
+  equity: EquityResult,
   socials: Record<string, ResolvedSocial>,
   city: CityPreset,
 ): Advice[] {
@@ -149,25 +149,35 @@ export function buildAdvice(
       });
   }
 
-  // 期权
-  if (equity) {
-    if (equity.companyType === "listed" && equity.splitTwoYears.saving > 1)
-      out.push({
-        id: "equity-split",
-        kind: "equity",
-        title: `期权/RSU 分两年行权可省 ${fmt(equity.splitTwoYears.saving)} 元，分三年省 ${fmt(equity.splitThreeYears.saving)} 元`,
-        detail: `上市公司股权激励不并入工资，但一年内多次行权要合并按年度税率表计税，当前最高档 ${(equity.rateOneYear * 100).toFixed(0)}%。跨年度分批行权可以重复利用低税率档（政策至 2027 年底）。注意股价波动风险大于税差时不要为省税硬等。`,
-        saving: equity.splitTwoYears.saving,
-      });
-    if (equity.companyType === "unlisted")
-      out.push({
-        id: "equity-unlisted",
-        kind: "equity",
-        title: "非上市公司期权：确认公司已办理递延纳税备案",
-        detail: "备案后行权时暂不纳税，转让时按“财产转让所得”20% 计税；未备案则按工资薪金并入综合所得，最高 45%。",
-        saving: 0,
-      });
+  // 期权 / RSU
+  const nextKink = equity.kinks.find((k) => k.x > 0);
+  if (equity.mode !== "unlisted" && nextKink && (equity.income > 0 || (equity.planned?.amount ?? 0) > 0)) {
+    out.push({
+      id: "equity-room",
+      kind: "equity",
+      title: `今年再兑现期权 / RSU 不超过 ${fmt(nextKink.x)} 元，仍按 ${(nextKink.rateBefore * 100).toFixed(0)}% 边际税率`,
+      detail: `超过这个数的部分按 ${(nextKink.rateAfter * 100).toFixed(0)}% 计税。${
+        equity.mode === "combined" ? "回购款并入工资计税，和工资共用同一张年度税率表；" : "上市公司股权激励全年合并、单独按年度税率表计税；"
+      }想多兑现又不想跳档，把超出部分放到明年 1 月之后。看下面的规划图找拐点。`,
+      saving: 0,
+    });
   }
+  if (equity.planned && equity.planned.deferSaving > 1 && equity.planned.deferKink)
+    out.push({
+      id: "equity-defer",
+      kind: "equity",
+      title: `计划兑现 ${fmt(equity.planned.amount)} 元：今年只兑现到 ${fmt(equity.planned.deferKink)} 元、其余明年，可省约 ${fmt(equity.planned.deferSaving)} 元`,
+      detail: "跨年度分批可以重复利用低税率档。要权衡股价波动和公司回购窗口，税差不大时不必硬等。",
+      saving: equity.planned.deferSaving,
+    });
+  if (equity.mode === "unlisted" && equity.income > 0)
+    out.push({
+      id: "equity-unlisted",
+      kind: "equity",
+      title: "非上市公司期权：确认公司已办理递延纳税备案",
+      detail: "备案后行权时暂不纳税，转让时按“财产转让所得”20% 计税；未备案则按工资薪金并入综合所得，最高 45%（请切到「并入工资」模式测算）。",
+      saving: 0,
+    });
 
   out.push({
     id: "annuity",

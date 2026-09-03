@@ -20,6 +20,12 @@ export function salaryFor(seg: Segment, month: number): number {
   return o !== undefined && o !== null && !Number.isNaN(o) ? Math.max(0, o) : seg.monthlySalary;
 }
 
+/** 某月五险一金个人部分（考虑个别月份覆盖） */
+export function socialFor(seg: Segment, month: number, monthly: number): number {
+  const o = seg.socialOverrides?.[month];
+  return o !== undefined && o !== null && !Number.isNaN(o) ? Math.max(0, o) : monthly;
+}
+
 export function simulateSegment(
   seg: Segment,
   socialMonthly: number,
@@ -44,8 +50,9 @@ export function simulateSegment(
     const bonusCombined = hasBonus && !bonusSeparate;
     const salary = salaryFor(seg, m);
     const equity = equityByMonth[m] ?? 0;
+    const social = socialFor(seg, m, socialMonthly);
     cumIncome += salary + equity + (bonusCombined ? bonus : 0);
-    cumSocial += socialMonthly;
+    cumSocial += social;
     cumSad += sadMonthly;
     const cumTaxable = Math.max(
       0,
@@ -56,7 +63,7 @@ export function simulateSegment(
     withheld += tax;
     const bonusTax = hasBonus && bonusSeparate ? bonusSeparateTax(bonus) : 0;
     const rate = cumTaxable > 0 ? ANNUAL_BRACKETS[findBracket(cumTaxable)].rate : 0;
-    const net = round2(salary + equity + bonus - socialMonthly - tax - bonusTax);
+    const net = round2(salary + equity + bonus - social - tax - bonusTax);
     entries.push({
       month: m,
       segmentId: seg.id,
@@ -66,7 +73,7 @@ export function simulateSegment(
       bonus,
       bonusCombined,
       equity,
-      social: socialMonthly,
+      social,
       sad: sadMonthly,
       cumIncome,
       cumTaxable,

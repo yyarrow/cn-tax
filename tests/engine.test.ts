@@ -95,6 +95,27 @@ describe("反推五险一金", () => {
   });
 });
 
+describe("五险一金来源", () => {
+  it("给了工资条个税：直接相减", () => {
+    const s = seg({ monthlySalary: 37000, social: { mode: "infer" }, netSample: { month: 2, amount: 20913, tax: 8000 } });
+    const r = computeAll(profile({ segments: [s] }), 12);
+    expect(r.socials[s.id].monthly).toBeCloseTo(37000 - 20913 - 8000, 2);
+    expect(r.socials[s.id].sample?.tax).toBe(8000);
+  });
+  it("反推结果占比过高时给出警告", () => {
+    const s = seg({ monthlySalary: 37000, social: { mode: "infer" }, netSample: { month: 2, amount: 20913 } });
+    const r = computeAll(profile({ segments: [s] }), 12);
+    expect(r.socials[s.id].warning).toBeTruthy();
+    const sm = r.socials[s.id].sample!;
+    expect(sm.gross - sm.social - sm.tax).toBeCloseTo(sm.net, 0);
+  });
+  it("直接填五险一金合计", () => {
+    const s = seg({ monthlySalary: 37000, social: { mode: "manual", totalMonthly: 7300 } });
+    const r = computeAll(profile({ segments: [s] }), 12);
+    expect(r.socials[s.id].monthly).toBe(7300);
+  });
+});
+
 describe("汇算清缴", () => {
   it("全年同一单位、无变动 → 退补为 0", () => {
     const p = profile({ segments: [seg({ monthlySalary: 30000 })] });
@@ -149,6 +170,15 @@ describe("个别月份工资与期权", () => {
     expect(e[0].salary).toBe(15000);
     expect(e[0].tax).toBe(300); // (15000-5000)*3%
     expect(e[1].salary).toBe(30000);
+  });
+  it("当月五险一金可单独覆盖，并计入全年合计", () => {
+    const s = seg({ monthlySalary: 30000, monthOverrides: { 1: 10000 }, socialOverrides: { 1: 0 } });
+    const p = profile({ segments: [s] });
+    const r = computeAll(p, 12);
+    expect(r.rows[0].social).toBe(0);
+    expect(r.rows[0].net).toBeGreaterThan(0);
+    const normal = r.socials[s.id].monthly;
+    expect(r.annual.totalSocial).toBeCloseTo(normal * 11, 2);
   });
   it("并入工资的回购随工资预扣，汇算无退补", () => {
     const p = profile({

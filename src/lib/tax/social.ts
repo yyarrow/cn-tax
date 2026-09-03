@@ -1,6 +1,6 @@
 import { SAD_STANDARD, type CityPreset } from "./constants";
 import { round2 } from "./brackets";
-import { simulateSegment } from "./withholding";
+import { salaryFor, simulateSegment } from "./withholding";
 import type { ResolvedSocial, Segment, SocialBreakdown, SocialConfig, SpecialDeductions } from "./types";
 
 /** 员工按月向单位申报、预扣时可用的专项附加扣除（元/月） */
@@ -67,8 +67,10 @@ export function inferMonthlyDeduction(
   if (!sample || sample.amount <= 0) return { value: 0, ok: false, note: "未提供税后到手" };
   const m = sample.month;
   if (m < seg.startMonth || m > seg.endMonth) return { value: 0, ok: false, note: "样本月份不在本段工作期间内" };
+  // 反推时忽略个别月份的五险一金覆盖（覆盖值本身就是要推的量）
+  const plain: Segment = { ...seg, socialOverrides: undefined };
   const netAt = (d: number) => {
-    const entries = simulateSegment(seg, d, sadMonthlyAmount, bonusSeparate, 12);
+    const entries = simulateSegment(plain, d, sadMonthlyAmount, bonusSeparate, 12);
     const e = entries.find((x) => x.month === m)!;
     // 反推时忽略当月奖金（用户应给普通月份的到手）
     return e.salary - d - e.tax;
@@ -97,31 +99,66 @@ export function resolveSocial(
 ): ResolvedSocial {
   const gross = seg.monthlySalary;
   if (seg.social.mode === "manual") {
+    if (seg.social.totalMonthly !== undefined && seg.social.totalMonthly >= 0) {
+      return { monthly: round2(seg.social.totalMonthly), source: "manual", note: "按你填写的合计" };
+    }
     const breakdown = computeSocialBreakdown(gross, seg.social, city);
     return { monthly: breakdown.total, breakdown, source: "manual" };
   }
   if (seg.social.mode === "infer" && seg.netSample) {
-    const r = inferMonthlyDeduction(seg, sadMonthlyAmount, bonusSeparate);
-    if (r.ok) {
-      // 尝试分解：社保按参考值，剩余视为公积金
+    const sampleMonth = seg.netSample.month;
+    const sampleGross = salaryFor(seg, sampleMonth);
+    let value: number | undefined;
+    let tax = 0;
+    let failNote = "";
+    if (seg.netSample.tax !== undefined && seg.netSample.tax >= 0) {
+      // 工资条给了个税：直接相减，不用猜
+      tax = seg.netSample.tax;
+      value = round2(sampleGross - seg.netSample.amount - tax);
+      if (value < 0) failNote = "到手 + 个税 大于税前，请检查输入";
+    } else {
+      const r = inferMonthlyDeduction(seg, sadMonthlyAmount, bonusSeparate);
+      if (r.ok) {
+        value = r.value;
+        const e = simulateSegment({ ...seg, socialOverrides: undefined }, value, sadMonthlyAmount, bonusSeparate, 12).find((x) => x.month === sampleMonth);
+        tax = e?.tax ?? 0;
+      } else failNote = r.note;
+    }
+    if (value !== undefined && !failNote) {
       const ref = computeSocialBreakdown(gross, { mode: "auto", housingRate: 0 }, city);
       const socialPart = ref.pension + ref.medical + ref.unemployment;
-      const housingPart = r.value - socialPart;
+      const housingPart = value - socialPart;
       const housingRate = housingPart / ref.housingBase;
-      let note = `按 ${sadMonthlyAmount > 0 ? "已申报的专项附加扣除和" : ""}税后到手反推`;
+      let note = seg.netSample.tax !== undefined ? "按工资条的到手和个税直接相减" : "由到手反推（个税按累计预扣法推算）";
       let inferredHousingRate: number | undefined;
       if (housingRate >= 0.045 && housingRate <= 0.175) {
         inferredHousingRate = Math.round(housingRate * 100) / 100;
-        note += `，社保约 ${socialPart.toFixed(0)} 元，公积金约 ${housingPart.toFixed(0)} 元（≈${(inferredHousingRate * 100).toFixed(0)}%）`;
+        note += `：社保约 ${socialPart.toFixed(0)} 元 + 公积金约 ${housingPart.toFixed(0)} 元（≈${(inferredHousingRate * 100).toFixed(0)}%）`;
       } else if (housingPart < 0) {
-        note += "，扣除额低于常规社保水平，公司可能按较低基数缴纳";
+        note += "，低于常规社保水平，公司可能按较低基数缴纳";
       } else {
-        note += "，扣除额偏高，可能含补充公积金或企业年金";
+        note += "，高于常规水平，可能含补充公积金或企业年金";
       }
-      return { monthly: r.value, source: "inferred", note, inferredHousingRate };
+      const ratio = sampleGross > 0 ? value / sampleGross : 0;
+      let warning: string | undefined;
+      if (ratio > 0.3 && seg.netSample.tax === undefined) {
+        warning = `推算出的五险一金占税前 ${(ratio * 100).toFixed(0)}%，明显偏高（常见 15%–25%）。${
+          sampleMonth <= 3 ? `${sampleMonth} 月刚开始累计、个税很少，扣款大头被算成了五险一金；` : ""
+        }请确认到手是这个月的普通工资，或在旁边填上工资条里的「个税」。`;
+      } else if (ratio > 0.3) {
+        warning = `五险一金占税前 ${(ratio * 100).toFixed(0)}%，明显偏高，请核对工资条。`;
+      }
+      return {
+        monthly: value,
+        source: "inferred",
+        note,
+        inferredHousingRate,
+        sample: { month: sampleMonth, gross: sampleGross, social: value, tax: round2(tax), net: seg.netSample.amount },
+        warning,
+      };
     }
     const fallback = computeSocialBreakdown(gross, seg.social, city);
-    return { monthly: fallback.total, breakdown: fallback, source: "inferFailed", note: r.note };
+    return { monthly: fallback.total, breakdown: fallback, source: "inferFailed", note: failNote };
   }
   const breakdown = computeSocialBreakdown(gross, seg.social, city);
   return { monthly: breakdown.total, breakdown, source: "preset" };

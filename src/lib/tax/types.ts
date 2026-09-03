@@ -18,6 +18,8 @@ export interface SocialConfig {
   supplementaryHousingRate?: number;
   /** 其他税前扣除（企业年金个人部分等），元/月 */
   extraMonthly?: number;
+  /** 直接填写的五险一金个人合计（manual 模式下优先于按基数/比例计算） */
+  totalMonthly?: number;
 }
 
 export interface Segment {
@@ -31,13 +33,15 @@ export interface Segment {
   /** 年终奖（在本段发放） */
   bonus?: number;
   bonusMonth?: number;
-  /** 某个月的税后到手，用于反推五险一金 */
-  netSample?: { month: number; amount: number };
+  /** 某个月的税后到手，用于反推五险一金；tax 为工资条上该月个税（可选，填了就不用猜） */
+  netSample?: { month: number; amount: number; tax?: number };
   social: SocialConfig;
   /** 今年首次就业（应届生等）：减除费用从 1 月起累计 */
   firstJobOfYear?: boolean;
   /** 个别月份工资不同（试用期、请假、半月入职等）：月份 → 当月税前 */
   monthOverrides?: Record<number, number>;
+  /** 个别月份五险一金不同（半月入职社保未起缴等）：月份 → 当月个人缴纳额 */
+  socialOverrides?: Record<number, number>;
 }
 
 export interface SpecialDeductions {
@@ -116,6 +120,10 @@ export interface ResolvedSocial {
   note?: string;
   /** 反推得到的近似公积金比例 */
   inferredHousingRate?: number;
+  /** 反推时样本月的拆分：税前 − 五险一金 − 个税 = 到手 */
+  sample?: { month: number; gross: number; social: number; tax: number; net: number };
+  /** 推算结果明显不合常理（占税前比例过高等） */
+  warning?: string;
 }
 
 export interface MonthEntry {

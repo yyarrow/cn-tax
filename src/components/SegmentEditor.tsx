@@ -1,6 +1,7 @@
 "use client";
 
 import { MONTH_NAMES, getCity, type ResolvedSocial, type Segment, type SocialConfig } from "@/lib/tax";
+import { salaryFor } from "@/lib/tax/withholding";
 import { fmtMoney } from "@/lib/format";
 import { Button, Details, Field, MonthSelect, NumberInput, TextInput } from "./ui";
 import { segmentColor } from "./Timeline";
@@ -28,7 +29,8 @@ export function SegmentEditor({
   const months = seg.endMonth - seg.startMonth + 1;
   const hasSample = !!seg.netSample;
   const monthsInSegment = Array.from({ length: months }, (_, i) => seg.startMonth + i);
-  const overrideCount = monthsInSegment.filter((m) => seg.monthOverrides?.[m] !== undefined).length;
+  const overrideCount = monthsInSegment.filter((m) => seg.monthOverrides?.[m] !== undefined || seg.socialOverrides?.[m] !== undefined).length;
+  const negativeMonths = monthsInSegment.filter((m) => salaryFor(seg, m) - (seg.socialOverrides?.[m] ?? resolved?.monthly ?? 0) < 0);
 
   const sourceLabel = {
     preset: `按${city.name}参考值估算（公积金 ${((social.housingRate ?? city.housingRateDefault) * 100).toFixed(0)}%）`,
@@ -65,23 +67,54 @@ export function SegmentEditor({
       <div className="mt-2">
         <Details summary={overrideCount > 0 ? `个别月份工资不同（已改 ${overrideCount} 个月）` : "个别月份工资不同？（试用期 / 请假 / 月中入职）"} open={overrideCount > 0}>
           <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
-            {monthsInSegment.map((m) => (
-              <Field key={m} label={MONTH_NAMES[m - 1]}>
-                <NumberInput
-                  value={seg.monthOverrides?.[m]}
-                  placeholder={String(seg.monthlySalary)}
-                  step={1000}
-                  onChange={(v) => {
-                    const next = { ...(seg.monthOverrides ?? {}) };
-                    if (v > 0 && Math.abs(v - seg.monthlySalary) > 0.5) next[m] = v;
-                    else delete next[m];
-                    onChange({ monthOverrides: next });
-                  }}
-                />
-              </Field>
-            ))}
+            {monthsInSegment.map((m) => {
+              const hasOverride = seg.monthOverrides?.[m] !== undefined || seg.socialOverrides?.[m] !== undefined;
+              const socialNormal = resolved?.monthly ?? 0;
+              const socialThis = seg.socialOverrides?.[m] ?? socialNormal;
+              const negative = hasOverride && salaryFor(seg, m) - socialThis < 0;
+              return (
+                <div key={m} className="flex flex-col gap-1">
+                  <span className="text-xs font-medium text-muted">{MONTH_NAMES[m - 1]}</span>
+                  <NumberInput
+                    dense
+                    value={seg.monthOverrides?.[m]}
+                    placeholder={String(seg.monthlySalary)}
+                    step={1000}
+                    onChange={(v) => {
+                      const next = { ...(seg.monthOverrides ?? {}) };
+                      if (v > 0 && Math.abs(v - seg.monthlySalary) > 0.5) next[m] = v;
+                      else delete next[m];
+                      onChange({ monthOverrides: next });
+                    }}
+                  />
+                  {hasOverride && (
+                    <>
+                      <span className="text-[10px] text-muted">当月五险一金</span>
+                      <NumberInput
+                        dense
+                        value={seg.socialOverrides?.[m]}
+                        placeholder={String(Math.round(socialNormal))}
+                        step={100}
+                        className={negative ? "rounded-lg ring-2 ring-danger/50" : ""}
+                        onChange={(v) => {
+                          const next = { ...(seg.socialOverrides ?? {}) };
+                          if (v >= 0 && Math.abs(v - socialNormal) > 0.5) next[m] = v;
+                          else delete next[m];
+                          onChange({ socialOverrides: next });
+                        }}
+                      />
+                    </>
+                  )}
+                </div>
+              );
+            })}
           </div>
-          <p className="mt-2 text-[11px] text-muted">留空 = 按正常月薪。五险一金仍按正常月薪估算。</p>
+          <p className="mt-2 text-[11px] text-muted">工资留空 = 按正常月薪；五险一金留空 = 按整月扣（社保按月缴，公司通常整月扣）。</p>
+          {negativeMonths.length > 0 && (
+            <p className="mt-1 text-[11px] text-danger">
+              {negativeMonths.map((m) => MONTH_NAMES[m - 1]).join("、")}工资低于整月五险一金，到手为负。如果公司那个月少扣或没扣，请在「当月五险一金」里填实际数。
+            </p>
+          )}
         </Details>
       </div>
 
@@ -93,6 +126,12 @@ export function SegmentEditor({
         <p className="mt-1 text-[11px] text-muted">
           {[sourceLabel, resolved?.note].filter(Boolean).join("。")}
         </p>
+        {resolved?.sample && (
+          <p className="mt-1 text-[11px] tabular-nums text-muted">
+            {MONTH_NAMES[resolved.sample.month - 1]}：税前 {fmtMoney(resolved.sample.gross)} − 五险一金 <b className="text-ink">{fmtMoney(resolved.sample.social)}</b> − 个税 <b className="text-ink">{fmtMoney(resolved.sample.tax)}</b> = 到手 {fmtMoney(resolved.sample.net)}
+          </p>
+        )}
+        {resolved?.warning && <p className="mt-1 text-[11px] text-danger">{resolved.warning}</p>}
         {resolved?.breakdown && social.mode !== "infer" && (
           <p className="mt-1 text-[11px] text-muted/80">
             养老 {fmtMoney(resolved.breakdown.pension)} · 医疗 {fmtMoney(resolved.breakdown.medical)} · 失业 {fmtMoney(resolved.breakdown.unemployment)} · 公积金 {fmtMoney(resolved.breakdown.housing + resolved.breakdown.supplementaryHousing)}
@@ -100,7 +139,7 @@ export function SegmentEditor({
           </p>
         )}
 
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-[1fr_1fr_auto]">
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-[1.2fr_0.8fr_1fr_auto]">
           <Field label="某个月到手（可选）" hint="用来反推五险一金，选普通月份">
             <NumberInput
               value={seg.netSample?.amount}
@@ -120,6 +159,15 @@ export function SegmentEditor({
               min={seg.startMonth}
               max={seg.endMonth}
               onChange={(month) => onChange({ netSample: { month, amount: seg.netSample?.amount ?? 0 } })}
+            />
+          </Field>
+          <Field label="工资条上的个税" hint="填了就不用猜，直接相减">
+            <NumberInput
+              value={seg.netSample?.tax}
+              placeholder="可选"
+              prefix="¥"
+              disabled={!hasSample}
+              onChange={(tax) => seg.netSample && onChange({ netSample: { ...seg.netSample, tax: tax > 0 ? tax : tax === 0 ? 0 : undefined } })}
             />
           </Field>
           {hasSample && (
@@ -148,6 +196,15 @@ export function SegmentEditor({
                     </button>
                   ))}
                 </div>
+              </Field>
+              <Field label="五险一金合计（直接填）" hint="工资条上的个人缴纳合计，填了以下明细不再参与计算" className="col-span-2 sm:col-span-3">
+                <NumberInput
+                  value={social.totalMonthly}
+                  placeholder="元 / 月"
+                  prefix="¥"
+                  step={100}
+                  onChange={(v) => patchSocial(v > 0 ? { totalMonthly: v, mode: "manual" } : { totalMonthly: undefined })}
+                />
               </Field>
               <Field label="社保基数" hint={`${city.name}参考 ${city.socialMin}–${city.socialMax}`}>
                 <NumberInput value={social.socialBase} placeholder="=月薪(封顶)" onChange={(v) => patchSocial({ socialBase: v || undefined, mode: "manual" })} />

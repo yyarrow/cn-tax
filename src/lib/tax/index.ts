@@ -1,7 +1,7 @@
 import { getCity } from "./constants";
 import { round2 } from "./brackets";
 import { annualOnlyDeductions, resolveSocial, sadMonthly } from "./social";
-import { effectiveBonusMonth, mergeRows, salaryFor, simulateSegment } from "./withholding";
+import { effectiveBonusMonth, mergeRows, salaryFor, simulateSegment, socialFor } from "./withholding";
 import { computeAnnual } from "./annual";
 import { analyzeBonus } from "./bonus";
 import { analyzeEquity, equityIncome } from "./equity";
@@ -28,7 +28,6 @@ export function computeAll(profile: Profile, currentMonth = 12): FullResult {
   const socials: Record<string, ResolvedSocial> = {};
   for (const seg of segments) socials[seg.id] = resolveSocial(seg, city, sadM, true);
 
-  const months = (s: typeof segments[number]) => Math.max(0, s.endMonth - s.startMonth + 1);
   const segSalary = (seg: typeof segments[number]) => {
     let t = 0;
     for (let m = seg.startMonth; m <= seg.endMonth; m++) t += salaryFor(seg, m);
@@ -55,7 +54,12 @@ export function computeAll(profile: Profile, currentMonth = 12): FullResult {
   equityCombined = round2(equityCombined);
   const equitySeparate = equityMode === "combined" ? 0 : equityTotal;
   const totalBonus = round2(segments.reduce((s, seg) => s + (effectiveBonusMonth(seg) ? seg.bonus! : 0), 0));
-  const totalSocial = round2(segments.reduce((s, seg) => s + socials[seg.id].monthly * months(seg), 0));
+  const segSocial = (seg: typeof segments[number]) => {
+    let t = 0;
+    for (let m = seg.startMonth; m <= seg.endMonth; m++) t += socialFor(seg, m, socials[seg.id].monthly);
+    return t;
+  };
+  const totalSocial = round2(segments.reduce((s, seg) => s + segSocial(seg), 0));
   const baseTaxable = round2(
     totalSalary + equityCombined - BASIC_DEDUCTION_ANNUAL - totalSocial - sadM * 12 - annualOnlyDeductions(profile.deductions).total,
   );

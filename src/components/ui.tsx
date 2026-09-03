@@ -44,6 +44,7 @@ export function NumberInput({
   placeholder,
   disabled,
   className = "",
+  dense = false,
 }: {
   value: number | undefined;
   onChange: (v: number) => void;
@@ -54,6 +55,8 @@ export function NumberInput({
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  /** 紧凑：更小的内边距和字号（用于一排很多个的小输入框） */
+  dense?: boolean;
 }) {
   const [text, setText] = useState(value === undefined || Number.isNaN(value) ? "" : String(value));
   const [prevValue, setPrevValue] = useState(value);
@@ -77,7 +80,7 @@ export function NumberInput({
         step={step}
         disabled={disabled}
         placeholder={placeholder}
-        className={`${inputCls} ${prefix ? "pl-7" : ""} ${suffix ? "pr-9" : ""}`}
+        className={`${inputCls} ${prefix ? "pl-7" : ""} ${suffix ? "pr-9" : ""} ${dense ? "h-8 px-1.5 text-[13px]" : ""}`}
         value={text}
         onChange={(e) => {
           setText(e.target.value);

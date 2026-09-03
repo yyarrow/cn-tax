@@ -145,7 +145,7 @@ export function Button({ children, onClick, variant = "secondary", className = "
     danger: "text-danger hover:bg-danger/10",
   }[variant];
   return (
-    <button type={type} onClick={onClick} className={`inline-flex h-8 items-center gap-1 rounded-lg px-3 text-sm font-medium transition ${v} ${className}`}>
+    <button type={type} onClick={onClick} className={`inline-flex h-8 shrink-0 items-center gap-1 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition ${v} ${className}`}>
       {children}
     </button>
   );

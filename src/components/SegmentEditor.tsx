@@ -40,7 +40,7 @@ export function SegmentEditor({
       <div className="mb-3 flex items-center gap-2">
         <i className="h-3 w-3 shrink-0 rounded-sm" style={{ background: segmentColor(index) }} />
         <TextInput value={seg.name} onChange={(name) => onChange({ name })} placeholder={`公司 / 工作 ${index + 1}`} className="max-w-[200px]" />
-        <span className="ml-auto text-xs text-muted">{months} 个月</span>
+        <span className="ml-auto whitespace-nowrap text-xs text-muted">{months} 个月</span>
         {canRemove && (
           <Button variant="danger" onClick={onRemove} className="h-7 px-2">
             删除

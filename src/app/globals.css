@@ -42,3 +42,38 @@ input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+  html {
+    background: #fff;
+  }
+  .app-root > *:not(.report-modal) {
+    display: none !important;
+  }
+  .report-modal {
+    position: static !important;
+    inset: auto !important;
+    overflow: visible !important;
+    background: none !important;
+    backdrop-filter: none !important;
+  }
+  .report-modal > div {
+    margin: 0 !important;
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  .report-toolbar {
+    display: none !important;
+  }
+  .report-root {
+    background: #fff !important;
+    padding: 0 !important;
+  }
+  .report-section {
+    break-inside: avoid;
+  }
+}

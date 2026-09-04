@@ -17,7 +17,7 @@ function short(n: number) {
   return n.toLocaleString("zh-CN");
 }
 
-export function EquityChart({ e, plan, onChange }: { e: EquityResult; plan: EquityPlan; onChange: (p: EquityPlan) => void }) {
+export function EquityChart({ e, plan, onChange, staticMode = false }: { e: EquityResult; plan: EquityPlan; onChange: (p: EquityPlan) => void; staticMode?: boolean }) {
   const W = 720;
   const H = 260;
   const padL = 56;
@@ -76,6 +76,13 @@ export function EquityChart({ e, plan, onChange }: { e: EquityResult; plan: Equi
 
   return (
     <div className="space-y-4">
+      {staticMode ? (
+        <div className="text-xs text-muted">
+          {modeText}
+          {e.income > 0 ? ` · 已兑现 ${fmtMoney(e.income)}，税 ${fmtMoney(e.tax)}` : ""} · 当前边际 {fmtPct(e.currentRate, 0)}
+          {planned ? ` · 计划再兑现 ${fmtMoney(planned.amount)}` : ""}
+        </div>
+      ) : (
       <div className="flex flex-wrap items-start gap-3">
         <Field label="计划再兑现（税前）" className="w-44">
           <NumberInput value={plan.plannedExtra} placeholder="0" prefix="¥" step={10000} onChange={(plannedExtra) => onChange({ ...plan, plannedExtra })} />
@@ -94,9 +101,10 @@ export function EquityChart({ e, plan, onChange }: { e: EquityResult; plan: Equi
           {e.income > 0 ? ` · 已兑现 ${fmtMoney(e.income)}，税 ${fmtMoney(e.tax)}` : ""} · 当前边际 {fmtPct(e.currentRate, 0)}
         </div>
       </div>
+      )}
 
       <div className="relative">
-        <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} className="w-full select-none" onMouseMove={onMove} onMouseLeave={() => setHoverX(null)} role="img" aria-label="再兑现金额与需缴税额的关系曲线">
+        <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} className="w-full select-none" onMouseMove={staticMode ? undefined : onMove} onMouseLeave={() => setHoverX(null)} role="img" aria-label="再兑现金额与需缴税额的关系曲线">
           {bands.map((b, i) => (
             <g key={i}>
               <rect x={sx(b.from)} y={padT} width={Math.max(0, sx(b.to) - sx(b.from))} height={H - padT - padB} fill={rateFill(b.rate)} />

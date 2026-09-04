@@ -12,7 +12,7 @@ function rateColor(rate: number) {
   return i < 0 ? "#eeede9" : RATE_STEPS[i];
 }
 
-export function MonthlyChart({ rows, currentMonth }: { rows: MonthRow[]; currentMonth: number }) {
+export function MonthlyChart({ rows, currentMonth, staticMode = false }: { rows: MonthRow[]; currentMonth: number; staticMode?: boolean }) {
   const [view, setView] = useState<"chart" | "table">("chart");
   const [hover, setHover] = useState<number | null>(null);
   const max = Math.max(1, ...rows.map((r) => r.gross));
@@ -33,7 +33,7 @@ export function MonthlyChart({ rows, currentMonth }: { rows: MonthRow[]; current
           <span className="inline-flex items-center gap-1"><i className="h-2.5 w-2.5 rounded-sm" style={{ background: "var(--series-tax)" }} />个税（预扣）</span>
           <span className="inline-flex items-center gap-1"><i className="h-2.5 w-2.5 rounded-sm" style={{ background: "var(--series-social)" }} />五险一金</span>
         </div>
-        <Segmented value={view} onChange={setView} options={[{ value: "chart", label: "图" }, { value: "table", label: "表" }]} />
+        {!staticMode && <Segmented value={view} onChange={setView} options={[{ value: "chart", label: "图" }, { value: "table", label: "表" }]} />}
       </div>
 
       {view === "chart" ? (
@@ -48,7 +48,7 @@ export function MonthlyChart({ rows, currentMonth }: { rows: MonthRow[]; current
               const gap = 2;
               const dim = r.isFuture ? 0.55 : 1;
               return (
-                <g key={r.month} opacity={dim} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}>
+                <g key={r.month} opacity={dim} onMouseEnter={() => !staticMode && setHover(i)} onMouseLeave={() => setHover(null)}>
                   <rect x={padL + i * colW} y={padT} width={colW} height={H - padT} fill={hover === i ? "#00000008" : "transparent"} />
                   {r.isGap ? (
                     <rect x={x} y={base - 40} width={barW} height={40} fill="none" stroke="#d9d7d0" strokeDasharray="3 3" rx={4} />

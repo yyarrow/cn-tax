@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { CITY_PRESETS, computeAll, getCity } from "@/lib/tax";
 import { currentMonthFor, useProfile } from "@/lib/store";
 import { Button, Card, Field, Hint, NumberInput, Select } from "./ui";
@@ -13,6 +13,7 @@ import { MonthlyChart } from "./MonthlyChart";
 import { BonusPanel } from "./BonusPanel";
 import { EquityChart } from "./EquityChart";
 import { AdviceList } from "./AdviceList";
+import { Report } from "./Report";
 
 export function App() {
   const { profile, ready, patch, patchSegment, removeSegment, addSegment, patchDeductions, reset } = useProfile();
@@ -20,9 +21,11 @@ export function App() {
   const result = useMemo(() => computeAll(profile, currentMonth), [profile, currentMonth]);
   const city = getCity(profile.cityId);
   const hasIncome = profile.segments.some((s) => s.monthlySalary > 0);
+  const [showReport, setShowReport] = useState(false);
 
   return (
-    <div className={`mx-auto max-w-6xl px-4 pb-16 pt-6 transition-opacity sm:px-6 ${ready ? "opacity-100" : "opacity-0"}`}>
+    <div className={`app-root mx-auto max-w-6xl px-4 pb-16 pt-6 transition-opacity sm:px-6 ${ready ? "opacity-100" : "opacity-0"}`}>
+      {showReport && hasIncome && <Report profile={profile} result={result} currentMonth={currentMonth} onClose={() => setShowReport(false)} />}
       <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-ink">个税规划器</h1>
@@ -41,6 +44,9 @@ export function App() {
               ))}
             </Select>
           </Field>
+          <Button variant="primary" onClick={() => setShowReport(true)} className="mt-5 h-9">
+            分享报告
+          </Button>
           <Button variant="ghost" onClick={() => confirm("清空所有输入，恢复默认？") && reset()} className="mt-5 h-9">
             重置
           </Button>

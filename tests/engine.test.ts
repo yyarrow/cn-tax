@@ -110,8 +110,9 @@ describe("五险一金来源", () => {
     expect(sm.gross - sm.social - sm.tax).toBeCloseTo(sm.net, 0);
   });
   it("扣除额明显偏低时提示偏低而非偏高", () => {
-    const s = seg({ monthlySalary: 71000, social: { mode: "infer" }, netSample: { month: 8, amount: 63312 } });
+    const s = seg({ startMonth: 8, endMonth: 12, monthlySalary: 71000, social: { mode: "infer" }, netSample: { month: 8, amount: 63312 } });
     const r = computeAll(profile({ segments: [s] }), 12);
+    expect(r.socials[s.id].source).toBe("inferred");
     expect(r.socials[s.id].note).toContain("偏低");
   });
   it("直接填五险一金合计", () => {

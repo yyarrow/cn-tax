@@ -23,8 +23,15 @@ npm run build
 - `src/components/` UI；`src/lib/store.ts` 本地状态。
 - `tests/` 引擎单测。
 
+## 页面
+
+- `/` 计算器 + 税率表/累计预扣法长文
+- `/bonus` 年终奖计算器 + 陷阱区间
+- `/settlement` 汇算清缴退税
+- `/social-insurance` 税后工资 / 五险一金反推
+
 ## 部署
 
-Vercel（项目 `cn-tax`）。`npx vercel --prod` 即可。
+Vercel（项目 `cn-tax`，域名 tax.warmbeing.com）。`npx vercel --prod` 即可。可选环境变量：`NEXT_PUBLIC_BAIDU_TONGJI_ID`、`NEXT_PUBLIC_BAIDU_SITE_VERIFICATION`。
 
 免责声明：仅供测算参考，不构成税务建议。社保/公积金基数按各城市年度公布值取参考，实际以工资条为准。

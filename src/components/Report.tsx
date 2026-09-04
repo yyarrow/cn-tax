@@ -23,6 +23,10 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
 export function Report({ profile, result, currentMonth, onClose }: { profile: Profile; result: FullResult; currentMonth: number; onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const ua = typeof navigator === "undefined" ? "" : navigator.userAgent;
+  const inWeChat = /MicroMessenger/i.test(ua);
+  const isMobile = inWeChat || /iPhone|iPad|Android/i.test(ua);
   const city = getCity(profile.cityId);
   const segments = profile.segments.filter((s) => s.monthlySalary > 0);
   const showEquity = profile.equity.taxMode !== "unlisted" || result.equity.income > 0;
@@ -70,10 +74,16 @@ export function Report({ profile, result, currentMonth, onClose }: { profile: Pr
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.scale(scale, scale);
       ctx.drawImage(img, 0, 0);
-      const a = document.createElement("a");
-      a.href = canvas.toDataURL("image/png");
-      a.download = `个税测算报告-${profile.year}-${dateText}.png`;
-      a.click();
+      const png = canvas.toDataURL("image/png");
+      if (isMobile) {
+        // 微信 / 手机浏览器不支持 download，改为展示图片让用户长按保存
+        setImageUrl(png);
+      } else {
+        const a = document.createElement("a");
+        a.href = png;
+        a.download = `个税测算报告-${profile.year}-${dateText}.png`;
+        a.click();
+      }
     } catch (err) {
       console.error(err);
       alert("导出图片失败，请改用「保存 PDF」");
@@ -88,9 +98,11 @@ export function Report({ profile, result, currentMonth, onClose }: { profile: Pr
         <div className="report-toolbar mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/95 px-4 py-2.5 shadow-md">
           <span className="text-sm font-medium text-ink">报告预览</span>
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => window.print()}>
-              保存 PDF
-            </Button>
+            {!inWeChat && (
+              <Button variant="secondary" onClick={() => window.print()}>
+                保存 PDF
+              </Button>
+            )}
             <Button variant="primary" onClick={exportPng}>
               {busy ? "导出中…" : "导出图片"}
             </Button>
@@ -99,6 +111,19 @@ export function Report({ profile, result, currentMonth, onClose }: { profile: Pr
             </Button>
           </div>
         </div>
+
+        {inWeChat && <p className="mb-3 rounded-lg bg-white/90 px-3 py-2 text-xs text-muted">微信里点「导出图片」后长按图片即可保存；要 PDF 请点右上角「在浏览器打开」。</p>}
+
+        {imageUrl && (
+          <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-ink/80 p-4" onClick={() => setImageUrl(null)}>
+            <p className="mb-3 text-sm font-medium text-white">长按图片保存到相册</p>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={imageUrl} alt="个税测算报告" className="max-h-[80vh] w-auto max-w-full rounded-lg shadow-lg" onClick={(e) => e.stopPropagation()} />
+            <button type="button" className="mt-3 rounded-lg bg-white/90 px-4 py-1.5 text-sm text-ink" onClick={() => setImageUrl(null)}>
+              关闭
+            </button>
+          </div>
+        )}
 
         <div ref={ref} className="report-root space-y-4 rounded-2xl bg-paper p-5">
           <header className="flex flex-wrap items-end justify-between gap-2">

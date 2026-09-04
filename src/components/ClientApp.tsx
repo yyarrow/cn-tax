@@ -5,6 +5,6 @@ import { App } from "./App";
 
 export function ClientApp() {
   const hydrated = useHydrated();
-  if (!hydrated) return <div className="mx-auto max-w-6xl px-4 pt-6 text-sm text-muted">加载中…</div>;
+  if (!hydrated) return <div className="mx-auto min-h-[60vh] max-w-6xl px-4 pt-4 text-sm text-muted sm:px-6">计算器加载中…</div>;
   return <App />;
 }

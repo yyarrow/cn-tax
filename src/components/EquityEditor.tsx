@@ -5,9 +5,9 @@ import { newEvent } from "@/lib/store";
 import { Button, Field, MonthSelect, NumberInput, Select, TextInput } from "./ui";
 
 const MODE_HINT: Record<EquityPlan["taxMode"], string> = {
-  combined: "公司回购 / 现金结算，随工资代扣：和工资共用年度税率表，多兑现会推高工资的税率档。",
-  listed: "上市公司股票期权、RSU（公告 2023 年第 25 号）：不并入工资，全年多次合并后单独按年度税率表计税，至 2027 年底。",
-  unlisted: "非上市公司已向税务机关备案：行权时不交，转让时按财产转让所得 20%。",
+  combined: "回购 / 现金结算随工资代扣，和工资共用年度税率表。",
+  listed: "不并入工资，全年合并后单独按年度税率表计税（至 2027 年底）。",
+  unlisted: "已备案：行权不交，转让时按 20%。",
 };
 
 export function EquityEditor({ plan, onChange }: { plan: EquityPlan; onChange: (p: EquityPlan) => void }) {
@@ -21,7 +21,7 @@ export function EquityEditor({ plan, onChange }: { plan: EquityPlan; onChange: (
           <option value="unlisted">非上市已备案，递延 20%</option>
         </Select>
       </Field>
-      {plan.events.length > 0 && <div className="text-xs font-medium text-muted">今年已兑现 / 已确定要兑现的</div>}
+      {plan.events.length > 0 && <div className="text-xs font-medium text-muted">今年已兑现 / 已确定的</div>}
       {plan.events.map((e) => (
         <div key={e.id} className="grid grid-cols-[1fr_1fr_auto] items-end gap-2 sm:grid-cols-[1.2fr_1fr_1fr_auto]">
           <Field label="名称" className="col-span-3 sm:col-span-1">
@@ -39,7 +39,7 @@ export function EquityEditor({ plan, onChange }: { plan: EquityPlan; onChange: (
         </div>
       ))}
       <Button onClick={() => onChange({ ...plan, events: [...plan.events, newEvent()] })}>＋ 添加一笔兑现</Button>
-      <p className="text-[11px] text-muted">直接填税前到账金额（人民币），不用管单价和股数。还没定的兑现不用填，去右侧「兑现规划」里看不同金额的税。</p>
+      <p className="text-[11px] text-muted">填税前到账金额即可。未定的兑现不用填，去右侧「兑现规划」看。</p>
     </div>
   );
 }

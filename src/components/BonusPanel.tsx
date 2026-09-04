@@ -43,7 +43,7 @@ export function BonusPanel({ b, mode, onMode, bonusSeparate }: { b: BonusAnalysi
       <p className="text-xs text-muted">
         {b.saving > 1 ? (
           <>
-            选「{better === "separate" ? "单独计税" : "并入"}」全年少交 <b className="text-good">{fmtMoney(b.saving)}</b>。汇算清缴时在个税 App 里可自行切换，不需要公司配合。
+            选「{better === "separate" ? "单独计税" : "并入"}」少交 <b className="text-good">{fmtMoney(b.saving)}</b>，汇算时在个税 App 自行切换即可。
           </>
         ) : (
           "两种方式税额几乎一样。"
@@ -51,13 +51,13 @@ export function BonusPanel({ b, mode, onMode, bonusSeparate }: { b: BonusAnalysi
       </p>
       {b.trap && (
         <Hint>
-          <b className="text-danger">陷阱区间：</b>年终奖 {fmtMoney(b.bonus)} 落在 {fmtMoney(b.trap.lower)}–{fmtMoney(b.trap.upper)} 之间，单独计税跳档后比正好发 {fmtMoney(b.trap.lower)} 反而少拿 <b>{fmtMoney(b.trap.extraTax)}</b>。可以和公司协商把多出的部分并进工资发。
+          <b className="text-danger">陷阱区间：</b>{fmtMoney(b.bonus)} 落在 {fmtMoney(b.trap.lower)}–{fmtMoney(b.trap.upper)}，比正好发 {fmtMoney(b.trap.lower)} 反而少拿 <b>{fmtMoney(b.trap.extraTax)}</b>。可协商把多出部分并进工资。
         </Hint>
       )}
       <div className="rounded-xl border border-line p-4">
-        <div className="text-xs font-medium text-ink">如果能和公司商量「工资 : 年终奖」的比例</div>
+        <div className="text-xs font-medium text-ink">若能和公司商量工资 : 年终奖比例</div>
         {b.optimalSplit.saving < 1 ? (
-          <p className="mt-2 text-xs text-muted">现在的工资 / 年终奖比例已经是最省的（全年现金 {fmtMoney(b.optimalSplit.totalCash)}），不需要调整。</p>
+          <p className="mt-2 text-xs text-muted">当前比例已是最省（全年现金 {fmtMoney(b.optimalSplit.totalCash)}）。</p>
         ) : (
         <div className="mt-2 grid grid-cols-3 gap-3 text-xs">
           <div>
@@ -74,7 +74,7 @@ export function BonusPanel({ b, mode, onMode, bonusSeparate }: { b: BonusAnalysi
           </div>
         </div>
         )}
-        <p className="mt-2 text-[11px] text-muted">最优点通常是某个税率档的边界（如 36,000 / 144,000 / 300,000），把奖金卡在边界、其余走工资。</p>
+        <p className="mt-2 text-[11px] text-muted">最优点通常在税率档边界（36,000 / 144,000 / 300,000…），奖金卡在边界、其余走工资。</p>
       </div>
     </div>
   );

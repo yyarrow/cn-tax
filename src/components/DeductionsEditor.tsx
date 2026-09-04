@@ -10,7 +10,7 @@ export function DeductionsEditor({ d, onChange }: { d: SpecialDeductions; onChan
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
-        <Field label="住房" hint="租金 / 房贷利息二选一">
+        <Field label="住房" hint="租金 / 房贷二选一">
           <Select value={d.housing} onChange={(e) => onChange({ housing: e.target.value as SpecialDeductions["housing"] })}>
             <option value="none">未申报</option>
             <option value="rent">租房</option>
@@ -28,7 +28,7 @@ export function DeductionsEditor({ d, onChange }: { d: SpecialDeductions; onChan
         ) : (
           <div />
         )}
-        <Field label="赡养老人" hint="父母年满 60 岁">
+        <Field label="赡养老人" hint="父母满 60 岁">
           <Select value={d.elderly} onChange={(e) => onChange({ elderly: e.target.value as SpecialDeductions["elderly"] })}>
             <option value="none">未申报</option>
             <option value="only">独生子女（{SAD_STANDARD.elderlyOnly}/月）</option>
@@ -64,7 +64,7 @@ export function DeductionsEditor({ d, onChange }: { d: SpecialDeductions; onChan
         <Field label="个人养老金" hint={`年缴，上限 ${SAD_STANDARD.personalPensionCap}`}>
           <NumberInput value={d.personalPension} onChange={(v) => onChange({ personalPension: Math.min(SAD_STANDARD.personalPensionCap, v) })} prefix="¥" step={1000} />
         </Field>
-        <Field label="大病医疗自付" hint={`年度医保内自付，超 ${SAD_STANDARD.seriousIllnessThreshold} 的部分可扣`}>
+        <Field label="大病医疗自付" hint={`医保内自付超 ${SAD_STANDARD.seriousIllnessThreshold} 的部分`}>
           <NumberInput value={d.seriousIllnessPaid} onChange={(seriousIllnessPaid) => onChange({ seriousIllnessPaid })} prefix="¥" />
         </Field>
         <Field label="其他年度扣除" hint="税优健康险（2400）等" className="col-span-2">
@@ -72,8 +72,8 @@ export function DeductionsEditor({ d, onChange }: { d: SpecialDeductions; onChan
         </Field>
       </div>
       <p className="text-xs text-muted">
-        合计：每月 <b className="text-ink">{fmtMoney(monthly)}</b>（单位预扣时可用），全年 <b className="text-ink">{fmtMoney(monthly * 12 + annual.total)}</b>
-        {annual.total > 0 ? `（含只能在汇算时扣的 ${fmtMoney(annual.total)}）` : ""}
+        合计：每月 <b className="text-ink">{fmtMoney(monthly)}</b>，全年 <b className="text-ink">{fmtMoney(monthly * 12 + annual.total)}</b>
+        {annual.total > 0 ? `（含汇算时才扣的 ${fmtMoney(annual.total)}）` : ""}
       </p>
     </div>
   );

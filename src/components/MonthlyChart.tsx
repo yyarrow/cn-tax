@@ -132,7 +132,7 @@ export function MonthlyChart({ rows, currentMonth }: { rows: MonthRow[]; current
       {/* 预扣率阶梯 */}
       <div className="mt-4">
         <div className="mb-1.5 flex items-center justify-between text-[11px] text-muted">
-          <span>每月所处预扣率（累计预扣法，年内逐级爬升；换工作后新单位从头累计）</span>
+          <span>每月预扣率（累计预扣，换工作后新单位从头累计）</span>
         </div>
         <div className="grid grid-cols-12 gap-1">
           {rows.map((r) => (

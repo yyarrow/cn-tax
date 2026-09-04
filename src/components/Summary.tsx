@@ -23,8 +23,8 @@ export function Summary({ a }: { a: AnnualResult }) {
       </div>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="应纳税所得额" value={fmtMoney(a.taxable)} sub={`收入 − 6 万 − 五险一金 − 专项附加 ${fmtMoney(a.sadAnnual + a.otherDeductions)}`} />
-        <Stat label="所处税率档" value={a.taxable > 0 ? fmtPct(a.marginalRate, 0) : "免税"} tone="accent" sub={next ? `再多 ${fmtMoney(a.roomToNextBracket)} 应纳税所得进入 ${fmtPct(next.rate, 0)} 档` : "已是最高档"} />
-        <Stat label="五险一金（个人）" value={fmtMoney(a.totalSocial)} sub="全部税前扣除" />
+        <Stat label="所处税率档" value={a.taxable > 0 ? fmtPct(a.marginalRate, 0) : "免税"} tone="accent" sub={next ? `再多 ${fmtMoney(a.roomToNextBracket)} 进 ${fmtPct(next.rate, 0)} 档` : "已是最高档"} />
+        <Stat label="五险一金（个人）" value={fmtMoney(a.totalSocial)} sub="税前扣除" />
         {a.equityIncome > 0 ? (
           <Stat
             label="期权 / RSU"
@@ -32,7 +32,7 @@ export function Summary({ a }: { a: AnnualResult }) {
             sub={`税 ${fmtMoney(a.equityTax)} · ${a.equityMode === "combined" ? "并入工资计税" : a.equityMode === "listed" ? "单独计税" : "递延 20%"}`}
           />
         ) : (
-          <Stat label="无收入月份" value={a.gapMonths.length ? `${a.gapMonths.length} 个月` : "无"} sub={a.gapMonths.length ? "6 万减除按全年算，汇算可退税" : "全年都有收入"} />
+          <Stat label="无收入月份" value={a.gapMonths.length ? `${a.gapMonths.length} 个月` : "无"} sub={a.gapMonths.length ? "减除按全年算，汇算可退税" : "全年都有收入"} />
         )}
       </div>
     </div>

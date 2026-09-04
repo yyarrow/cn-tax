@@ -100,7 +100,7 @@ export function resolveSocial(
   const gross = seg.monthlySalary;
   if (seg.social.mode === "manual") {
     if (seg.social.totalMonthly !== undefined && seg.social.totalMonthly >= 0) {
-      return { monthly: round2(seg.social.totalMonthly), source: "manual", note: "按你填写的合计" };
+      return { monthly: round2(seg.social.totalMonthly), source: "manual", note: "按填写的合计" };
     }
     const breakdown = computeSocialBreakdown(gross, seg.social, city);
     return { monthly: breakdown.total, breakdown, source: "manual" };
@@ -129,24 +129,24 @@ export function resolveSocial(
       const socialPart = ref.pension + ref.medical + ref.unemployment;
       const housingPart = value - socialPart;
       const housingRate = housingPart / ref.housingBase;
-      let note = seg.netSample.tax !== undefined ? "按工资条的到手和个税直接相减" : "由到手反推（个税按累计预扣法推算）";
+      let note = seg.netSample.tax !== undefined ? "按工资条直接相减" : "由到手反推";
       let inferredHousingRate: number | undefined;
       if (housingRate >= 0.045 && housingRate <= 0.175) {
         inferredHousingRate = Math.round(housingRate * 100) / 100;
-        note += `：社保约 ${socialPart.toFixed(0)} 元 + 公积金约 ${housingPart.toFixed(0)} 元（≈${(inferredHousingRate * 100).toFixed(0)}%）`;
-      } else if (housingPart < 0) {
-        note += "，低于常规社保水平，公司可能按较低基数缴纳";
+        note += `：社保约 ${socialPart.toFixed(0)} + 公积金约 ${housingPart.toFixed(0)}（≈${(inferredHousingRate * 100).toFixed(0)}%）`;
+      } else if (housingRate < 0.045) {
+        note += "，偏低，公司可能按低基数缴或公积金比例低";
       } else {
-        note += "，高于常规水平，可能含补充公积金或企业年金";
+        note += "，偏高，可能含补充公积金 / 年金";
       }
       const ratio = sampleGross > 0 ? value / sampleGross : 0;
       let warning: string | undefined;
       if (ratio > 0.3 && seg.netSample.tax === undefined) {
-        warning = `推算出的五险一金占税前 ${(ratio * 100).toFixed(0)}%，明显偏高（常见 15%–25%）。${
-          sampleMonth <= 3 ? `${sampleMonth} 月刚开始累计、个税很少，扣款大头被算成了五险一金；` : ""
-        }请确认到手是这个月的普通工资，或在旁边填上工资条里的「个税」。`;
+        warning = `占税前 ${(ratio * 100).toFixed(0)}%，明显偏高（常见 15%–25%）。${
+          sampleMonth <= 3 ? `${sampleMonth} 月累计刚开始、个税很少，扣款大头被当成了五险一金。` : ""
+        }确认是普通月份，或填上工资条个税。`;
       } else if (ratio > 0.3) {
-        warning = `五险一金占税前 ${(ratio * 100).toFixed(0)}%，明显偏高，请核对工资条。`;
+        warning = `占税前 ${(ratio * 100).toFixed(0)}%，明显偏高，请核对工资条。`;
       }
       return {
         monthly: value,

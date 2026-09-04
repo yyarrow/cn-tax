@@ -77,7 +77,7 @@ export function EquityChart({ e, plan, onChange }: { e: EquityResult; plan: Equi
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end gap-3">
-        <Field label="计划再兑现（税前）" hint="在图上标出这个金额" className="w-44">
+        <Field label="计划再兑现（税前）" className="w-44">
           <NumberInput value={plan.plannedExtra} placeholder="0" prefix="¥" step={10000} onChange={(plannedExtra) => onChange({ ...plan, plannedExtra })} />
         </Field>
         <Field label="横轴范围" className="w-32">
@@ -151,13 +151,13 @@ export function EquityChart({ e, plan, onChange }: { e: EquityResult; plan: Equi
         )}
       </div>
 
-      <p className="-mt-2 text-[11px] text-muted">横轴：今年再兑现的税前金额；纵轴：这部分要交的税。色带越深，边际税率越高；橙点为跳档拐点，蓝点为你的计划金额。</p>
+      <p className="-mt-2 text-[11px] text-muted">横轴再兑现金额，纵轴这部分的税。色带越深税率越高；橙点为跳档拐点，蓝点为计划金额。</p>
       {e.kinks.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full text-xs tabular-nums">
             <thead className="text-muted">
               <tr className="border-b border-line text-left">
-                <th className="py-1.5 pr-2 font-medium">甜点值（再兑现到）</th>
+                <th className="py-1.5 pr-2 font-medium">拐点（再兑现到）</th>
                 <th className="py-1.5 pr-2 text-right font-medium">累计税</th>
                 <th className="py-1.5 pr-2 text-right font-medium">到手</th>
                 <th className="py-1.5 pr-2 text-right font-medium">综合税率</th>
@@ -183,7 +183,7 @@ export function EquityChart({ e, plan, onChange }: { e: EquityResult; plan: Equi
           </table>
         </div>
       ) : (
-        <Hint>{e.mode === "unlisted" ? "递延纳税按 20% 固定比例，兑现多少都一样，没有拐点。" : "当前横轴范围内没有税率跳档点，可以把范围调大。"}</Hint>
+        <Hint>{e.mode === "unlisted" ? "递延纳税固定 20%，没有拐点。" : "范围内没有跳档点，可把横轴调大。"}</Hint>
       )}
 
       {planned && (
@@ -193,8 +193,8 @@ export function EquityChart({ e, plan, onChange }: { e: EquityResult; plan: Equi
           </div>
           {planned.deferKink && planned.deferSaving > 1 && (
             <div className="mt-1 text-xs text-muted">
-              今年只兑现到 {fmtMoney(planned.deferKink)}、其余 {fmtMoney(planned.amount - planned.deferKink)} 放到明年，可省约 <b className="text-good">{fmtMoney(planned.deferSaving)}</b>
-              {e.mode === "combined" ? "（假设明年工资水平相同）" : ""}。
+              今年兑现到 {fmtMoney(planned.deferKink)}、其余 {fmtMoney(planned.amount - planned.deferKink)} 放明年，可省约 <b className="text-good">{fmtMoney(planned.deferSaving)}</b>
+              {e.mode === "combined" ? "（按明年工资不变估）" : ""}。
             </div>
           )}
         </div>

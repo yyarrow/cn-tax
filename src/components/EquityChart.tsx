@@ -76,7 +76,7 @@ export function EquityChart({ e, plan, onChange }: { e: EquityResult; plan: Equi
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="flex flex-wrap items-start gap-3">
         <Field label="计划再兑现（税前）" className="w-44">
           <NumberInput value={plan.plannedExtra} placeholder="0" prefix="¥" step={10000} onChange={(plannedExtra) => onChange({ ...plan, plannedExtra })} />
         </Field>
@@ -89,7 +89,7 @@ export function EquityChart({ e, plan, onChange }: { e: EquityResult; plan: Equi
             <option value={5_000_000}>500 万</option>
           </Select>
         </Field>
-        <div className="ml-auto text-xs text-muted">
+        <div className="ml-auto mt-5 text-xs leading-9 text-muted">
           {modeText}
           {e.income > 0 ? ` · 已兑现 ${fmtMoney(e.income)}，税 ${fmtMoney(e.tax)}` : ""} · 当前边际 {fmtPct(e.currentRate, 0)}
         </div>

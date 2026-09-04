@@ -28,11 +28,11 @@ export function App() {
           <h1 className="text-2xl font-semibold tracking-tight text-ink">个税规划器</h1>
           <p className="mt-1 text-sm text-muted">填工作经历，算清全年个税、汇算退补、年终奖和期权怎么拿最省。数据只存本地。</p>
         </div>
-        <div className="flex items-end gap-2">
+        <div className="flex items-start gap-2">
           <Field label="纳税年度">
             <NumberInput value={profile.year} onChange={(year) => patch({ year: Math.round(year) })} className="w-24" min={2019} />
           </Field>
-          <Field label="工作城市" hint="社保 / 公积金参考基数">
+          <Field label="工作城市">
             <Select value={profile.cityId} onChange={(e) => patch({ cityId: e.target.value })} className="w-32">
               {CITY_PRESETS.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -41,7 +41,7 @@ export function App() {
               ))}
             </Select>
           </Field>
-          <Button variant="ghost" onClick={() => confirm("清空所有输入，恢复默认？") && reset()} className="mb-4">
+          <Button variant="ghost" onClick={() => confirm("清空所有输入，恢复默认？") && reset()} className="mt-5 h-9">
             重置
           </Button>
         </div>

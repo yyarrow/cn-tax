@@ -23,7 +23,7 @@ export function Card({ title, subtitle, action, children, className = "" }: { ti
 export function Field({ label, hint, children, className = "" }: { label: ReactNode; hint?: ReactNode; children: ReactNode; className?: string }) {
   return (
     <label className={`flex flex-col gap-1 ${className}`}>
-      <span className="text-xs font-medium text-muted">{label}</span>
+      <span className="whitespace-nowrap text-xs font-medium text-muted">{label}</span>
       {children}
       {hint && <span className="text-[11px] text-muted/80">{hint}</span>}
     </label>

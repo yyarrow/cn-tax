@@ -23,7 +23,7 @@ export function EquityEditor({ plan, onChange }: { plan: EquityPlan; onChange: (
       </Field>
       {plan.events.length > 0 && <div className="text-xs font-medium text-muted">今年已兑现 / 已确定的</div>}
       {plan.events.map((e) => (
-        <div key={e.id} className="grid grid-cols-[1fr_1fr_auto] items-end gap-2 sm:grid-cols-[1.2fr_1fr_1fr_auto]">
+        <div key={e.id} className="grid grid-cols-[1fr_1fr_auto] items-start gap-2 sm:grid-cols-[1.2fr_1fr_1fr_auto]">
           <Field label="名称" className="col-span-3 sm:col-span-1">
             <TextInput value={e.name} onChange={(name) => patchEvent(e.id, { name })} placeholder="如：Q4 回购" />
           </Field>
@@ -33,7 +33,7 @@ export function EquityEditor({ plan, onChange }: { plan: EquityPlan; onChange: (
           <Field label="月份">
             <MonthSelect value={e.month} onChange={(month) => patchEvent(e.id, { month })} />
           </Field>
-          <Button variant="danger" className="h-9 px-2" onClick={() => onChange({ ...plan, events: plan.events.filter((x) => x.id !== e.id) })}>
+          <Button variant="danger" className="mt-5 h-9 px-2" onClick={() => onChange({ ...plan, events: plan.events.filter((x) => x.id !== e.id) })}>
             删除
           </Button>
         </div>

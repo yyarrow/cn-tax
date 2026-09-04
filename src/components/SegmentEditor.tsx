@@ -190,7 +190,7 @@ export function SegmentEditor({
               onChange={(tax) => seg.netSample && onChange({ netSample: { ...seg.netSample, tax: tax > 0 ? tax : tax === 0 ? 0 : undefined } })}
             />
           </Field>
-          <div className="flex items-end">
+          <div className="mt-5">
             {hasSample && (
               <Button variant="ghost" onClick={() => onChange({ netSample: undefined, social: { ...social, mode: "auto" } })} className="h-9 px-2">
                 清除

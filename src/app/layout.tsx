@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import type { ReactNode } from "react";
@@ -62,6 +63,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="zh-CN" className="h-full antialiased" style={{ ["--font-sans-stack" as string]: '-apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif' }}>
       <body className="min-h-full">
         {children}
+        <Analytics />
         {tongji && <Script id="baidu-tongji" src={`https://hm.baidu.com/hm.js?${tongji}`} strategy="afterInteractive" />}
       </body>
     </html>

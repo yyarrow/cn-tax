@@ -172,18 +172,18 @@ export function Report({ profile, result, currentMonth, onClose }: { profile: Pr
             </div>
             <span className="text-[11px] text-muted">生成于 {dateText}</span>
           </header>
-          <p className="rounded-lg bg-accent/10 px-3 py-1.5 text-sm font-medium text-accent">→ 查看完整报告、改成你自己的：{displayUrl}</p>
+          <p className="rounded-lg bg-accent/10 px-3 py-1.5 text-sm font-medium text-accent">查看完整报告：{displayUrl}</p>
 
           <Section title="全年测算" subtitle={currentMonth > 0 && currentMonth < 12 ? `${currentMonth} 月前按实际，之后为预测。` : undefined}>
             <Summary a={result.annual} />
           </Section>
 
+          <Section title="逐月明细" subtitle="每月到手、扣款，以及预扣税率何时跳档。">
+            <MonthlyChart rows={result.rows} currentMonth={currentMonth} staticMode />
+          </Section>
+
           {mode === "full" && (
             <>
-              <Section title="逐月明细" subtitle="每月到手、扣款，以及预扣税率何时跳档。">
-                <MonthlyChart rows={result.rows} currentMonth={currentMonth} staticMode />
-              </Section>
-
               {showEquity && (
                 <Section title="期权 / RSU 兑现规划" subtitle="今年再兑现不同金额各要交多少税，橙点为跳档拐点。">
                   <EquityChart e={result.equity} plan={profile.equity} onChange={() => {}} staticMode />
@@ -204,10 +204,10 @@ export function Report({ profile, result, currentMonth, onClose }: { profile: Pr
               <div className="h-24 w-24 shrink-0 rounded bg-paper" />
             )}
             <div className="min-w-0">
-              <div className="text-base font-semibold text-ink">扫码打开这份报告，改成你自己的</div>
+              <div className="text-base font-semibold text-ink">扫码查看完整报告</div>
               <div className="mt-1 text-lg font-semibold tracking-wide text-accent">{displayUrl}</div>
               <div className="mt-1 text-[11px] text-muted">
-                {mode === "brief" ? "逐月明细、年终奖与期权规划、减税建议在网页里。" : ""}
+                {mode === "brief" ? "年终奖、期权规划与减税建议在网页里。" : ""}
                 个税规划器 · 免费 · 数据不上传。仅供测算，不构成税务建议。
               </div>
             </div>

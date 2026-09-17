@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { CITY_PRESETS, computeAll, getCity } from "@/lib/tax";
-import { currentMonthFor, useProfile } from "@/lib/store";
+import { currentMonthFor, useProfile, wasLoadedFromShare } from "@/lib/store";
 import { Button, Card, Field, Hint, NumberInput, Select } from "./ui";
 import { Timeline } from "./Timeline";
 import { SegmentEditor } from "./SegmentEditor";
@@ -25,6 +25,11 @@ export function App() {
 
   return (
     <div className={`app-root mx-auto max-w-6xl px-4 pb-10 pt-4 transition-opacity sm:px-6 ${ready ? "opacity-100" : "opacity-0"}`}>
+      {wasLoadedFromShare() && (
+        <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm text-ink">
+          已按分享的报告预填。把月薪、城市改成你自己的，结果会实时更新；不想要这份数据点右上角「重置」。
+        </p>
+      )}
       {showReport && hasIncome && <Report profile={profile} result={result} currentMonth={currentMonth} onClose={() => setShowReport(false)} />}
       <div className="mb-5 flex flex-wrap items-start justify-end gap-2">
         <Field label="纳税年度">

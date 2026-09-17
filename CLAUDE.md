@@ -9,6 +9,7 @@
 - IndexNow：密钥文件 `public/<key>.txt`（key 见文件名），新页面上线后 `POST https://api.indexnow.org/indexnow` 推送 URL 列表，脚本在 `scripts/indexnow.sh`。
 - 分享图 `public/og.png` 由 scratch 的 og.svg 用本机 Chrome 无头截图生成（qlmanage 会把 SVG 渲染溢出）。
 - 税法口径与产品设计见 `docs/PRODUCT.md`。城市社保/公积金上下限在 `constants.ts`，每年 7 月前后要更新。
+- 分享链接：`src/lib/share.ts` 用 lz-string 把整个 Profile 压进 `#s=`（hash 不经服务器），`?utm_source=share` 给统计；`store.ts` 的 load() 先消费 hash 再读 localStorage。报告有「摘要 / 完整」两档，摘要只含全年测算 + 二维码页脚。
 - 坑：报告导出图片只用 html-to-image 的 `toSvg`，再自己 Image→canvas；它的 `toPng` 在内嵌 Chromium 里 `img.decode()` 会挂死。
 - 坑：`NumberInput` 用本地字符串态 + 渲染期派生同步，不要改回 useEffect（React Compiler lint 会报）；`useProfile` 只能在 `ClientApp` 挂载后调用（读 localStorage）。
 

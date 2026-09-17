@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import QRCode from "qrcode";
+import { buildShareUrl } from "@/lib/share";
 import { MONTH_NAMES, getCity, sadMonthly, type Profile } from "@/lib/tax";
 import type { FullResult } from "@/lib/tax";
 import { fmtMoney } from "@/lib/format";
-import { Button } from "./ui";
+import { Button, Segmented } from "./ui";
 import { Summary } from "./Summary";
 import { MonthlyChart } from "./MonthlyChart";
 import { EquityChart } from "./EquityChart";
@@ -24,6 +26,11 @@ export function Report({ profile, result, currentMonth, onClose }: { profile: Pr
   const ref = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [mode, setMode] = useState<"brief" | "full">("brief");
+  const [qr, setQr] = useState<string>("");
+  const [copied, setCopied] = useState(false);
+  const shareUrl = buildShareUrl(profile);
+  const displayUrl = "tax.warmbeing.com";
   const ua = typeof navigator === "undefined" ? "" : navigator.userAgent;
   const inWeChat = /MicroMessenger/i.test(ua);
   const isMobile = inWeChat || /iPhone|iPad|Android/i.test(ua);
@@ -33,6 +40,26 @@ export function Report({ profile, result, currentMonth, onClose }: { profile: Pr
   const sad = sadMonthly(profile.deductions);
   const today = new Date();
   const dateText = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+  useEffect(() => {
+    let alive = true;
+    QRCode.toDataURL(shareUrl, { margin: 0, width: 220, errorCorrectionLevel: "M", color: { dark: "#16150f", light: "#ffffff" } })
+      .then((u) => alive && setQr(u))
+      .catch(() => alive && setQr(""));
+    return () => {
+      alive = false;
+    };
+  }, [shareUrl]);
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      window.prompt("复制这个链接：", shareUrl);
+    }
+  };
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -96,8 +123,14 @@ export function Report({ profile, result, currentMonth, onClose }: { profile: Pr
     <div className="report-modal fixed inset-0 z-50 overflow-y-auto bg-ink/60 backdrop-blur-sm" onClick={onClose}>
       <div className="mx-auto my-6 w-full max-w-3xl px-4" onClick={(e) => e.stopPropagation()}>
         <div className="report-toolbar mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/95 px-4 py-2.5 shadow-md">
-          <span className="text-sm font-medium text-ink">报告预览</span>
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-ink">报告预览</span>
+            <Segmented value={mode} onChange={setMode} options={[{ value: "brief", label: "摘要" }, { value: "full", label: "完整" }]} />
+          </div>
           <div className="flex gap-2">
+            <Button variant="secondary" onClick={copyLink}>
+              {copied ? "已复制" : "复制链接"}
+            </Button>
             {!inWeChat && (
               <Button variant="secondary" onClick={() => window.print()}>
                 保存 PDF
@@ -139,27 +172,45 @@ export function Report({ profile, result, currentMonth, onClose }: { profile: Pr
             </div>
             <span className="text-[11px] text-muted">生成于 {dateText}</span>
           </header>
+          <p className="rounded-lg bg-accent/10 px-3 py-1.5 text-sm font-medium text-accent">→ 查看完整报告、改成你自己的：{displayUrl}</p>
 
           <Section title="全年测算" subtitle={currentMonth > 0 && currentMonth < 12 ? `${currentMonth} 月前按实际，之后为预测。` : undefined}>
             <Summary a={result.annual} />
           </Section>
 
-          <Section title="逐月明细" subtitle="每月到手、扣款，以及预扣税率何时跳档。">
-            <MonthlyChart rows={result.rows} currentMonth={currentMonth} staticMode />
-          </Section>
+          {mode === "full" && (
+            <>
+              <Section title="逐月明细" subtitle="每月到手、扣款，以及预扣税率何时跳档。">
+                <MonthlyChart rows={result.rows} currentMonth={currentMonth} staticMode />
+              </Section>
 
-          {showEquity && (
-            <Section title="期权 / RSU 兑现规划" subtitle="今年再兑现不同金额各要交多少税，橙点为跳档拐点。">
-              <EquityChart e={result.equity} plan={profile.equity} onChange={() => {}} staticMode />
-            </Section>
+              {showEquity && (
+                <Section title="期权 / RSU 兑现规划" subtitle="今年再兑现不同金额各要交多少税，橙点为跳档拐点。">
+                  <EquityChart e={result.equity} plan={profile.equity} onChange={() => {}} staticMode />
+                </Section>
+              )}
+
+              <Section title="减税建议" subtitle="按预计节省排序，均为合规操作。">
+                <AdviceList items={result.advice} />
+              </Section>
+            </>
           )}
 
-          <Section title="减税建议" subtitle="按预计节省排序，均为合规操作。">
-            <AdviceList items={result.advice} />
-          </Section>
-
-          <footer className="text-[11px] text-muted">
-            累计预扣法预扣，汇算按全年 6 万减除 + 全年专项附加；仅供测算，不构成税务建议。由个税规划器生成 · cn-tax.vercel.app
+          <footer className="flex items-center gap-4 rounded-2xl border border-line bg-white p-4">
+            {qr ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={qr} alt="扫码打开这份报告" width={96} height={96} className="h-24 w-24 shrink-0" />
+            ) : (
+              <div className="h-24 w-24 shrink-0 rounded bg-paper" />
+            )}
+            <div className="min-w-0">
+              <div className="text-base font-semibold text-ink">扫码打开这份报告，改成你自己的</div>
+              <div className="mt-1 text-lg font-semibold tracking-wide text-accent">{displayUrl}</div>
+              <div className="mt-1 text-[11px] text-muted">
+                {mode === "brief" ? "逐月明细、年终奖与期权规划、减税建议在网页里。" : ""}
+                个税规划器 · 免费 · 数据不上传。仅供测算，不构成税务建议。
+              </div>
+            </div>
           </footer>
         </div>
       </div>

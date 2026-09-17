@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import type { EquityEvent, EquityPlan, Profile, Segment, SpecialDeductions } from "@/lib/tax";
 import { uid } from "./format";
+import { consumeSharedProfile } from "./share";
 
 const KEY = "cn-tax-profile-v1";
 
@@ -66,14 +67,29 @@ export function defaultProfile(): Profile {
   };
 }
 
+function normalize(p: Profile): Profile {
+  return { ...defaultProfile(), ...p, deductions: { ...defaultDeductions(), ...p.deductions }, equity: migrateEquity(p.equity) };
+}
+
+let loadedFromShare = false;
+/** 本次打开是否由分享链接预填（用于提示） */
+export function wasLoadedFromShare(): boolean {
+  return loadedFromShare;
+}
+
 function load(): Profile | null {
   if (typeof window === "undefined") return null;
+  const shared = consumeSharedProfile();
+  if (shared) {
+    loadedFromShare = true;
+    return normalize(shared);
+  }
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return null;
     const p = JSON.parse(raw) as Profile;
     if (!p || !Array.isArray(p.segments)) return null;
-    return { ...defaultProfile(), ...p, deductions: { ...defaultDeductions(), ...p.deductions }, equity: migrateEquity(p.equity) };
+    return normalize(p);
   } catch {
     return null;
   }

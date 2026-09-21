@@ -10,9 +10,9 @@ export function DeductionsEditor({ d, onChange }: { d: SpecialDeductions; onChan
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
-        <Field label="住房" hint="租金 / 房贷二选一">
+        <Field label="住房" hint="租房或首套房贷利息，二选一">
           <Select value={d.housing} onChange={(e) => onChange({ housing: e.target.value as SpecialDeductions["housing"] })}>
-            <option value="none">未申报</option>
+            <option value="none">没有 / 未申报</option>
             <option value="rent">租房</option>
             <option value="loan">首套房贷利息（{SAD_STANDARD.housingLoan}/月）</option>
           </Select>
@@ -28,9 +28,9 @@ export function DeductionsEditor({ d, onChange }: { d: SpecialDeductions; onChan
         ) : (
           <div />
         )}
-        <Field label="赡养老人" hint="父母满 60 岁">
+        <Field label="赡养老人" hint="父母任一方满 60 岁即可">
           <Select value={d.elderly} onChange={(e) => onChange({ elderly: e.target.value as SpecialDeductions["elderly"] })}>
-            <option value="none">未申报</option>
+            <option value="none">没有 / 未申报</option>
             <option value="only">独生子女（{SAD_STANDARD.elderlyOnly}/月）</option>
             <option value="shared">非独生，分摊</option>
           </Select>
@@ -42,13 +42,13 @@ export function DeductionsEditor({ d, onChange }: { d: SpecialDeductions; onChan
         ) : (
           <div />
         )}
-        <Field label="子女教育" hint={`每个 ${SAD_STANDARD.childEducation}/月`}>
+        <Field label="子女教育" hint="3 岁起到学历教育结束">
           <NumberInput value={d.children} onChange={(children) => onChange({ children })} suffix="个" />
         </Field>
-        <Field label="3 岁以下婴幼儿" hint={`每个 ${SAD_STANDARD.infant}/月`}>
+        <Field label="3 岁以下婴幼儿" hint={`每个孩子 ${SAD_STANDARD.infant}/月`}>
           <NumberInput value={d.infants} onChange={(infants) => onChange({ infants })} suffix="个" />
         </Field>
-        <Field label="继续教育" className="col-span-2">
+        <Field label="继续教育" hint="在职读学历或当年拿到证书" className="col-span-2">
           <Segmented
             value={d.continuingEducation}
             onChange={(continuingEducation) => onChange({ continuingEducation })}
@@ -61,13 +61,13 @@ export function DeductionsEditor({ d, onChange }: { d: SpecialDeductions; onChan
         </Field>
       </div>
       <div className="grid grid-cols-2 gap-3 border-t border-line pt-4">
-        <Field label="个人养老金" hint={`年缴，上限 ${SAD_STANDARD.personalPensionCap}`}>
+        <Field label="个人养老金" hint={`自愿缴，上限 ${SAD_STANDARD.personalPensionCap}/年`}>
           <NumberInput value={d.personalPension} onChange={(v) => onChange({ personalPension: Math.min(SAD_STANDARD.personalPensionCap, v) })} prefix="¥" step={1000} />
         </Field>
         <Field label="大病医疗自付" hint={`医保内自付超 ${SAD_STANDARD.seriousIllnessThreshold} 的部分`}>
           <NumberInput value={d.seriousIllnessPaid} onChange={(seriousIllnessPaid) => onChange({ seriousIllnessPaid })} prefix="¥" />
         </Field>
-        <Field label="其他年度扣除" hint="税优健康险（2400）等" className="col-span-2">
+        <Field label="其他年度扣除" hint="税优健康险、企业年金等" className="col-span-2">
           <NumberInput value={d.otherAnnual} onChange={(otherAnnual) => onChange({ otherAnnual })} prefix="¥" />
         </Field>
       </div>

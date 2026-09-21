@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
-import { buildShareUrl } from "@/lib/share";
+import { SITE, buildShareUrl } from "@/lib/share";
 import { MONTH_NAMES, getCity, sadMonthly, type Profile } from "@/lib/tax";
 import type { FullResult } from "@/lib/tax";
 import { fmtMoney } from "@/lib/format";
@@ -30,7 +30,7 @@ export function Report({ profile, result, currentMonth, onClose }: { profile: Pr
   const [qr, setQr] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const shareUrl = buildShareUrl(profile);
-  const displayUrl = "tax.warmbeing.com";
+  const displayUrl = typeof window !== "undefined" ? window.location.host : new URL(SITE).host;
   const ua = typeof navigator === "undefined" ? "" : navigator.userAgent;
   const inWeChat = /MicroMessenger/i.test(ua);
   const isMobile = inWeChat || /iPhone|iPad|Android/i.test(ua);
@@ -122,27 +122,36 @@ export function Report({ profile, result, currentMonth, onClose }: { profile: Pr
   return (
     <div className="report-modal fixed inset-0 z-50 overflow-y-auto bg-ink/60 backdrop-blur-sm" onClick={onClose}>
       <div className="mx-auto my-6 w-full max-w-3xl px-4" onClick={(e) => e.stopPropagation()}>
-        <div className="report-toolbar mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/95 px-4 py-2.5 shadow-md">
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-ink">报告预览</span>
-            <Segmented value={mode} onChange={setMode} options={[{ value: "brief", label: "摘要" }, { value: "full", label: "完整" }]} />
-          </div>
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={copyLink}>
-              {copied ? "已复制" : "复制链接"}
-            </Button>
-            {!inWeChat && (
-              <Button variant="secondary" onClick={() => window.print()}>
-                保存 PDF
-              </Button>
-            )}
-            <Button variant="primary" onClick={exportPng}>
+        <div className="report-toolbar mb-2 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/95 px-4 py-2.5 shadow-md">
+          <span className="text-sm font-medium text-ink">报告预览</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="hidden items-center gap-2 sm:flex">
+              <Segmented value={mode} onChange={setMode} options={[{ value: "brief", label: "摘要" }, { value: "full", label: "完整" }]} />
+              {!inWeChat && (
+                <Button variant="secondary" onClick={() => window.print()} className="h-9">
+                  保存 PDF
+                </Button>
+              )}
+            </div>
+            <Button variant="primary" onClick={exportPng} className="h-9">
               {busy ? "导出中…" : "导出图片"}
             </Button>
-            <Button variant="ghost" onClick={onClose}>
+            <Button variant="secondary" onClick={copyLink} className="h-9">
+              {copied ? "已复制" : "复制链接"}
+            </Button>
+            <Button variant="ghost" onClick={onClose} className="h-9">
               关闭
             </Button>
           </div>
+        </div>
+
+        <div className="report-toolbar-secondary mb-3 flex flex-wrap items-center gap-2 rounded-xl bg-white/95 px-4 py-2 shadow-md sm:hidden">
+          <Segmented value={mode} onChange={setMode} options={[{ value: "brief", label: "摘要" }, { value: "full", label: "完整" }]} />
+          {!inWeChat && (
+            <Button variant="secondary" onClick={() => window.print()} className="h-9">
+              保存 PDF
+            </Button>
+          )}
         </div>
 
         {inWeChat && <p className="mb-3 rounded-lg bg-white/90 px-3 py-2 text-xs text-muted">微信里点「导出图片」后长按图片即可保存；要 PDF 请点右上角「在浏览器打开」。</p>}
@@ -170,9 +179,9 @@ export function Report({ profile, result, currentMonth, onClose }: { profile: Pr
                 {sad > 0 ? ` · 专项附加 ${fmtMoney(sad)}/月` : ""}
               </p>
             </div>
-            <span className="text-[11px] text-muted">生成于 {dateText}</span>
+            <span className="text-xs text-muted">生成于 {dateText}</span>
           </header>
-          <p className="rounded-lg bg-accent/10 px-3 py-1.5 text-sm font-medium text-accent">查看完整报告：{displayUrl}</p>
+          <p className="rounded-lg bg-accent/10 px-3 py-1.5 text-sm font-medium text-accent-text">查看完整报告：{displayUrl}</p>
 
           <Section title="全年测算" subtitle={currentMonth > 0 && currentMonth < 12 ? `${currentMonth} 月前按实际，之后为预测。` : undefined}>
             <Summary a={result.annual} />
@@ -205,8 +214,8 @@ export function Report({ profile, result, currentMonth, onClose }: { profile: Pr
             )}
             <div className="min-w-0">
               <div className="text-base font-semibold text-ink">扫码查看完整报告</div>
-              <div className="mt-1 text-lg font-semibold tracking-wide text-accent">{displayUrl}</div>
-              <div className="mt-1 text-[11px] text-muted">
+              <div className="mt-1 text-lg font-semibold tracking-wide text-accent-text">{displayUrl}</div>
+              <div className="mt-1 text-xs text-muted">
                 {mode === "brief" ? "年终奖、期权规划与减税建议在网页里。" : ""}
                 个税规划器 · 免费 · 数据不上传。仅供测算，不构成税务建议。
               </div>

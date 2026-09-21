@@ -10,9 +10,14 @@ export function Hero({ title, subtitle }: { title: string; subtitle: string }) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.png" alt={SITE_NAME} width={40} height={40} className="h-10 w-10 rounded-xl" />
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-ink">{title}</h1>
+          <h1 className="text-[1.75rem] font-semibold tracking-[-0.01em] text-ink">{title}</h1>
           <p className="mt-0.5 text-sm text-muted">{subtitle}</p>
         </div>
+      </div>
+      <div className="mt-2 flex gap-1" aria-hidden="true">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <span key={i} className="h-1.5 flex-1 rounded-full bg-accent" style={{ opacity: 0.15 + (i * (1 - 0.15)) / 11 }} />
+        ))}
       </div>
     </div>
   );
@@ -61,10 +66,10 @@ const NAV = [
 
 export function Article({ title, children, current }: { title: string; children: ReactNode; current: string }) {
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+    <div className="mx-auto max-w-6xl px-4 pb-28 sm:px-6 lg:pb-16">
       <nav aria-label="相关工具" className="mb-6 flex flex-wrap gap-2 text-xs">
         {NAV.map((n) => (
-          <Link key={n.href} href={n.href} className={`rounded-full border px-3 py-1 ${n.href === current ? "border-accent bg-accent/10 text-accent" : "border-line text-muted hover:text-ink"}`}>
+          <Link key={n.href} href={n.href} className={`rounded-full border px-3 py-1 ${n.href === current ? "border-accent-text bg-accent/10 text-accent-text" : "border-line text-muted hover:text-ink"}`}>
             {n.label}
           </Link>
         ))}
@@ -73,11 +78,11 @@ export function Article({ title, children, current }: { title: string; children:
         <h2 className="!mt-0 text-xl font-semibold text-ink">{title}</h2>
         {children}
       </article>
-      <footer className="mt-8 space-y-1 text-[11px] leading-relaxed text-muted">
+      <footer className="mt-8 space-y-1 text-xs leading-relaxed text-muted">
         <p>口径：累计预扣法预扣，汇算按全年 6 万减除 + 全年专项附加；年终奖、上市公司股权激励单独计税政策至 2027 年底。社保 / 公积金基数为各城市 2026 年度参考值（更新于 2026-09）。仅供测算，不构成税务建议。</p>
         <p>
           数据只存在你的浏览器里，不上传。有算错或城市数据过期？
-          <a href="https://github.com/yyarrow/cn-tax/issues" className="text-accent hover:underline" target="_blank" rel="noreferrer">
+          <a href="https://github.com/yyarrow/cn-tax/issues" className="text-accent-text hover:underline" target="_blank" rel="noreferrer">
             提个反馈
           </a>
           。

@@ -7,7 +7,8 @@ const HASH_KEY = "s";
 /** 把当前输入压缩进链接：查询串带来源标记（给统计），数据放在 hash 里不经过服务器 */
 export function buildShareUrl(profile: Profile, source = "share"): string {
   const payload = compressToEncodedURIComponent(JSON.stringify(profile));
-  return `${SITE}/?utm_source=${source}#${HASH_KEY}=${payload}`;
+  const origin = typeof window !== "undefined" ? window.location.origin : SITE;
+  return `${origin}/?utm_source=${source}#${HASH_KEY}=${payload}`;
 }
 
 /** 从当前地址的 hash 里解出分享的输入；成功后清掉 hash，避免刷新时反复覆盖本地数据 */

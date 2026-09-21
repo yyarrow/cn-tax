@@ -39,7 +39,7 @@ export function EquityEditor({ plan, onChange }: { plan: EquityPlan; onChange: (
         </div>
       ))}
       <Button onClick={() => onChange({ ...plan, events: [...plan.events, newEvent()] })}>＋ 添加一笔兑现</Button>
-      <p className="text-[11px] text-muted">填税前到账金额即可。未定的兑现不用填，去右侧「兑现规划」看。</p>
+      <p className="text-xs text-muted">填税前到账金额即可。未定的兑现不用填，去右侧「兑现规划」看。</p>
     </div>
   );
 }

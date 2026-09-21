@@ -28,12 +28,15 @@ export function Timeline({ segments, currentMonth }: { segments: Segment[]; curr
                   <div key={idx} className="h-full w-full" style={{ background: segmentColor(idx), height: `${100 / covering.length}%`, opacity: m > currentMonth ? 0.45 : 1 }} />
                 ))}
               </div>
-              <span className={`text-[10px] ${m === currentMonth ? "font-semibold text-ink" : "text-muted"}`}>{n}</span>
+              <span className={`whitespace-nowrap text-xs tracking-tight leading-none ${m === currentMonth ? "font-semibold text-ink" : "text-muted"}`}>
+                <span className="sm:hidden">{m}</span>
+                <span className="hidden sm:inline">{n}</span>
+              </span>
             </div>
           );
         })}
       </div>
-      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted">
+      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
         {segments.map((s, idx) => (
           <span key={s.id} className="inline-flex items-center gap-1">
             <i className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: segmentColor(idx) }} />

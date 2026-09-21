@@ -128,10 +128,10 @@ export function SegmentEditor({
               </tbody>
             </table>
           </div>
-          <p className="mt-1 text-[11px] text-muted">
+          <p className="mt-1 text-xs text-muted">
             留空按正常月薪 / 整月五险一金。
             {negativeMonths.length > 0 && (
-              <span className="text-danger">{negativeMonths.map((m) => MONTH_NAMES[m - 1]).join("、")}到手为负：公司少扣的话，填当月实际五险一金。</span>
+              <span className="text-danger-text">{negativeMonths.map((m) => MONTH_NAMES[m - 1]).join("、")}到手为负：公司少扣的话，填当月实际五险一金。</span>
             )}
           </p>
         </Details>
@@ -141,19 +141,19 @@ export function SegmentEditor({
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <span className="inline-flex items-center gap-1.5 text-xs text-muted">
             五险一金（个人）
-            <span className="rounded bg-white px-1.5 py-0.5 text-[10px] text-muted">{sourceTag}</span>
+            <span className="rounded bg-white px-1.5 py-0.5 text-xs text-muted">{sourceTag}</span>
           </span>
           <span className="text-sm font-semibold tabular-nums text-ink">{resolved ? `${fmtMoney(resolved.monthly)} / 月` : "—"}</span>
         </div>
-        {(sourceLabel || resolved?.note) && <p className="mt-1 text-[11px] text-muted">{[sourceLabel, resolved?.note].filter(Boolean).join("，")}</p>}
+        {(sourceLabel || resolved?.note) && <p className="mt-1 text-xs text-muted">{[sourceLabel, resolved?.note].filter(Boolean).join("，")}</p>}
         {resolved?.sample && (
-          <p className="mt-1 text-[11px] tabular-nums text-muted">
+          <p className="mt-1 text-xs tabular-nums text-muted">
             {MONTH_NAMES[resolved.sample.month - 1]}：税前 {fmtMoney(resolved.sample.gross)} − 五险一金 <b className="text-ink">{fmtMoney(resolved.sample.social)}</b> − 个税 <b className="text-ink">{fmtMoney(resolved.sample.tax)}</b> = 到手 {fmtMoney(resolved.sample.net)}
           </p>
         )}
-        {resolved?.warning && <p className="mt-1 text-[11px] text-danger">{resolved.warning}</p>}
+        {resolved?.warning && <p className="mt-1 text-xs text-danger-text">{resolved.warning}</p>}
         {resolved?.breakdown && social.mode !== "infer" && (
-          <p className="mt-1 text-[11px] text-muted/80">
+          <p className="mt-1 text-xs text-muted/80">
             养老 {fmtMoney(resolved.breakdown.pension)} · 医疗 {fmtMoney(resolved.breakdown.medical)} · 失业 {fmtMoney(resolved.breakdown.unemployment)} · 公积金 {fmtMoney(resolved.breakdown.housing + resolved.breakdown.supplementaryHousing)}
             {resolved.breakdown.extra ? ` · 其他 ${fmtMoney(resolved.breakdown.extra)}` : ""}
           </p>
@@ -198,7 +198,7 @@ export function SegmentEditor({
             )}
           </div>
         </div>
-        <p className="mt-1 text-[11px] text-muted">填一个普通月份的到手即可反推；再填个税就直接相减，不用猜。</p>
+        <p className="mt-1 text-xs text-muted">填一个普通月份的到手即可反推；再填个税就直接相减，不用猜。</p>
 
         <div className="mt-3">
           <Details summary={social.mode === "manual" ? "手动设置（已启用）" : "手动填社保 / 公积金"}>
@@ -211,7 +211,7 @@ export function SegmentEditor({
                       type="button"
                       onClick={() => patchSocial({ mode: m })}
                       disabled={m === "infer" && !hasSample}
-                      className={`rounded-md border px-2 py-1 ${social.mode === m ? "border-accent bg-accent/10 text-accent" : "border-line text-muted"} disabled:opacity-40`}
+                      className={`rounded-md border px-2 py-1 ${social.mode === m ? "border-accent bg-accent/10 text-accent-text" : "border-line text-muted"} disabled:opacity-40`}
                     >
                       {m === "auto" ? "城市参考值" : m === "infer" ? "由到手反推" : "手动"}
                     </button>

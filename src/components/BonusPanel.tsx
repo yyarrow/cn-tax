@@ -22,18 +22,18 @@ export function BonusPanel({ b, mode, onMode, bonusSeparate }: { b: BonusAnalysi
           ]}
         />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 divide-x divide-line rounded-xl border border-line">
         {(["separate", "combined"] as const).map((k) => {
           const v = k === "separate" ? b.separate : b.combined;
           const isBest = better === k;
           return (
-            <div key={k} className={`rounded-xl border p-4 ${isBest ? "border-good bg-good/5" : "border-line"}`}>
+            <div key={k} className={`p-4 ${isBest ? "bg-good/5" : ""}`}>
               <div className="flex items-center justify-between text-xs text-muted">
                 <span>{k === "separate" ? "单独计税" : "并入综合所得"}</span>
-                {isBest && <span className="rounded-full bg-good px-2 py-0.5 text-[10px] font-medium text-white">推荐</span>}
+                {isBest && <span className="rounded-full bg-good px-2 py-0.5 text-xs font-medium text-white">推荐</span>}
               </div>
               <div className="mt-1 text-2xl font-semibold tabular-nums text-ink">{fmtMoney(v.total)}</div>
-              <div className="mt-1 text-[11px] text-muted">
+              <div className="mt-1 text-xs text-muted">
                 {k === "separate" ? `工资部分 ${fmtMoney(b.separate.comprehensiveTax)} + 奖金 ${fmtMoney(b.separate.bonusTax)}` : `合并后按年度税率表计算`}
               </div>
             </div>
@@ -43,7 +43,7 @@ export function BonusPanel({ b, mode, onMode, bonusSeparate }: { b: BonusAnalysi
       <p className="text-xs text-muted">
         {b.saving > 1 ? (
           <>
-            选「{better === "separate" ? "单独计税" : "并入"}」少交 <b className="text-good">{fmtMoney(b.saving)}</b>，汇算时在个税 App 自行切换即可。
+            选「{better === "separate" ? "单独计税" : "并入"}」少交 <b className="text-good-text">{fmtMoney(b.saving)}</b>，汇算时在个税 App 自行切换即可。
           </>
         ) : (
           "两种方式税额几乎一样。"
@@ -51,10 +51,10 @@ export function BonusPanel({ b, mode, onMode, bonusSeparate }: { b: BonusAnalysi
       </p>
       {b.trap && (
         <Hint>
-          <b className="text-danger">陷阱区间：</b>{fmtMoney(b.bonus)} 落在 {fmtMoney(b.trap.lower)}–{fmtMoney(b.trap.upper)}，比正好发 {fmtMoney(b.trap.lower)} 反而少拿 <b>{fmtMoney(b.trap.extraTax)}</b>。可协商把多出部分并进工资。
+          <b className="text-danger-text">陷阱区间：</b>{fmtMoney(b.bonus)} 落在 {fmtMoney(b.trap.lower)}–{fmtMoney(b.trap.upper)}，比正好发 {fmtMoney(b.trap.lower)} 反而少拿 <b>{fmtMoney(b.trap.extraTax)}</b>。可协商把多出部分并进工资。
         </Hint>
       )}
-      <div className="rounded-xl border border-line p-4">
+      <div className="border-t border-line pt-4">
         <div className="text-xs font-medium text-ink">若能和公司商量工资 : 年终奖比例</div>
         {b.optimalSplit.saving < 1 ? (
           <p className="mt-2 text-xs text-muted">当前比例已是最省（全年现金 {fmtMoney(b.optimalSplit.totalCash)}）。</p>
@@ -66,15 +66,15 @@ export function BonusPanel({ b, mode, onMode, bonusSeparate }: { b: BonusAnalysi
           </div>
           <div>
             <div className="text-muted">最优年终奖</div>
-            <div className="mt-0.5 text-base font-semibold tabular-nums text-accent">{fmtMoney(b.optimalSplit.bestBonus)}</div>
+            <div className="mt-0.5 text-base font-semibold tabular-nums text-accent-text">{fmtMoney(b.optimalSplit.bestBonus)}</div>
           </div>
           <div>
             <div className="text-muted">比现在再省</div>
-            <div className="mt-0.5 text-base font-semibold tabular-nums text-good">{fmtMoney(b.optimalSplit.saving)}</div>
+            <div className="mt-0.5 text-base font-semibold tabular-nums text-good-text">{fmtMoney(b.optimalSplit.saving)}</div>
           </div>
         </div>
         )}
-        <p className="mt-2 text-[11px] text-muted">最优点通常在税率档边界（36,000 / 144,000 / 300,000…），奖金卡在边界、其余走工资。</p>
+        <p className="mt-2 text-xs text-muted">最优点通常在税率档边界（36,000 / 144,000 / 300,000…），奖金卡在边界、其余走工资。</p>
       </div>
     </div>
   );

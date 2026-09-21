@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CITY_PRESETS, computeAll, getCity } from "@/lib/tax";
 import { currentMonthFor, useProfile, wasLoadedFromShare } from "@/lib/store";
+import { fmtMoney } from "@/lib/format";
 import { Button, Card, Field, Hint, NumberInput, Select } from "./ui";
 import { Timeline } from "./Timeline";
 import { SegmentEditor } from "./SegmentEditor";
@@ -22,9 +23,31 @@ export function App() {
   const city = getCity(profile.cityId);
   const hasIncome = profile.segments.some((s) => s.monthlySalary > 0);
   const [showReport, setShowReport] = useState(false);
+  const [equityExpanded, setEquityExpanded] = useState(false);
+  const hasEquityActivity = profile.equity.events.length > 0 || (profile.equity.plannedExtra ?? 0) > 0;
+  const showEquityCard = profile.equity.taxMode !== "unlisted" || result.equity.income > 0;
+
+  const inputsRef = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const [resultsVisible, setResultsVisible] = useState(false);
+  useEffect(() => {
+    if (!hasIncome) return;
+    const el = resultsRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const obs = new IntersectionObserver(([entry]) => setResultsVisible(entry.isIntersecting), { threshold: 0.15 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [hasIncome]);
+  const scrollToResults = () => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollToInputs = () => inputsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  const settlement = result.annual.settlement;
+  const settlementDot = settlement < -0.5 ? "bg-good" : settlement > 0.5 ? "bg-danger" : "bg-line";
+  const settlementText = settlement < -0.5 ? `退税 +${fmtMoney(-settlement)}` : settlement > 0.5 ? `补税 ${fmtMoney(settlement)}` : "无退补";
+  const showBar = hasIncome && !showReport;
 
   return (
-    <div className={`app-root mx-auto max-w-6xl px-4 pb-10 pt-4 transition-opacity sm:px-6 ${ready ? "opacity-100" : "opacity-0"}`}>
+    <div className={`app-root mx-auto max-w-6xl px-4 pt-4 transition-opacity sm:px-6 ${showBar ? "pb-24 lg:pb-10" : "pb-10"} ${ready ? "opacity-100" : "opacity-0"}`}>
       {wasLoadedFromShare() && (
         <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm text-ink">
           已按分享的报告预填。把月薪、城市改成你自己的，结果会实时更新；不想要这份数据点右上角「重置」。
@@ -54,7 +77,7 @@ export function App() {
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         {/* 输入列 */}
-        <div className="space-y-5">
+        <div className="space-y-5" ref={inputsRef}>
           <Card title="1 · 工作经历" subtitle="按段填税前月薪，没覆盖的月份即空档。" action={<Button onClick={addSegment}>＋ 加一段</Button>}>
             <Timeline segments={profile.segments} currentMonth={currentMonth} />
             <div className="mt-4 space-y-3">
@@ -71,7 +94,7 @@ export function App() {
                 />
               ))}
             </div>
-            {city.note && <p className="mt-3 text-[11px] text-muted">{city.note}</p>}
+            {city.note && <p className="mt-3 text-xs text-muted">{city.note}</p>}
           </Card>
 
           <Card title="2 · 专项附加扣除" subtitle="没申报的项目会进减税建议。">
@@ -84,7 +107,7 @@ export function App() {
         </div>
 
         {/* 结果列 */}
-        <div className="space-y-5 lg:sticky lg:top-6 lg:self-start">
+        <div className="space-y-5 lg:sticky lg:top-6 lg:self-start" id="results" ref={resultsRef}>
           {!hasIncome ? (
             <Card>
               <Hint>先在左侧填一段工作和税前月薪。</Hint>
@@ -105,10 +128,21 @@ export function App() {
                 </Card>
               )}
 
-              {profile.equity.taxMode !== "unlisted" || result.equity.income > 0 ? (
-                <Card title="期权 / RSU 兑现规划" subtitle="今年再兑现不同金额各要交多少税，橙点为跳档拐点。">
-                  <EquityChart e={result.equity} plan={profile.equity} onChange={(equity) => patch({ equity })} />
-                </Card>
+              {showEquityCard ? (
+                hasEquityActivity || equityExpanded ? (
+                  <Card title="期权 / RSU 兑现规划" subtitle="今年再兑现不同金额各要交多少税，橙点为跳档拐点。">
+                    <EquityChart e={result.equity} plan={profile.equity} onChange={(equity) => patch({ equity })} />
+                  </Card>
+                ) : (
+                  <Card>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm font-medium text-ink">期权 / RSU 兑现规划</span>
+                      <Button variant="ghost" onClick={() => setEquityExpanded(true)}>
+                        展开
+                      </Button>
+                    </div>
+                  </Card>
+                )
               ) : null}
 
               <Card title="减税建议" subtitle="按预计节省排序，均为合规操作。">
@@ -119,6 +153,25 @@ export function App() {
         </div>
       </div>
 
+      {showBar && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] lg:hidden">
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-xs text-muted">全年到手</div>
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span className="text-lg font-semibold tabular-nums text-ink">{fmtMoney(result.annual.netTotal)}</span>
+                <span className="inline-flex items-center gap-1 text-xs text-muted">
+                  <span className={`h-1.5 w-1.5 rounded-full ${settlementDot}`} />
+                  {settlementText}
+                </span>
+              </div>
+            </div>
+            <Button variant="primary" onClick={resultsVisible ? scrollToInputs : scrollToResults} className="h-9 shrink-0">
+              {resultsVisible ? "改输入" : "看结果"}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

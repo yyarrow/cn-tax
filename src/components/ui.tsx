@@ -25,7 +25,7 @@ export function Field({ label, hint, children, className = "" }: { label: ReactN
     <label className={`flex flex-col gap-1 ${className}`}>
       <span className="whitespace-nowrap text-xs font-medium text-muted">{label}</span>
       {children}
-      {hint && <span className="text-[11px] text-muted/80">{hint}</span>}
+      {hint && <span className="text-xs text-muted/80">{hint}</span>}
     </label>
   );
 }
@@ -145,7 +145,7 @@ export function Button({ children, onClick, variant = "secondary", className = "
     primary: "bg-accent text-white hover:bg-accent/90",
     secondary: "border border-line bg-white text-ink hover:bg-paper",
     ghost: "text-muted hover:bg-paper hover:text-ink",
-    danger: "text-danger hover:bg-danger/10",
+    danger: "text-danger-text hover:bg-danger/10",
   }[variant];
   return (
     <button type={type} onClick={onClick} className={`inline-flex h-8 shrink-0 items-center gap-1 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition ${v} ${className}`}>
@@ -155,12 +155,12 @@ export function Button({ children, onClick, variant = "secondary", className = "
 }
 
 export function Stat({ label, value, sub, tone = "default", big = false }: { label: ReactNode; value: ReactNode; sub?: ReactNode; tone?: "default" | "good" | "bad" | "accent"; big?: boolean }) {
-  const color = { default: "text-ink", good: "text-good", bad: "text-danger", accent: "text-accent" }[tone];
+  const color = { default: "text-ink", good: "text-good-text", bad: "text-danger-text", accent: "text-accent-text" }[tone];
   return (
-    <div className="rounded-xl bg-paper px-4 py-3">
+    <div className="px-3 py-2.5">
       <div className="text-xs text-muted">{label}</div>
       <div className={`mt-1 font-semibold tabular-nums ${big ? "text-3xl" : "text-xl"} ${color}`}>{value}</div>
-      {sub && <div className="mt-0.5 text-[11px] text-muted">{sub}</div>}
+      {sub && <div className="mt-0.5 text-xs text-muted">{sub}</div>}
     </div>
   );
 }
@@ -172,7 +172,7 @@ export function Hint({ children }: { children: ReactNode }) {
 export function Details({ summary, children, open }: { summary: ReactNode; children: ReactNode; open?: boolean }) {
   return (
     <details className="group" open={open}>
-      <summary className="cursor-pointer select-none text-xs font-medium text-accent hover:underline">{summary}</summary>
+      <summary className="cursor-pointer select-none text-xs font-medium text-accent-text hover:underline">{summary}</summary>
       <div className="mt-3">{children}</div>
     </details>
   );

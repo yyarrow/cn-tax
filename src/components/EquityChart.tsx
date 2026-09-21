@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useSvgScale } from "@/lib/useSvgScale";
 import type { EquityPlan, EquityResult } from "@/lib/tax";
 import { fmtMoney, fmtPct } from "@/lib/format";
 import { Field, Hint, NumberInput, Select } from "./ui";
@@ -19,16 +20,18 @@ function short(n: number) {
 
 export function EquityChart({ e, plan, onChange, staticMode = false }: { e: EquityResult; plan: EquityPlan; onChange: (p: EquityPlan) => void; staticMode?: boolean }) {
   const W = 720;
+  const svgRef = useRef<SVGSVGElement>(null);
+  const k = useSvgScale(svgRef, W);
+  const fs = 12 * k;
   const H = 260;
-  const padL = 56;
-  const padR = 16;
-  const padT = 28;
+  const padL = 56 * Math.max(1, k * 0.7);
+  const padR = 16 * Math.max(1, k * 1.4);
+  const padT = 28 * Math.max(1, k * 0.7);
   const padB = 30;
   const maxX = e.maxX;
   const maxTax = Math.max(1, e.curve[e.curve.length - 1].tax);
   const sx = (x: number) => padL + (x / maxX) * (W - padL - padR);
   const sy = (t: number) => padT + (1 - t / maxTax) * (H - padT - padB);
-  const svgRef = useRef<SVGSVGElement>(null);
   const [hoverX, setHoverX] = useState<number | null>(null);
 
   // 在折线上按 x 求税额（分段线性插值）
@@ -96,7 +99,7 @@ export function EquityChart({ e, plan, onChange, staticMode = false }: { e: Equi
             <option value={5_000_000}>500 万</option>
           </Select>
         </Field>
-        <div className="ml-auto mt-5 text-xs leading-9 text-muted">
+        <div className="w-full text-xs text-muted sm:ml-auto sm:mt-5 sm:w-auto sm:leading-9">
           {modeText}
           {e.income > 0 ? ` · 已兑现 ${fmtMoney(e.income)}，税 ${fmtMoney(e.tax)}` : ""} · 当前边际 {fmtPct(e.currentRate, 0)}
         </div>
@@ -109,7 +112,7 @@ export function EquityChart({ e, plan, onChange, staticMode = false }: { e: Equi
             <g key={i}>
               <rect x={sx(b.from)} y={padT} width={Math.max(0, sx(b.to) - sx(b.from))} height={H - padT - padB} fill={rateFill(b.rate)} />
               {sx(b.to) - sx(b.from) > 34 && (
-                <text x={(sx(b.from) + sx(b.to)) / 2} y={padT - 8} textAnchor="middle" fontSize={11} fill="#52514e">
+                <text x={(sx(b.from) + sx(b.to)) / 2} y={padT - 8} textAnchor="middle" fontSize={fs} fill="#52514e">
                   {fmtPct(b.rate, 0)}
                 </text>
               )}
@@ -118,13 +121,13 @@ export function EquityChart({ e, plan, onChange, staticMode = false }: { e: Equi
           {yTicks.map((t) => (
             <g key={t}>
               <line x1={padL} x2={W - padR} y1={sy(t)} y2={sy(t)} stroke="#ffffff" strokeWidth={1} />
-              <text x={padL - 6} y={sy(t) + 4} textAnchor="end" fontSize={10} fill="#6b6a64">
+              <text x={padL - 6} y={sy(t) + 4} textAnchor="end" fontSize={fs} fill="#6b6a64">
                 {short(t)}
               </text>
             </g>
           ))}
           {xTicks.map((t) => (
-            <text key={t} x={sx(t)} y={H - 10} textAnchor="middle" fontSize={10} fill="#6b6a64">
+            <text key={t} x={sx(t)} y={H - 10} textAnchor="middle" fontSize={fs} fill="#6b6a64">
               {short(t)}
             </text>
           ))}
@@ -159,7 +162,7 @@ export function EquityChart({ e, plan, onChange, staticMode = false }: { e: Equi
         )}
       </div>
 
-      <p className="-mt-2 text-[11px] text-muted">横轴再兑现金额，纵轴这部分的税。色带越深税率越高；橙点为跳档拐点，蓝点为计划金额。</p>
+      <p className="-mt-2 text-xs text-muted">横轴再兑现金额，纵轴这部分的税。色带越深税率越高；橙点为跳档拐点，蓝点为计划金额。</p>
       {e.kinks.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full text-xs tabular-nums">
@@ -195,13 +198,13 @@ export function EquityChart({ e, plan, onChange, staticMode = false }: { e: Equi
       )}
 
       {planned && (
-        <div className="rounded-xl border border-accent/40 bg-accent/5 p-4 text-sm">
+        <div className="rounded-lg bg-accent/5 px-4 py-3 text-sm">
           <div className="text-ink">
             计划再兑现 <b>{fmtMoney(planned.amount)}</b>：税 <b>{fmtMoney(planned.tax)}</b>（综合 {fmtPct(planned.effectiveRate)}，最后一段按 {fmtPct(planned.marginalRate, 0)}），到手 <b>{fmtMoney(planned.net)}</b>
           </div>
           {planned.deferKink && planned.deferSaving > 1 && (
             <div className="mt-1 text-xs text-muted">
-              今年兑现到 {fmtMoney(planned.deferKink)}、其余 {fmtMoney(planned.amount - planned.deferKink)} 放明年，可省约 <b className="text-good">{fmtMoney(planned.deferSaving)}</b>
+              今年兑现到 {fmtMoney(planned.deferKink)}、其余 {fmtMoney(planned.amount - planned.deferKink)} 放明年，可省约 <b className="text-good-text">{fmtMoney(planned.deferSaving)}</b>
               {e.mode === "combined" ? "（按明年工资不变估）" : ""}。
             </div>
           )}

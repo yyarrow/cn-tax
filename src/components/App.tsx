@@ -130,7 +130,17 @@ export function App() {
 
               {showEquityCard ? (
                 hasEquityActivity || equityExpanded ? (
-                  <Card title="期权 / RSU 兑现规划" subtitle="今年再兑现不同金额各要交多少税，橙点为跳档拐点。">
+                  <Card
+                    title="期权 / RSU 兑现规划"
+                    subtitle="今年再兑现不同金额各要交多少税，橙点为跳档拐点。"
+                    action={
+                      !hasEquityActivity ? (
+                        <Button variant="ghost" onClick={() => setEquityExpanded(false)}>
+                          收起
+                        </Button>
+                      ) : undefined
+                    }
+                  >
                     <EquityChart e={result.equity} plan={profile.equity} onChange={(equity) => patch({ equity })} />
                   </Card>
                 ) : (

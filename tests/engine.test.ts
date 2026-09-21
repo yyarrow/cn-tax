@@ -122,6 +122,16 @@ describe("五险一金来源", () => {
   });
 });
 
+describe("低月薪", () => {
+  it("月薪低于基数下限时五险一金不会超过工资", () => {
+    const s = seg({ monthlySalary: 1000, social: { mode: "auto" } });
+    const r = computeAll(profile({ segments: [s] }), 12);
+    expect(r.socials[s.id].monthly).toBeLessThan(1000);
+    expect(r.rows[0].net).toBeGreaterThan(0);
+    expect(r.socials[s.id].note).toContain("下限");
+  });
+});
+
 describe("汇算清缴", () => {
   it("全年同一单位、无变动 → 退补为 0", () => {
     const p = profile({ segments: [seg({ monthlySalary: 30000 })] });

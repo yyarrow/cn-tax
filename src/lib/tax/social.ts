@@ -36,8 +36,9 @@ function clamp(v: number, lo: number, hi: number) {
 
 /** 按城市规则 + 配置计算五险一金个人部分 */
 export function computeSocialBreakdown(gross: number, cfg: SocialConfig, city: CityPreset): SocialBreakdown {
-  const socialBase = cfg.socialBase ?? clamp(gross, city.socialMin, city.socialMax);
-  const housingBase = cfg.housingBase ?? clamp(gross, city.housingMin, city.housingMax);
+  // 月薪低于当地基数下限时按实际工资算（兼职 / 低收入），否则五险一金会比工资还高
+  const socialBase = cfg.socialBase ?? (gross < city.socialMin ? gross : clamp(gross, city.socialMin, city.socialMax));
+  const housingBase = cfg.housingBase ?? (gross < city.housingMin ? gross : clamp(gross, city.housingMin, city.housingMax));
   const pensionRate = cfg.pensionRate ?? city.pensionRate;
   const medicalRate = cfg.medicalRate ?? city.medicalRate;
   const medicalFixed = cfg.medicalFixed ?? city.medicalFixed;
@@ -161,5 +162,6 @@ export function resolveSocial(
     return { monthly: fallback.total, breakdown: fallback, source: "inferFailed", note: failNote };
   }
   const breakdown = computeSocialBreakdown(gross, seg.social, city);
-  return { monthly: breakdown.total, breakdown, source: "preset" };
+  const note = gross < city.socialMin ? `月薪低于${city.name}社保基数下限 ${city.socialMin.toLocaleString("zh-CN")}，按实际工资估算` : undefined;
+  return { monthly: breakdown.total, breakdown, source: "preset", note };
 }

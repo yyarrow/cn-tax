@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ClientApp } from "@/components/ClientApp";
+import { SalaryClient } from "@/components/SalaryClient";
 import { Article, Hero, JsonLd, breadcrumbLd, faqLd } from "@/components/seo";
 import { SocialInsuranceArticle, faq } from "@/content/social-insurance";
 
@@ -17,7 +17,7 @@ export default function Page() {
       <JsonLd data={faqLd(faq)} />
       <JsonLd data={breadcrumbLd([{ name: "个税规划器", path: "/" }, { name: "税后工资计算器：从到手工资反推五险一金", path: "/social-insurance" }])} />
       <Hero current="/social-insurance" title="税后工资计算器" subtitle="税后工资与五险一金计算器：填税前月薪和某月到手，反推五险一金个人缴纳额，支持北京、上海、深圳、广州、杭州、成都 2026 年基数上限。" />
-      <ClientApp />
+      <SalaryClient />
       <Article title="五险一金个人缴纳比例、社保基数上限与到手工资反推" current="/social-insurance">
         <SocialInsuranceArticle />
       </Article>

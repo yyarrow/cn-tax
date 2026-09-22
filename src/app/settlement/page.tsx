@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ClientApp } from "@/components/ClientApp";
+import { SettlementClient } from "@/components/SettlementClient";
 import { Article, Hero, JsonLd, breadcrumbLd, faqLd } from "@/components/seo";
 import { SettlementArticle, faq } from "@/content/settlement";
 
@@ -17,7 +17,7 @@ export default function Page() {
       <JsonLd data={faqLd(faq)} />
       <JsonLd data={breadcrumbLd([{ name: "个税规划器", path: "/" }, { name: "汇算清缴退税计算器：今年能退多少税，换工作要不要补", path: "/settlement" }])} />
       <Hero current="/settlement" title="汇算清缴退税计算器" subtitle="个税年度汇算计算器：按工作经历和空档月份算出汇算清缴退税或补税金额，说明换工作、中间没工作、专项附加没申报时的退补规则。" />
-      <ClientApp />
+      <SettlementClient />
       <Article title="汇算清缴退税怎么算：谁能退、退多少、什么时候办" current="/settlement">
         <SettlementArticle />
       </Article>

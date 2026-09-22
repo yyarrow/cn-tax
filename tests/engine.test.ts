@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { annualTax, bonusSeparateTax, bonusTrapZones, computeAll, inferMonthlyDeduction } from "@/lib/tax";
 import { analyzeBonus } from "@/lib/tax/bonus";
+import { compareOffers } from "@/lib/tax/offer";
 import { simulateSegment } from "@/lib/tax/withholding";
 import type { Profile, Segment } from "@/lib/tax";
 
@@ -226,5 +227,25 @@ describe("个别月份工资与期权", () => {
     const r = computeAll(p, 12);
     expect(r.annual.equityTax).toBe(20000);
     expect(r.equity.kinks.length).toBe(0);
+  });
+});
+
+describe("Offer 对比", () => {
+  it("同月薪不同城市：到手不同；签字费与期权计入总包", () => {
+    const c = compareOffers(
+      [
+        { id: "a", name: "A", cityId: "beijing", monthlySalary: 30000, bonus: 60000, signOn: 0, equityPerYear: 0 },
+        { id: "b", name: "B", cityId: "shenzhen", monthlySalary: 30000, bonus: 60000, signOn: 20000, equityPerYear: 100000 },
+      ],
+      2026,
+      baseDeductions,
+    );
+    expect(c.results[0].grossTotal).toBe(420000);
+    expect(c.results[1].grossTotal).toBe(540000);
+    expect(c.bestId).toBe("b");
+    expect(c.deltas.b).toBe(0);
+    expect(c.deltas.a).toBeLessThan(0);
+    expect(c.results[0].netTotal).toBeLessThan(c.results[0].grossTotal);
+    expect(c.results[1].profile.segments[0].monthOverrides?.[1]).toBe(50000);
   });
 });

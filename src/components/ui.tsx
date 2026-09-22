@@ -40,6 +40,7 @@ export function NumberInput({
   prefix,
   suffix,
   min = 0,
+  max,
   step,
   placeholder,
   disabled,
@@ -51,6 +52,7 @@ export function NumberInput({
   prefix?: string;
   suffix?: string;
   min?: number;
+  max?: number;
   step?: number;
   placeholder?: string;
   disabled?: boolean;
@@ -77,6 +79,7 @@ export function NumberInput({
         type="number"
         inputMode="decimal"
         min={min}
+        max={max}
         step={step}
         disabled={disabled}
         placeholder={placeholder}

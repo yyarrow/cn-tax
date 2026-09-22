@@ -234,10 +234,10 @@ export function SegmentEditor({
                 <NumberInput value={social.housingBase} placeholder="=月薪(封顶)" onChange={(v) => patchSocial({ housingBase: v || undefined, mode: "manual" })} />
               </Field>
               <Field label="公积金比例">
-                <NumberInput value={Math.round((social.housingRate ?? city.housingRateDefault) * 100)} suffix="%" onChange={(v) => patchSocial({ housingRate: v / 100 })} />
+                <NumberInput value={Math.round((social.housingRate ?? city.housingRateDefault) * 100)} suffix="%" onChange={(v) => patchSocial({ housingRate: Math.min(20, Math.max(0, v)) / 100 })} />
               </Field>
               <Field label="补充公积金">
-                <NumberInput value={Math.round((social.supplementaryHousingRate ?? 0) * 100)} suffix="%" onChange={(v) => patchSocial({ supplementaryHousingRate: v / 100 })} />
+                <NumberInput value={Math.round((social.supplementaryHousingRate ?? 0) * 100)} suffix="%" onChange={(v) => patchSocial({ supplementaryHousingRate: Math.min(20, Math.max(0, v)) / 100 })} />
               </Field>
               <Field label="养老 / 医疗 / 失业" hint="个人比例，%">
                 <div className="flex gap-1">

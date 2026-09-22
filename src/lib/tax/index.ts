@@ -96,3 +96,5 @@ export * from "./constants";
 export { annualTax, bonusSeparateTax, marginalRate, findBracket, round2 } from "./brackets";
 export { bonusTrapZones } from "./bonus";
 export { sadMonthly, annualOnlyDeductions, computeSocialBreakdown, inferMonthlyDeduction } from "./social";
+export { computeOffer, compareOffers, offerToProfile } from "./offer";
+export type { OfferInput, OfferResult, OfferComparison } from "./offer";

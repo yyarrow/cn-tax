@@ -123,6 +123,13 @@ input[type="number"] {
   color: var(--ink);
 }
 
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 @media print {
   @page {
     size: A4;

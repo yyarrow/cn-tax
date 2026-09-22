@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CITY_PRESETS, computeAll, getCity } from "@/lib/tax";
-import { currentMonthFor, useProfile, wasLoadedFromShare } from "@/lib/store";
+import { currentMonthFor, useProfile } from "@/lib/store";
 import { fmtMoney } from "@/lib/format";
 import { Button, Card, Field, Hint, NumberInput, Select } from "./ui";
 import { Timeline } from "./Timeline";
@@ -17,7 +17,7 @@ import { AdviceList } from "./AdviceList";
 import { Report } from "./Report";
 
 export function App() {
-  const { profile, ready, patch, patchSegment, removeSegment, addSegment, patchDeductions, reset } = useProfile();
+  const { profile, ready, preview, keepPreview, discardPreview, patch, patchSegment, removeSegment, addSegment, patchDeductions, reset } = useProfile();
   const currentMonth = currentMonthFor(profile.year);
   const result = useMemo(() => computeAll(profile, currentMonth), [profile, currentMonth]);
   const city = getCity(profile.cityId);
@@ -48,10 +48,16 @@ export function App() {
 
   return (
     <div className={`app-root mx-auto max-w-6xl px-4 pt-4 transition-opacity sm:px-6 ${showBar ? "pb-24 lg:pb-10" : "pb-10"} ${ready ? "opacity-100" : "opacity-0"}`}>
-      {wasLoadedFromShare() && (
-        <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm text-ink">
-          已按分享的报告预填。把月薪、城市改成你自己的，结果会实时更新；不想要这份数据点右上角「重置」。
-        </p>
+      {preview && (
+        <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm text-ink">
+          <span className="flex-1">这是链接带来的数据，只是预览，不会覆盖你自己填过的内容。可以直接改着看。</span>
+          <Button variant="primary" onClick={keepPreview} className="h-8">
+            保留为我的数据
+          </Button>
+          <Button variant="secondary" onClick={discardPreview} className="h-8">
+            回到我的数据
+          </Button>
+        </div>
       )}
       {showReport && hasIncome && <Report profile={profile} result={result} currentMonth={currentMonth} onClose={() => setShowReport(false)} />}
       <div className="mb-5 flex flex-wrap items-start justify-end gap-2">

@@ -71,19 +71,8 @@ function normalize(p: Profile): Profile {
   return { ...defaultProfile(), ...p, deductions: { ...defaultDeductions(), ...p.deductions }, equity: migrateEquity(p.equity) };
 }
 
-let loadedFromShare = false;
-/** 本次打开是否由分享链接预填（用于提示） */
-export function wasLoadedFromShare(): boolean {
-  return loadedFromShare;
-}
-
-function load(): Profile | null {
+function loadStored(): Profile | null {
   if (typeof window === "undefined") return null;
-  const shared = consumeSharedProfile();
-  if (shared) {
-    loadedFromShare = true;
-    return normalize(shared);
-  }
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return null;
@@ -93,6 +82,15 @@ function load(): Profile | null {
   } catch {
     return null;
   }
+}
+
+/** 初始数据：分享 / Offer 链接带来的只做预览（不落盘），否则读本地存档 */
+function loadInitial(): { profile: Profile; preview: boolean } {
+  if (typeof window !== "undefined") {
+    const shared = consumeSharedProfile();
+    if (shared) return { profile: normalize(shared), preview: true };
+  }
+  return { profile: loadStored() ?? defaultProfile(), preview: false };
 }
 
 /** 仅在客户端挂载后为 true（服务端渲染时为 false），用于避免 localStorage 造成的 hydration 不一致 */
@@ -106,16 +104,28 @@ export function useHydrated(): boolean {
 
 /** 只能在客户端组件挂载后调用（见 useHydrated） */
 export function useProfile() {
-  const [profile, setProfile] = useState<Profile>(() => load() ?? defaultProfile());
+  const [initial] = useState(loadInitial);
+  const [profile, setProfile] = useState<Profile>(initial.profile);
+  /** 预览模式：数据来自链接，不写入本地存档，直到用户点「保留」 */
+  const [preview, setPreview] = useState(initial.preview);
   const ready = true;
 
   useEffect(() => {
+    if (preview) return;
     try {
       localStorage.setItem(KEY, JSON.stringify(profile));
     } catch {
       /* ignore */
     }
-  }, [profile]);
+  }, [profile, preview]);
+
+  /** 把预览中的数据保存为自己的存档 */
+  const keepPreview = useCallback(() => setPreview(false), []);
+  /** 放弃预览，换回本地存档 */
+  const discardPreview = useCallback(() => {
+    setProfile(loadStored() ?? defaultProfile());
+    setPreview(false);
+  }, []);
 
   const patch = useCallback((p: Partial<Profile>) => setProfile((prev) => ({ ...prev, ...p })), []);
   const patchSegment = useCallback(
@@ -140,11 +150,14 @@ export function useProfile() {
     (p: Partial<SpecialDeductions>) => setProfile((prev) => ({ ...prev, deductions: { ...prev.deductions, ...p } })),
     [],
   );
-  const reset = useCallback(() => setProfile(defaultProfile()), []);
+  const reset = useCallback(() => {
+    setPreview(false);
+    setProfile(defaultProfile());
+  }, []);
 
   return useMemo(
-    () => ({ profile, ready, patch, patchSegment, removeSegment, addSegment, patchDeductions, reset, setProfile }),
-    [profile, ready, patch, patchSegment, removeSegment, addSegment, patchDeductions, reset],
+    () => ({ profile, ready, preview, keepPreview, discardPreview, patch, patchSegment, removeSegment, addSegment, patchDeductions, reset, setProfile }),
+    [profile, ready, preview, keepPreview, discardPreview, patch, patchSegment, removeSegment, addSegment, patchDeductions, reset],
   );
 }
 

@@ -131,216 +131,237 @@ export function SalaryTool() {
         </div>
       )}
 
-      {/* 输入 */}
-      <div className="space-y-3" ref={inputsRef}>
-        <div className="rounded-2xl border border-line bg-white p-4">
-          <Segmented value={input.mode} options={MODES} onChange={(mode) => patch({ mode })} />
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        {/* 输入 */}
+        <div className="space-y-3 lg:col-start-1 lg:row-start-1" ref={inputsRef}>
+          <div className="rounded-2xl border border-line bg-white p-4">
+            <Segmented value={input.mode} options={MODES} onChange={(mode) => patch({ mode })} />
 
-          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <Field label="城市">
-              <Select value={input.cityId} onChange={(e) => patch({ cityId: e.target.value })}>
-                {CITY_PRESETS.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-            <Field label="税前月薪">
-              <NumberInput value={input.monthlySalary} onChange={(monthlySalary) => patch({ monthlySalary })} prefix="¥" step={1000} />
-            </Field>
-            <Field label="月份" hint="个税按累计预扣，同一月薪每个月扣税不同" className="col-span-2 sm:col-span-1">
-              <MonthSelect value={input.month} min={input.startMonth} onChange={(month) => patch({ month })} />
-            </Field>
-          </div>
-
-          {inferring && (
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <Field label="税后到手" hint="这个月工资卡实收">
-                <NumberInput value={input.netAmount} placeholder="必填" prefix="¥" step={500} onChange={(netAmount) => patch({ netAmount })} />
+              <Field label="城市">
+                <Select value={input.cityId} onChange={(e) => patch({ cityId: e.target.value })}>
+                  {CITY_PRESETS.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </Select>
               </Field>
-              <Field label="工资条个税" hint="填了就直接相减，不用猜">
-                <NumberInput value={input.netTax} placeholder="可选" prefix="¥" step={100} onChange={(netTax) => patch({ netTax })} />
+              <Field label="税前月薪">
+                <NumberInput value={input.monthlySalary} onChange={(monthlySalary) => patch({ monthlySalary })} prefix="¥" step={1000} />
+              </Field>
+              <Field label="月份" hint="个税按累计预扣，同一月薪每个月扣税不同" className="col-span-2 sm:col-span-1">
+                <MonthSelect value={input.month} min={input.startMonth} onChange={(month) => patch({ month })} />
               </Field>
             </div>
-          )}
 
-          <div className="mt-3">
-            <Details summary="更多">
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                <Field label="公积金比例" hint={`${city.name} 常见 ${(city.housingRateDefault * 100).toFixed(0)}%`}>
-                  <NumberInput value={housingPct} onChange={(v) => patch({ housingRate: Math.min(20, Math.max(0, v)) / 100 })} max={20} suffix="%" step={1} />
-                </Field>
-                <Field label="入职月份" hint="今年在本公司从哪个月开始">
-                  <MonthSelect value={input.startMonth} onChange={(startMonth) => patch({ startMonth })} />
-                </Field>
-              </div>
-            </Details>
-          </div>
-        </div>
-
-        <p className="text-xs leading-relaxed text-muted">
-          {year} 年口径 · 专项附加扣除沿用首页设置（每月 {fmtMoney(sad)}）。
-        </p>
-      </div>
-
-      {/* 结果 */}
-      <div className="mt-5 space-y-4" id="results" ref={resultsRef}>
-        <Card
-          ref={exportRef}
-          title={`税后工资 · ${year} 年 ${input.month} 月`}
-          action={<span className="text-xs text-muted">生成于 {dateText}</span>}
-        >
-          <div className="divide-y divide-line">
-            {/* 1. 到手 */}
-            <section className="pb-4">
-              <div className="rounded-xl bg-ink px-5 py-4 text-white">
-                <div className="text-xs text-white/70">{monthName}到手</div>
-                <div className="mt-1 text-4xl font-semibold tabular-nums">{ready ? fmtMoney(row.net) : "—"}</div>
-                <div className="mt-2 text-xs leading-relaxed tabular-nums text-white/70">
-                  {ready
-                    ? `税前 ${fmtMoney(row.gross)} → 五险一金 −${fmtMoney(row.social)} → 个税 −${fmtMoney(row.tax + row.bonusTax)}`
-                    : "税前 — → 五险一金 — → 个税 —"}
-                </div>
-              </div>
-              {!ready && (
-                <p className="mt-3 text-sm leading-relaxed text-muted">
-                  {inferring ? "填上税前月薪和这个月的税后到手，这里会反推出你的五险一金和个税。" : "填上税前月薪，这里会显示这个月的到手和每一项扣款。"}
-                </p>
-              )}
-            </section>
-
-            {/* 2. 拆分 */}
-            <section className="py-4">
-              <h3 className="text-sm font-semibold text-ink">这个月怎么扣的</h3>
-              <div className="mt-1 divide-y divide-line">
-                {breakdown && ready ? (
-                  <>
-                    <BreakRow label="养老" sub={`${ratePct(city.pensionRate)} × 基数 ${fmtMoney(breakdown.socialBase)}`} value={`−${fmtMoney(breakdown.pension)}`} />
-                    <BreakRow
-                      label="医疗"
-                      sub={`${ratePct(city.medicalRate)} × 基数 ${fmtMoney(breakdown.socialBase)}${city.medicalFixed ? ` ＋ ${fmtMoney(city.medicalFixed)}` : ""}`}
-                      value={`−${fmtMoney(breakdown.medical)}`}
-                    />
-                    <BreakRow label="失业" sub={`${ratePct(city.unemploymentRate)} × 基数 ${fmtMoney(breakdown.socialBase)}`} value={`−${fmtMoney(breakdown.unemployment)}`} />
-                    <BreakRow
-                      label={breakdown.supplementaryHousing > 0 ? "公积金（含补充）" : "公积金"}
-                      sub={`${ratePct(input.housingRate)} × 基数 ${fmtMoney(breakdown.housingBase)}`}
-                      value={`−${fmtMoney(breakdown.housing + breakdown.supplementaryHousing)}`}
-                    />
-                  </>
-                ) : !ready ? (
-                  <>
-                    <BreakRow label="养老" sub={`${ratePct(city.pensionRate)} × 基数 —`} value="—" />
-                    <BreakRow label="医疗" sub={`${ratePct(city.medicalRate)} × 基数 —`} value="—" />
-                    <BreakRow label="失业" sub={`${ratePct(city.unemploymentRate)} × 基数 —`} value="—" />
-                    <BreakRow label="公积金" sub={`${ratePct(input.housingRate)} × 基数 —`} value="—" />
-                  </>
-                ) : (
-                  <BreakRow label="五险一金合计" sub={resolved?.note || "由到手反推"} value={`−${fmtMoney(row.social)}`} />
-                )}
-                <BreakRow label="个税" sub={ready ? `当月预扣率 ${Math.round(row.rate * 100)}%` : "当月预扣率 —"} value={ready ? `−${fmtMoney(row.tax + row.bonusTax)}` : "—"} />
-                <BreakRow label="到手" value={ready ? fmtMoney(row.net) : "—"} bold />
-              </div>
-              {ready && !breakdown && resolved?.sample && (
-                <p className="mt-2 text-xs leading-relaxed tabular-nums text-muted">
-                  {MONTH_NAMES[resolved.sample.month - 1]}：税前 {fmtMoney(resolved.sample.gross)} − 五险一金{" "}
-                  <b className="font-semibold text-ink">{fmtMoney(resolved.sample.social)}</b> − 个税{" "}
-                  <b className="font-semibold text-ink">{fmtMoney(resolved.sample.tax)}</b> = 到手 {fmtMoney(resolved.sample.net)}
-                </p>
-              )}
-            </section>
-
-            {/* 3. 全年一览 */}
-            <section className="py-4">
-              <h3 className="text-sm font-semibold text-ink">全年一览</h3>
-              <div className="pb-2 pt-1 text-xs text-muted">上排到手（万元）、下排预扣率（%）</div>
-              <div className="grid grid-cols-12 gap-1">
-                {result.rows.map((r) => {
-                  const on = r.month === input.month;
-                  const blank = !ready || r.isGap;
-                  return (
-                    <button
-                      key={r.month}
-                      type="button"
-                      onClick={() => patch({ month: r.month })}
-                      disabled={r.isGap}
-                      title={
-                        blank
-                          ? r.isGap
-                            ? `${MONTH_NAMES[r.month - 1]}：未入职`
-                            : MONTH_NAMES[r.month - 1]
-                          : `${MONTH_NAMES[r.month - 1]}：到手 ${fmtMoney(r.net)} · 预扣率 ${Math.round(r.rate * 100)}%`
-                      }
-                      className={`flex flex-col items-center gap-0.5 rounded-md border px-0 py-1 leading-tight tracking-tight transition ${
-                        on ? "border-accent/50 bg-accent/10" : "border-transparent bg-paper hover:border-line"
-                      } ${r.isGap ? "opacity-50" : ""}`}
-                    >
-                      <span className={`text-xs tabular-nums ${on ? "text-accent-text" : "text-muted"}`}>{r.month}</span>
-                      <span className={`text-xs font-semibold tabular-nums ${on ? "text-accent-text" : "text-ink"}`}>
-                        {blank ? "—" : toWan(r.net)}
-                        {!blank && <span className="hidden font-normal sm:inline">万</span>}
-                      </span>
-                      <span className="text-xs tabular-nums text-muted">{blank ? "—" : Math.round(r.rate * 100)}</span>
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="mt-2 text-xs leading-relaxed tabular-nums text-muted">
-                {ready
-                  ? `全年到手 ${fmtMoney(result.annual.netTotal)} · 五险一金 ${fmtMoney(result.annual.totalSocial)} · 个税 ${fmtMoney(result.annual.totalTax)}`
-                  : "全年到手 — · 五险一金 — · 个税 —"}
-              </p>
-            </section>
-
-            {/* 4. 反推口径 */}
             {inferring && (
-              <section className="space-y-2 py-4">
-                {ready ? (
-                  <>
-                    <Hint>
-                      反推口径：五险一金 = 税前 {fmtMoney(row.gross)} − 到手 {fmtMoney(input.netAmount ?? 0)} − 当月个税 {fmtMoney(row.tax + row.bonusTax)}。
-                      {input.netTax === undefined && "没填工资条个税时，个税按累计预扣法解出来，请用一个没有奖金、补贴的普通月份。"}
-                      {resolved?.inferredHousingRate !== undefined && `反推出的公积金比例约 ${(resolved.inferredHousingRate * 100).toFixed(0)}%。`}
-                    </Hint>
-                    {resolved?.source === "inferFailed" && (
-                      <DangerNote>
-                        反推没成功{resolved.note ? `：${resolved.note}` : ""}。上面先按{city.name}参考值估算。
-                      </DangerNote>
-                    )}
-                    {resolved?.warning && <DangerNote>{resolved.warning}</DangerNote>}
-                  </>
-                ) : (
-                  <p className="text-sm leading-relaxed text-muted">填上税前月薪和这个月的税后到手，这里会写清反推用的口径。</p>
-                )}
-              </section>
+              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <Field label="税后到手" hint="这个月工资卡实收">
+                  <NumberInput value={input.netAmount} placeholder="必填" prefix="¥" step={500} onChange={(netAmount) => patch({ netAmount })} />
+                </Field>
+                <Field label="工资条个税" hint="填了就直接相减，不用猜">
+                  <NumberInput value={input.netTax} placeholder="可选" prefix="¥" step={100} onChange={(netTax) => patch({ netTax })} />
+                </Field>
+              </div>
             )}
 
-            <p className="pt-4 text-xs leading-relaxed text-muted">
-              {city.name} {year} 年参考基数 · 专项附加扣除每月 {fmtMoney(sad)} · 算你自己的：{host}
-            </p>
+            <div className="mt-3">
+              <Details summary="更多">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  <Field label="公积金比例" hint={`${city.name} 常见 ${(city.housingRateDefault * 100).toFixed(0)}%`}>
+                    <NumberInput value={housingPct} onChange={(v) => patch({ housingRate: Math.min(20, Math.max(0, v)) / 100 })} max={20} suffix="%" step={1} />
+                  </Field>
+                  <Field label="入职月份" hint="今年在本公司从哪个月开始">
+                    <MonthSelect value={input.startMonth} onChange={(startMonth) => patch({ startMonth })} />
+                  </Field>
+                </div>
+              </Details>
+            </div>
           </div>
-        </Card>
 
-        {ready && (
-          <div className="flex flex-wrap items-center gap-2">
-            <Button variant="primary" className="h-9" onClick={exportPng}>
-              {busy ? "生成中…" : "分享"}
-            </Button>
-            <Button variant="secondary" className="h-9" onClick={copyLink}>
-              {copied ? "已复制" : "复制链接"}
-            </Button>
-            <Button
-              variant="ghost"
-              className="h-9"
-              onClick={() => {
-                window.location.href = buildShareUrl(profile);
-              }}
-            >
-              看完整测算 →
-            </Button>
-          </div>
-        )}
+          <p className="text-xs leading-relaxed text-muted">
+            {year} 年口径 · 专项附加扣除沿用首页设置（每月 {fmtMoney(sad)}）。
+          </p>
+        </div>
+
+        {/* 结果 */}
+        <div
+          className="space-y-4 lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-6 lg:self-start"
+          id="results"
+          ref={resultsRef}
+        >
+          <Card
+            ref={exportRef}
+            title={`税后工资 · ${year} 年 ${input.month} 月`}
+            action={<span className="text-xs text-muted">生成于 {dateText}</span>}
+          >
+            <div className="divide-y divide-line">
+              {/* 1. 到手 */}
+              <section className="pb-4">
+                <div className="rounded-xl bg-ink px-5 py-4 text-white">
+                  <div className="text-xs text-white/70">{monthName}到手</div>
+                  <div className="mt-1 text-4xl font-semibold tabular-nums">{ready ? fmtMoney(row.net) : "—"}</div>
+                  <div className="mt-2 text-xs leading-relaxed tabular-nums text-white/70">
+                    {ready
+                      ? `税前 ${fmtMoney(row.gross)} → 五险一金 −${fmtMoney(row.social)} → 个税 −${fmtMoney(row.tax + row.bonusTax)}`
+                      : "税前 — → 五险一金 — → 个税 —"}
+                  </div>
+                </div>
+                {!ready && (
+                  <p className="mt-3 text-sm leading-relaxed text-muted">
+                    {inferring ? "填上税前月薪和这个月的税后到手，这里会反推出你的五险一金和个税。" : "填上税前月薪，这里会显示这个月的到手和每一项扣款。"}
+                  </p>
+                )}
+              </section>
+
+              {/* 2. 拆分 */}
+              <section className="py-4">
+                <h3 className="text-sm font-semibold text-ink">这个月怎么扣的</h3>
+                <div className="mt-1 divide-y divide-line">
+                  {breakdown && ready ? (
+                    <>
+                      <BreakRow label="养老" sub={`${ratePct(city.pensionRate)} × 基数 ${fmtMoney(breakdown.socialBase)}`} value={`−${fmtMoney(breakdown.pension)}`} />
+                      <BreakRow
+                        label="医疗"
+                        sub={`${ratePct(city.medicalRate)} × 基数 ${fmtMoney(breakdown.socialBase)}${city.medicalFixed ? ` ＋ ${fmtMoney(city.medicalFixed)}` : ""}`}
+                        value={`−${fmtMoney(breakdown.medical)}`}
+                      />
+                      <BreakRow label="失业" sub={`${ratePct(city.unemploymentRate)} × 基数 ${fmtMoney(breakdown.socialBase)}`} value={`−${fmtMoney(breakdown.unemployment)}`} />
+                      <BreakRow
+                        label={breakdown.supplementaryHousing > 0 ? "公积金（含补充）" : "公积金"}
+                        sub={`${ratePct(input.housingRate)} × 基数 ${fmtMoney(breakdown.housingBase)}`}
+                        value={`−${fmtMoney(breakdown.housing + breakdown.supplementaryHousing)}`}
+                      />
+                    </>
+                  ) : !ready ? (
+                    <>
+                      <BreakRow label="养老" sub={`${ratePct(city.pensionRate)} × 基数 —`} value="—" />
+                      <BreakRow label="医疗" sub={`${ratePct(city.medicalRate)} × 基数 —`} value="—" />
+                      <BreakRow label="失业" sub={`${ratePct(city.unemploymentRate)} × 基数 —`} value="—" />
+                      <BreakRow label="公积金" sub={`${ratePct(input.housingRate)} × 基数 —`} value="—" />
+                    </>
+                  ) : (
+                    <BreakRow label="五险一金合计" sub={resolved?.note || "由到手反推"} value={`−${fmtMoney(row.social)}`} />
+                  )}
+                  <BreakRow label="个税" sub={ready ? `当月预扣率 ${Math.round(row.rate * 100)}%` : "当月预扣率 —"} value={ready ? `−${fmtMoney(row.tax + row.bonusTax)}` : "—"} />
+                  <BreakRow label="到手" value={ready ? fmtMoney(row.net) : "—"} bold />
+                </div>
+                {ready && !breakdown && resolved?.sample && (
+                  <p className="mt-2 text-xs leading-relaxed tabular-nums text-muted">
+                    {MONTH_NAMES[resolved.sample.month - 1]}：税前 {fmtMoney(resolved.sample.gross)} − 五险一金{" "}
+                    <b className="font-semibold text-ink">{fmtMoney(resolved.sample.social)}</b> − 个税{" "}
+                    <b className="font-semibold text-ink">{fmtMoney(resolved.sample.tax)}</b> = 到手 {fmtMoney(resolved.sample.net)}
+                  </p>
+                )}
+              </section>
+
+              {/* 3. 全年一览 */}
+              <section className="py-4">
+                <h3 className="text-sm font-semibold text-ink">全年一览</h3>
+                <div className="pb-2 pt-1 text-xs text-muted">上排到手（万元）、下排预扣率（%）</div>
+                <div className="grid grid-cols-12 gap-1">
+                  {result.rows.map((r) => {
+                    const on = r.month === input.month;
+                    const blank = !ready || r.isGap;
+                    return (
+                      <button
+                        key={r.month}
+                        type="button"
+                        onClick={() => patch({ month: r.month })}
+                        disabled={r.isGap}
+                        title={
+                          blank
+                            ? r.isGap
+                              ? `${MONTH_NAMES[r.month - 1]}：未入职`
+                              : MONTH_NAMES[r.month - 1]
+                            : `${MONTH_NAMES[r.month - 1]}：到手 ${fmtMoney(r.net)} · 预扣率 ${Math.round(r.rate * 100)}%`
+                        }
+                        className={`flex flex-col items-center gap-0.5 rounded-md border px-0 py-1 leading-tight tracking-tight transition ${
+                          on ? "border-accent/50 bg-accent/10" : "border-transparent bg-paper hover:border-line"
+                        } ${r.isGap ? "opacity-50" : ""}`}
+                      >
+                        <span className={`text-xs tabular-nums ${on ? "text-accent-text" : "text-muted"}`}>{r.month}</span>
+                        <span className={`text-xs font-semibold tabular-nums ${on ? "text-accent-text" : "text-ink"}`}>
+                          {blank ? "—" : toWan(r.net)}
+                          {!blank && <span className="hidden font-normal sm:inline">万</span>}
+                        </span>
+                        <span className="text-xs tabular-nums text-muted">{blank ? "—" : Math.round(r.rate * 100)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-2 text-xs leading-relaxed tabular-nums text-muted">
+                  {ready
+                    ? `全年到手 ${fmtMoney(result.annual.netTotal)} · 五险一金 ${fmtMoney(result.annual.totalSocial)} · 个税 ${fmtMoney(result.annual.totalTax)}`
+                    : "全年到手 — · 五险一金 — · 个税 —"}
+                </p>
+              </section>
+
+              {/* 4. 反推口径 */}
+              {inferring && (
+                <section className="space-y-2 py-4">
+                  {ready ? (
+                    <>
+                      <Hint>
+                        反推口径：五险一金 = 税前 {fmtMoney(row.gross)} − 到手 {fmtMoney(input.netAmount ?? 0)} − 当月个税 {fmtMoney(row.tax + row.bonusTax)}。
+                        {input.netTax === undefined && "没填工资条个税时，个税按累计预扣法解出来，请用一个没有奖金、补贴的普通月份。"}
+                        {resolved?.inferredHousingRate !== undefined && `反推出的公积金比例约 ${(resolved.inferredHousingRate * 100).toFixed(0)}%。`}
+                      </Hint>
+                      {resolved?.source === "inferFailed" && (
+                        <DangerNote>
+                          反推没成功{resolved.note ? `：${resolved.note}` : ""}。上面先按{city.name}参考值估算。
+                        </DangerNote>
+                      )}
+                      {resolved?.warning && <DangerNote>{resolved.warning}</DangerNote>}
+                    </>
+                  ) : (
+                    <p className="text-sm leading-relaxed text-muted">填上税前月薪和这个月的税后到手，这里会写清反推用的口径。</p>
+                  )}
+                </section>
+              )}
+
+              <p className="pt-4 text-xs leading-relaxed text-muted">
+                {city.name} {year} 年参考基数 · 专项附加扣除每月 {fmtMoney(sad)} · 算你自己的：{host}
+              </p>
+            </div>
+          </Card>
+
+          {ready && (
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="primary" className="h-9" onClick={exportPng}>
+                {busy ? "生成中…" : "分享"}
+              </Button>
+              <Button variant="secondary" className="h-9" onClick={copyLink}>
+                {copied ? "已复制" : "复制链接"}
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-9"
+                onClick={() => {
+                  window.location.href = buildShareUrl(profile);
+                }}
+              >
+                看完整测算 →
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* 参考：与输入无关，始终完整显示 */}
+        <div className="lg:col-start-1 lg:row-start-2">
+          <Card title={`${city.name} ${year} 年参考值`} subtitle="社保 / 公积金基数每年 7 月前后调整，实际以工资条为准">
+            <div className="divide-y divide-line">
+              <BreakRow label="社保基数" value={`${fmtMoney(city.socialMin)}–${fmtMoney(city.socialMax)}`} />
+              <BreakRow label="公积金基数" value={`${fmtMoney(city.housingMin)}–${fmtMoney(city.housingMax)}`} />
+              <BreakRow label="养老" value={ratePct(city.pensionRate)} />
+              <BreakRow label="医疗" value={`${ratePct(city.medicalRate)}${city.medicalFixed ? ` ＋ ${fmtMoney(city.medicalFixed)}` : ""}`} />
+              <BreakRow label="失业" value={ratePct(city.unemploymentRate)} />
+              <BreakRow label="公积金" value={`默认 ${ratePct(city.housingRateDefault)}（可选 5%–12%）`} />
+              {city.note && <p className="py-2.5 text-xs leading-relaxed text-muted">{city.note}</p>}
+            </div>
+          </Card>
+        </div>
       </div>
 
       {ready && !imageUrl && (

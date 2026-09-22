@@ -123,223 +123,222 @@ export function BonusTool() {
         </div>
       )}
 
-      {/* 输入 */}
-      <div className="space-y-3" ref={inputsRef}>
-        <div className="rounded-2xl border border-line bg-white p-4">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <Field label="城市">
-              <Select value={input.cityId} onChange={(e) => patch({ cityId: e.target.value })}>
-                {CITY_PRESETS.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-            <Field label="税前月薪">
-              <NumberInput value={input.monthlySalary} onChange={(monthlySalary) => patch({ monthlySalary })} prefix="¥" step={1000} />
-            </Field>
-            <Field label="年终奖" hint="按全年一次性奖金计算">
-              <NumberInput value={input.bonus} onChange={(bonus) => patch({ bonus })} prefix="¥" step={10000} />
-            </Field>
-          </div>
-          <div className="mt-3">
-            <Details summary="更多">
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                <Field label="公积金比例" hint={`${city.name} 常见 ${(city.housingRateDefault * 100).toFixed(0)}%`}>
-                  <NumberInput
-                    value={ratePct}
-                    onChange={(v) => patch({ housingRate: Math.min(20, Math.max(0, v)) / 100 })}
-                    max={20}
-                    suffix="%"
-                    step={1}
-                  />
-                </Field>
-                <Field label="已发月数" hint="今年在本公司的工资月数">
-                  <NumberInput
-                    value={input.paidMonths}
-                    onChange={(v) => patch({ paidMonths: Math.min(12, Math.max(1, Math.round(v))) })}
-                    min={1}
-                    max={12}
-                    suffix="月"
-                    step={1}
-                  />
-                </Field>
-              </div>
-            </Details>
-          </div>
-        </div>
-        <p className="text-xs leading-relaxed text-muted">
-          {year} 年口径 · 专项附加扣除沿用首页设置（每月 {fmtMoney(sad)}）。
-        </p>
-      </div>
-
-      {/* 结果 */}
-      <div className="mt-5 space-y-4" id="results" ref={resultsRef}>
-        <Card ref={exportRef} title="年终奖测算" action={<span className="text-xs text-muted">生成于 {dateText}</span>}>
-          <div className="divide-y divide-line">
-            {/* 1. 单独 vs 并入 */}
-            <section className="pb-4">
-              <div className="grid grid-cols-2 divide-x divide-line overflow-hidden rounded-xl border border-line">
-                {(["separate", "combined"] as const).map((k) => {
-                  const isBest = analysis?.recommended === k;
-                  const net = k === "separate" ? sepNet : comNet;
-                  const total = k === "separate" ? analysis?.separate.total : analysis?.combined.total;
-                  return (
-                    <div key={k} className={`p-3 sm:p-4 ${isBest ? "bg-good/5" : ""}`}>
-                      <div className="text-xs text-muted">{k === "separate" ? "单独计税" : "并入综合所得"}</div>
-                      <div className="mt-1 text-3xl font-semibold tabular-nums text-ink">{analysis ? fmtMoney(net) : "—"}</div>
-                      <div className="mt-0.5 text-xs text-muted">奖金到手</div>
-                      <div className="mt-1.5">
-                        {!analysis ? (
-                          <span className="text-xs text-muted">—</span>
-                        ) : isBest ? (
-                          <span className="inline-flex items-center rounded-full bg-good px-2 py-0.5 text-xs font-medium text-white">推荐</span>
-                        ) : analysis.saving > 1 ? (
-                          <span className="text-xs tabular-nums text-danger-text">多交 {fmtMoney(analysis.saving)}</span>
-                        ) : (
-                          <span className="text-xs text-muted">两种差不多</span>
-                        )}
-                      </div>
-                      <div className="mt-1 text-xs tabular-nums text-muted">全年个税 {total === undefined ? "—" : fmtMoney(total)}</div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="mt-3">
-                <Hint>
-                  {!analysis
-                    ? "填上年终奖和月薪，这里会显示单独 / 并入两种方式的到手。"
-                    : analysis.saving > 1
-                      ? `选「${bestName}」全年少交 ${fmtMoney(analysis.saving)}，汇算清缴时在个税 App 里可以自行切换。`
-                      : "两种计税方式差不多，汇算清缴时在个税 App 里可以自行切换。"}
-                </Hint>
-              </div>
-            </section>
-
-            {/* 2. 陷阱检查 */}
-            <section className="py-4">
-              <h3 className="text-sm font-semibold text-ink">陷阱检查</h3>
-              {!analysis ? (
-                <p className="mt-2 text-sm leading-relaxed text-muted">填上年终奖和月薪，这里会告诉你有没有落在「多发一点、到手反而变少」的陷阱区间。</p>
-              ) : trap ? (
-                <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-2">
-                  <span className="flex items-start gap-2 text-sm leading-relaxed text-ink">
-                    <span className="mt-1.5 inline-block h-2 w-2 shrink-0 rounded-full bg-danger" aria-hidden="true" />
-                    <span className="tabular-nums">
-                      {fmtMoney(analysis.bonus)} 落在陷阱区间 {fmtMoney(trap.lower)}–{fmtMoney(trap.upper)}：比正好发 {fmtMoney(trap.lower)} 反而少拿{" "}
-                      {fmtMoney(trap.extraTax)}。
-                    </span>
-                  </span>
-                  <Button variant="secondary" className="h-9" onClick={() => patch({ bonus: trap.lower })}>
-                    按 {fmtMoney(trap.lower)} 重算
-                  </Button>
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        {/* 输入 */}
+        <div className="space-y-3 lg:col-start-1 lg:row-start-1" ref={inputsRef}>
+          <div className="rounded-2xl border border-line bg-white p-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <Field label="城市">
+                <Select value={input.cityId} onChange={(e) => patch({ cityId: e.target.value })}>
+                  {CITY_PRESETS.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label="税前月薪">
+                <NumberInput value={input.monthlySalary} onChange={(monthlySalary) => patch({ monthlySalary })} prefix="¥" step={1000} />
+              </Field>
+              <Field label="年终奖" hint="按全年一次性奖金计算">
+                <NumberInput value={input.bonus} onChange={(bonus) => patch({ bonus })} prefix="¥" step={10000} />
+              </Field>
+            </div>
+            <div className="mt-3">
+              <Details summary="更多">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  <Field label="公积金比例" hint={`${city.name} 常见 ${(city.housingRateDefault * 100).toFixed(0)}%`}>
+                    <NumberInput
+                      value={ratePct}
+                      onChange={(v) => patch({ housingRate: Math.min(20, Math.max(0, v)) / 100 })}
+                      max={20}
+                      suffix="%"
+                      step={1}
+                    />
+                  </Field>
+                  <Field label="已发月数" hint="今年在本公司的工资月数">
+                    <NumberInput
+                      value={input.paidMonths}
+                      onChange={(v) => patch({ paidMonths: Math.min(12, Math.max(1, Math.round(v))) })}
+                      min={1}
+                      max={12}
+                      suffix="月"
+                      step={1}
+                    />
+                  </Field>
                 </div>
-              ) : (
-                <p className="mt-2 text-sm tabular-nums text-muted">
-                  不在陷阱区间。{nextLower ? `下一个跳档点 ${fmtMoney(nextLower)}。` : "已在最高档，没有下一个跳档点。"}
-                </p>
-              )}
-            </section>
+              </Details>
+            </div>
+          </div>
+          <p className="text-xs leading-relaxed text-muted">
+            {year} 年口径 · 专项附加扣除沿用首页设置（每月 {fmtMoney(sad)}）。
+          </p>
+        </div>
 
-            {/* 3. 拆分建议 */}
-            <section className="py-4">
-              <h3 className="text-sm font-semibold text-ink">拆分建议</h3>
-              {!analysis ? (
-                <p className="mt-2 text-sm leading-relaxed text-muted">填上年终奖和月薪，这里会给出总包不变时最省的工资 / 年终奖拆分。</p>
-              ) : (
-                <p className="mt-2 text-sm leading-relaxed tabular-nums text-ink">
-                  {split && split.saving > 1
-                    ? `总现金 ${fmtMoney(split.totalCash)} 不变，年终奖调到 ${fmtMoney(split.bestBonus)}、其余进工资，可再省 ${fmtMoney(split.saving)}。`
-                    : "当前拆分已是最省。"}
-                </p>
-              )}
-            </section>
+        {/* 结果 */}
+        <div
+          className="space-y-4 lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-6 lg:self-start"
+          id="results"
+          ref={resultsRef}
+        >
+          <Card ref={exportRef} title="年终奖测算" action={<span className="text-xs text-muted">生成于 {dateText}</span>}>
+            <div className="divide-y divide-line">
+              {/* 1. 单独 vs 并入 */}
+              <section className="pb-4">
+                <div className="grid grid-cols-2 divide-x divide-line overflow-hidden rounded-xl border border-line">
+                  {(["separate", "combined"] as const).map((k) => {
+                    const isBest = analysis?.recommended === k;
+                    const net = k === "separate" ? sepNet : comNet;
+                    const total = k === "separate" ? analysis?.separate.total : analysis?.combined.total;
+                    return (
+                      <div key={k} className={`p-3 sm:p-4 ${isBest ? "bg-good/5" : ""}`}>
+                        <div className="text-xs text-muted">{k === "separate" ? "单独计税" : "并入综合所得"}</div>
+                        <div className="mt-1 text-3xl font-semibold tabular-nums text-ink">{analysis ? fmtMoney(net) : "—"}</div>
+                        <div className="mt-0.5 text-xs text-muted">奖金到手</div>
+                        <div className="mt-1.5">
+                          {!analysis ? (
+                            <span className="text-xs text-muted">—</span>
+                          ) : isBest ? (
+                            <span className="inline-flex items-center rounded-full bg-good px-2 py-0.5 text-xs font-medium text-white">推荐</span>
+                          ) : analysis.saving > 1 ? (
+                            <span className="text-xs tabular-nums text-danger-text">多交 {fmtMoney(analysis.saving)}</span>
+                          ) : (
+                            <span className="text-xs text-muted">两种差不多</span>
+                          )}
+                        </div>
+                        <div className="mt-1 text-xs tabular-nums text-muted">全年个税 {total === undefined ? "—" : fmtMoney(total)}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="mt-3">
+                  <Hint>
+                    {!analysis
+                      ? "填上年终奖和月薪，这里会显示单独 / 并入两种方式的到手。"
+                      : analysis.saving > 1
+                        ? `选「${bestName}」全年少交 ${fmtMoney(analysis.saving)}，汇算清缴时在个税 App 里可以自行切换。`
+                        : "两种计税方式差不多，汇算清缴时在个税 App 里可以自行切换。"}
+                  </Hint>
+                </div>
+              </section>
 
-            {/* 4. 陷阱区间表（与输入无关，始终完整显示） */}
-            <section className="py-4">
-              <h3 className="text-sm font-semibold text-ink">陷阱区间</h3>
-              <div className="mt-2">
-                <table className="w-full text-sm tabular-nums">
-                  <thead>
-                    <tr className="border-b border-line">
-                      <th scope="col" className="py-2 pr-3 text-left text-xs font-medium text-muted">
-                        区间
-                      </th>
-                      <th scope="col" className="py-2 pl-3 text-right text-xs font-medium text-muted">
-                        边界税额
-                      </th>
-                      <th scope="col" className="py-2 pl-3 text-right text-xs font-medium text-muted">
-                        最多少拿
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-line">
-                    {rows.map((z) => {
-                      const here = analysis !== null && analysis.bonus > z.lower && analysis.bonus < z.upper;
-                      return (
-                        <tr key={z.lower} className={here ? "bg-danger/5" : ""}>
-                          <th scope="row" className={`py-2 pr-3 text-left text-xs text-ink ${here ? "font-medium" : "font-normal"}`}>
-                            {fmtMoney(z.lower)}–{fmtMoney(z.upper)}
-                          </th>
-                          <td className="py-2 pl-3 text-right text-ink">{fmtMoney(z.tax)}</td>
-                          <td className={`py-2 pl-3 text-right ${here ? "font-semibold text-danger-text" : "text-ink"}`}>{fmtMoney(z.maxLoss)}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-
-            {/* 5. 谈判话术 */}
-            <section className="py-4">
-              {!analysis ? (
-                <>
-                  <h3 className="text-sm font-semibold text-ink">怎么和 HR 说</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">填上年终奖和月薪，这里会生成一段可以直接发给 HR 的话术。</p>
-                </>
-              ) : (
-                <Details summary="怎么和 HR 说">
-                  <div className="space-y-2">
-                    {scriptText.split("\n").map((line) => (
-                      <p key={line} className="text-sm leading-relaxed tabular-nums text-ink">
-                        {line}
-                      </p>
-                    ))}
-                    <Button variant="secondary" className="h-9" onClick={() => copyText(scriptText, setScriptCopied)}>
-                      {scriptCopied ? "已复制" : "复制话术"}
+              {/* 2. 陷阱检查 */}
+              <section className="py-4">
+                <h3 className="text-sm font-semibold text-ink">陷阱检查</h3>
+                {!analysis ? (
+                  <p className="mt-2 text-sm leading-relaxed text-muted">填上年终奖和月薪，这里会告诉你有没有落在「多发一点、到手反而变少」的陷阱区间。</p>
+                ) : trap ? (
+                  <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-2">
+                    <span className="flex items-start gap-2 text-sm leading-relaxed text-ink">
+                      <span className="mt-1.5 inline-block h-2 w-2 shrink-0 rounded-full bg-danger" aria-hidden="true" />
+                      <span className="tabular-nums">
+                        {fmtMoney(analysis.bonus)} 落在陷阱区间 {fmtMoney(trap.lower)}–{fmtMoney(trap.upper)}：比正好发 {fmtMoney(trap.lower)} 反而少拿{" "}
+                        {fmtMoney(trap.extraTax)}。
+                      </span>
+                    </span>
+                    <Button variant="secondary" className="h-9" onClick={() => patch({ bonus: trap.lower })}>
+                      按 {fmtMoney(trap.lower)} 重算
                     </Button>
                   </div>
-                </Details>
-              )}
-            </section>
+                ) : (
+                  <p className="mt-2 text-sm tabular-nums text-muted">
+                    不在陷阱区间。{nextLower ? `下一个跳档点 ${fmtMoney(nextLower)}。` : "已在最高档，没有下一个跳档点。"}
+                  </p>
+                )}
+              </section>
 
-            <p className="pt-4 text-xs leading-relaxed text-muted">
-              {year} 年口径 · 专项附加扣除每月 {fmtMoney(sad)} · 算你自己的：{host}
-            </p>
-          </div>
-        </Card>
+              {/* 3. 拆分建议 */}
+              <section className="py-4">
+                <h3 className="text-sm font-semibold text-ink">拆分建议</h3>
+                {!analysis ? (
+                  <p className="mt-2 text-sm leading-relaxed text-muted">填上年终奖和月薪，这里会给出总包不变时最省的工资 / 年终奖拆分。</p>
+                ) : (
+                  <p className="mt-2 text-sm leading-relaxed tabular-nums text-ink">
+                    {split && split.saving > 1
+                      ? `总现金 ${fmtMoney(split.totalCash)} 不变，年终奖调到 ${fmtMoney(split.bestBonus)}、其余进工资，可再省 ${fmtMoney(split.saving)}。`
+                      : "当前拆分已是最省。"}
+                  </p>
+                )}
+              </section>
 
-        {ready && (
-          <div className="flex flex-wrap items-center gap-2">
-            <Button variant="primary" className="h-9" onClick={exportPng}>
-              {busy ? "生成中…" : "分享"}
-            </Button>
-            <Button variant="secondary" className="h-9" onClick={() => copyText(buildBonusShareUrl(input), setCopied)}>
-              {copied ? "已复制" : "复制链接"}
-            </Button>
-            <Button
-              variant="ghost"
-              className="h-9"
-              onClick={() => {
-                window.location.href = buildShareUrl(profile);
-              }}
-            >
-              看完整测算 →
-            </Button>
-          </div>
-        )}
+              <p className="pt-4 text-xs leading-relaxed text-muted">
+                {year} 年口径 · 专项附加扣除每月 {fmtMoney(sad)} · 算你自己的：{host}
+              </p>
+            </div>
+          </Card>
+
+          {ready && (
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="primary" className="h-9" onClick={exportPng}>
+                {busy ? "生成中…" : "分享"}
+              </Button>
+              <Button variant="secondary" className="h-9" onClick={() => copyText(buildBonusShareUrl(input), setCopied)}>
+                {copied ? "已复制" : "复制链接"}
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-9"
+                onClick={() => {
+                  window.location.href = buildShareUrl(profile);
+                }}
+              >
+                看完整测算 →
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* 参考：与输入无关，始终完整显示 */}
+        <div className="space-y-4 lg:col-start-1 lg:row-start-2">
+          <Card title="陷阱区间" subtitle="单独计税跨档时多发反而少拿；表中行随你的年终奖高亮">
+            <table className="w-full text-sm tabular-nums">
+              <thead>
+                <tr className="border-b border-line">
+                  <th scope="col" className="py-2 pr-3 text-left text-xs font-medium text-muted">
+                    区间
+                  </th>
+                  <th scope="col" className="py-2 pl-3 text-right text-xs font-medium text-muted">
+                    边界税额
+                  </th>
+                  <th scope="col" className="py-2 pl-3 text-right text-xs font-medium text-muted">
+                    最多少拿
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {rows.map((z) => {
+                  const here = analysis !== null && analysis.bonus > z.lower && analysis.bonus < z.upper;
+                  return (
+                    <tr key={z.lower} className={here ? "bg-danger/5" : ""}>
+                      <th scope="row" className={`py-2 pr-3 text-left text-xs text-ink ${here ? "font-medium" : "font-normal"}`}>
+                        {fmtMoney(z.lower)}–{fmtMoney(z.upper)}
+                      </th>
+                      <td className="py-2 pl-3 text-right text-ink">{fmtMoney(z.tax)}</td>
+                      <td className={`py-2 pl-3 text-right ${here ? "font-semibold text-danger-text" : "text-ink"}`}>{fmtMoney(z.maxLoss)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </Card>
+
+          <Card title="怎么和 HR 说">
+            {!analysis ? (
+              <p className="text-sm leading-relaxed text-muted">填上年终奖和月薪，这里会生成一段可以直接发给 HR 的话术。</p>
+            ) : (
+              <div className="space-y-2">
+                {scriptText.split("\n").map((line) => (
+                  <p key={line} className="text-sm leading-relaxed tabular-nums text-ink">
+                    {line}
+                  </p>
+                ))}
+                <Button variant="secondary" className="h-9" onClick={() => copyText(scriptText, setScriptCopied)}>
+                  {scriptCopied ? "已复制" : "复制话术"}
+                </Button>
+              </div>
+            )}
+          </Card>
+        </div>
       </div>
 
       {analysis && !imageUrl && (

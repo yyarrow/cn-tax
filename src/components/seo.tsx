@@ -90,24 +90,9 @@ export function breadcrumbLd(items: { name: string; path: string }[]) {
   };
 }
 
-const NAV = [
-  { href: "/", label: "个税计算器" },
-  { href: "/bonus", label: "年终奖计算器" },
-  { href: "/offer", label: "Offer 对比" },
-  { href: "/settlement", label: "汇算清缴退税" },
-  { href: "/social-insurance", label: "税后工资 / 五险一金" },
-];
-
-export function Article({ title, children, current }: { title: string; children: ReactNode; current: string }) {
+export function Article({ title, children }: { title: string; children: ReactNode; current?: string }) {
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-28 sm:px-6 lg:pb-16">
-      <nav aria-label="相关工具" className="mb-6 flex flex-wrap gap-2 text-xs">
-        {NAV.map((n) => (
-          <Link key={n.href} href={n.href} className={`rounded-full border px-3 py-1 ${n.href === current ? "border-accent-text bg-accent/10 text-accent-text" : "border-line text-muted hover:text-ink"}`}>
-            {n.label}
-          </Link>
-        ))}
-      </nav>
+    <div className="mx-auto max-w-6xl px-4 pb-28 pt-2 sm:px-6 lg:pb-16">
       <article className="article rounded-2xl border border-line bg-white p-6 sm:p-8">
         <h2 className="!mt-0 text-xl font-semibold text-ink">{title}</h2>
         {children}

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CITY_PRESETS, bonusSeparateTax, bonusTrapZones, computeAll, getCity, round2, sadMonthly } from "@/lib/tax";
+import { findTrap } from "@/lib/tax/bonus";
 import { fmtMoney } from "@/lib/format";
 import { SITE, buildShareUrl } from "@/lib/share";
 import { bonusToProfile, buildBonusShareUrl, useBonusInput, wasBonusLoadedFromShare } from "@/lib/bonusStore";
@@ -38,6 +39,11 @@ export function BonusTool() {
   /** 填齐了年终奖和月薪、且算出了结果，才有数字可显示；否则同样的版面用「—」占位 */
   const analysis = input.bonus > 0 && input.monthlySalary > 0 ? b : null;
   const ready = analysis !== null;
+  /** 只填了年终奖：单独计税不依赖月薪，可以先算；并入和拆分要等月薪 */
+  const hasBonus = input.bonus > 0;
+  const sepOnly = hasBonus && !analysis;
+  const sepOnlyTax = sepOnly ? bonusSeparateTax(input.bonus) : 0;
+  const sepOnlyNet = sepOnly ? round2(input.bonus - sepOnlyTax) : 0;
 
   useEffect(() => {
     if (!ready) return;
@@ -58,9 +64,9 @@ export function BonusTool() {
   const comNet = analysis ? round2(analysis.bonus - (analysis.combined.total - analysis.separate.comprehensiveTax)) : 0;
   const bestName = analysis?.recommended === "combined" ? "并入综合所得" : "单独计税";
   const bestNet = analysis?.recommended === "combined" ? comNet : sepNet;
-  const nextLower = analysis ? rows.find((z) => z.lower > analysis.bonus)?.lower : undefined;
+  const nextLower = hasBonus ? rows.find((z) => z.lower > input.bonus)?.lower : undefined;
 
-  const trap = analysis?.trap;
+  const trap = analysis ? analysis.trap : hasBonus ? findTrap(input.bonus) : undefined;
   const split = analysis?.optimalSplit;
   const scriptText = analysis
     ? [
@@ -193,11 +199,13 @@ export function BonusTool() {
                     return (
                       <div key={k} className={`p-3 sm:p-4 ${isBest ? "bg-good/5" : ""}`}>
                         <div className="text-xs text-muted">{k === "separate" ? "单独计税" : "并入综合所得"}</div>
-                        <div className="mt-1 text-3xl font-semibold tabular-nums text-ink">{analysis ? fmtMoney(net) : "—"}</div>
+                        <div className="mt-1 text-3xl font-semibold tabular-nums text-ink">
+                          {analysis ? fmtMoney(net) : sepOnly && k === "separate" ? fmtMoney(sepOnlyNet) : "—"}
+                        </div>
                         <div className="mt-0.5 text-xs text-muted">奖金到手</div>
                         <div className="mt-1.5">
                           {!analysis ? (
-                            <span className="text-xs text-muted">—</span>
+                            <span className="text-xs text-muted">{sepOnly ? (k === "separate" ? `奖金税 ${fmtMoney(sepOnlyTax)}` : "填月薪后可比较") : "—"}</span>
                           ) : isBest ? (
                             <span className="inline-flex items-center rounded-full bg-good px-2 py-0.5 text-xs font-medium text-white">推荐</span>
                           ) : analysis.saving > 1 ? (
@@ -214,7 +222,9 @@ export function BonusTool() {
                 <div className="mt-3">
                   <Hint>
                     {!analysis
-                      ? "填上年终奖和月薪，这里会显示单独 / 并入两种方式的到手。"
+                      ? sepOnly
+                        ? `单独计税不看月薪：奖金税 ${fmtMoney(sepOnlyTax)}，到手 ${fmtMoney(sepOnlyNet)}。填上月薪可比较并入是否更省。`
+                        : "填上年终奖，这里会显示单独计税的到手；再填月薪可比较并入。"
                       : analysis.saving > 1
                         ? `选「${bestName}」全年少交 ${fmtMoney(analysis.saving)}，汇算清缴时在个税 App 里可以自行切换。`
                         : "两种计税方式差不多，汇算清缴时在个税 App 里可以自行切换。"}
@@ -225,14 +235,14 @@ export function BonusTool() {
               {/* 2. 陷阱检查 */}
               <section className="py-4">
                 <h3 className="text-sm font-semibold text-ink">陷阱检查</h3>
-                {!analysis ? (
-                  <p className="mt-2 text-sm leading-relaxed text-muted">填上年终奖和月薪，这里会告诉你有没有落在「多发一点、到手反而变少」的陷阱区间。</p>
+                {!hasBonus ? (
+                  <p className="mt-2 text-sm leading-relaxed text-muted">填上年终奖，这里会告诉你有没有落在「多发一点、到手反而变少」的陷阱区间。</p>
                 ) : trap ? (
                   <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-2">
                     <span className="flex items-start gap-2 text-sm leading-relaxed text-ink">
                       <span className="mt-1.5 inline-block h-2 w-2 shrink-0 rounded-full bg-danger" aria-hidden="true" />
                       <span className="tabular-nums">
-                        {fmtMoney(analysis.bonus)} 落在陷阱区间 {fmtMoney(trap.lower)}–{fmtMoney(trap.upper)}：比正好发 {fmtMoney(trap.lower)} 反而少拿{" "}
+                        {fmtMoney(input.bonus)} 落在陷阱区间 {fmtMoney(trap.lower)}–{fmtMoney(trap.upper)}：比正好发 {fmtMoney(trap.lower)} 反而少拿{" "}
                         {fmtMoney(trap.extraTax)}。
                       </span>
                     </span>
@@ -251,7 +261,7 @@ export function BonusTool() {
               <section className="py-4">
                 <h3 className="text-sm font-semibold text-ink">拆分建议</h3>
                 {!analysis ? (
-                  <p className="mt-2 text-sm leading-relaxed text-muted">填上年终奖和月薪，这里会给出总包不变时最省的工资 / 年终奖拆分。</p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">{sepOnly ? "填上月薪，这里会给出总包不变时最省的工资 / 年终奖拆分。" : "填上年终奖和月薪，这里会给出总包不变时最省的工资 / 年终奖拆分。"}</p>
                 ) : (
                   <p className="mt-2 text-sm leading-relaxed tabular-nums text-ink">
                     {split && split.saving > 1
@@ -307,7 +317,7 @@ export function BonusTool() {
               </thead>
               <tbody className="divide-y divide-line">
                 {rows.map((z) => {
-                  const here = analysis !== null && analysis.bonus > z.lower && analysis.bonus < z.upper;
+                  const here = hasBonus && input.bonus > z.lower && input.bonus < z.upper;
                   return (
                     <tr key={z.lower} className={here ? "bg-danger/5" : ""}>
                       <th scope="row" className={`py-2 pr-3 text-left text-xs text-ink ${here ? "font-medium" : "font-normal"}`}>

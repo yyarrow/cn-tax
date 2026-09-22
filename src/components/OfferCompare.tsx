@@ -66,13 +66,12 @@ export function OfferCompare() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (!hasIncome) return;
     const el = resultsRef.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
     const obs = new IntersectionObserver(([entry]) => setResultsVisible(entry.isIntersecting), { threshold: 0.15 });
     obs.observe(el);
     return () => obs.disconnect();
-  }, [hasIncome]);
+  }, []);
 
   const today = new Date();
   const dateText = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
@@ -91,6 +90,8 @@ export function OfferCompare() {
 
   const scrollToResults = () => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   const scrollToInputs = () => inputsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  const showBar = !showShare;
 
   /** 对比结果正文：页面和分享弹层用同一份（内部没有可点的操作按钮） */
   const resultsBody = (
@@ -202,14 +203,14 @@ export function OfferCompare() {
   );
 
   return (
-    <div className={`app-root mx-auto max-w-6xl px-4 pt-4 sm:px-6 ${hasIncome ? "pb-24 lg:pb-10" : "pb-10"}`}>
+    <div className={`app-root mx-auto max-w-6xl px-4 pt-4 sm:px-6 ${showBar ? "pb-24 lg:pb-10" : "pb-10"}`}>
       {wasLoadedFromShare() && (
         <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm text-ink">
           已按分享的 offer 预填，改成你自己的数字即可。
         </p>
       )}
 
-      {showShare && hasIncome && (
+      {showShare && (
         <ShareModal
           title="Offer 税后对比"
           subtitle={items.map(({ name }) => name).join(" vs ")}
@@ -221,6 +222,15 @@ export function OfferCompare() {
           <section className="report-section rounded-2xl border border-line bg-white p-5">{resultsBody}</section>
         </ShareModal>
       )}
+
+      <div className="mb-5 flex flex-wrap items-center justify-end gap-2">
+        <Button variant="secondary" className="h-9" onClick={copyLink}>
+          {copied ? "已复制" : "复制链接"}
+        </Button>
+        <Button variant="primary" className="h-9" onClick={() => setShowShare(true)}>
+          分享报告
+        </Button>
+      </div>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         {/* 输入列 */}
@@ -299,42 +309,30 @@ export function OfferCompare() {
             {resultsBody}
           </Card>
 
-          {hasIncome && (
-            <>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button variant="primary" className="h-9" onClick={() => setShowShare(true)}>
-                  分享报告
-                </Button>
-                <Button variant="secondary" className="h-9" onClick={copyLink}>
-                  {copied ? "已复制" : "复制链接"}
-                </Button>
-              </div>
-              <div className="flex flex-wrap items-center gap-1">
-                {items.map(({ r, name }) => (
-                  <Button
-                    key={r.id}
-                    variant="ghost"
-                    className="h-9"
-                    onClick={() => {
-                      window.location.href = buildShareUrl(r.profile);
-                    }}
-                  >
-                    看 {name} 的完整测算 →
-                  </Button>
-                ))}
-              </div>
-            </>
-          )}
+          <div className="flex flex-wrap items-center gap-1">
+            {items.map(({ r, name }) => (
+              <Button
+                key={r.id}
+                variant="ghost"
+                className="h-9"
+                onClick={() => {
+                  window.location.href = buildShareUrl(r.profile);
+                }}
+              >
+                看 {name} 的完整测算 →
+              </Button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {hasIncome && !showShare && (
+      {showBar && (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] lg:hidden">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
             <div className="min-w-0">
               <div className="truncate text-xs text-muted">{winner.name} 全年到手</div>
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <span className="text-lg font-semibold tabular-nums text-ink">{fmtMoney(winner.r.netTotal)}</span>
+                <span className="text-lg font-semibold tabular-nums text-ink">{hasIncome ? fmtMoney(winner.r.netTotal) : "—"}</span>
                 {runnerUp && gap > 1 && <span className="text-xs tabular-nums text-good-text">比另一份多 {fmtMoney(gap)}</span>}
               </div>
             </div>

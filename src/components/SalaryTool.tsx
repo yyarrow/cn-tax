@@ -64,13 +64,12 @@ export function SalaryTool() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (!ready) return;
     const el = resultsRef.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
     const obs = new IntersectionObserver(([entry]) => setResultsVisible(entry.isIntersecting), { threshold: 0.15 });
     obs.observe(el);
     return () => obs.disconnect();
-  }, [ready]);
+  }, []);
 
   const today = new Date();
   const dateText = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
@@ -91,6 +90,7 @@ export function SalaryTool() {
   const scrollToResults = () => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   const scrollToInputs = () => inputsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
+  const showBar = !showShare;
   const housingPct = Math.round(input.housingRate * 1000) / 10;
 
   /** 测算结果正文：页面和分享弹层用同一份；staticMode 下月份格子不可点 */
@@ -242,14 +242,14 @@ export function SalaryTool() {
   );
 
   return (
-    <div className={`app-root mx-auto max-w-6xl px-4 pt-4 sm:px-6 ${ready ? "pb-24 lg:pb-10" : "pb-10"}`}>
+    <div className={`app-root mx-auto max-w-6xl px-4 pt-4 sm:px-6 ${showBar ? "pb-24 lg:pb-10" : "pb-10"}`}>
       {fromShare && (
         <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm text-ink">
           已按分享的数字预填，改成你自己的即可。
         </p>
       )}
 
-      {showShare && ready && (
+      {showShare && (
         <ShareModal
           title={`税后工资 · ${year} 年 ${input.month} 月`}
           subtitle={`${city.name} · 税前 ${fmtMoney(input.monthlySalary)}`}
@@ -268,6 +268,24 @@ export function SalaryTool() {
           </section>
         </ShareModal>
       )}
+
+      <div className="mb-5 flex flex-wrap items-center justify-end gap-2">
+        <Button variant="secondary" className="h-9" onClick={copyLink}>
+          {copied ? "已复制" : "复制链接"}
+        </Button>
+        <Button variant="primary" className="h-9" onClick={() => setShowShare(true)}>
+          分享报告
+        </Button>
+        <Button
+          variant="ghost"
+          className="h-9"
+          onClick={() => {
+            window.location.href = buildShareUrl(profile);
+          }}
+        >
+          看完整测算 →
+        </Button>
+      </div>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         {/* 输入 */}
@@ -332,26 +350,6 @@ export function SalaryTool() {
           <Card title={`税后工资 · ${year} 年 ${input.month} 月`} action={<span className="text-xs text-muted">生成于 {dateText}</span>}>
             {resultsBody()}
           </Card>
-
-          {ready && (
-            <div className="flex flex-wrap items-center gap-2">
-              <Button variant="primary" className="h-9" onClick={() => setShowShare(true)}>
-                分享报告
-              </Button>
-              <Button variant="secondary" className="h-9" onClick={copyLink}>
-                {copied ? "已复制" : "复制链接"}
-              </Button>
-              <Button
-                variant="ghost"
-                className="h-9"
-                onClick={() => {
-                  window.location.href = buildShareUrl(profile);
-                }}
-              >
-                看完整测算 →
-              </Button>
-            </div>
-          )}
         </div>
 
         {/* 参考：与输入无关，始终完整显示 */}
@@ -362,14 +360,14 @@ export function SalaryTool() {
         </div>
       </div>
 
-      {ready && !showShare && (
+      {showBar && (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] lg:hidden">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
             <div className="min-w-0">
               <div className="truncate text-xs text-muted">{monthName}到手</div>
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <span className="text-lg font-semibold tabular-nums text-ink">{fmtMoney(row.net)}</span>
-                <span className="text-xs tabular-nums text-muted">五险一金 {fmtMoney(row.social)}</span>
+                <span className="text-lg font-semibold tabular-nums text-ink">{ready ? fmtMoney(row.net) : "—"}</span>
+                <span className="text-xs tabular-nums text-muted">五险一金 {ready ? fmtMoney(row.social) : "—"}</span>
               </div>
             </div>
             <Button variant="primary" className="h-9 shrink-0" onClick={resultsVisible ? scrollToInputs : scrollToResults}>

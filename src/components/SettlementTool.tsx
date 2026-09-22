@@ -120,13 +120,12 @@ export function SettlementTool() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (!hasIncome) return;
     const el = resultsRef.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
     const obs = new IntersectionObserver(([entry]) => setResultsVisible(entry.isIntersecting), { threshold: 0.15 });
     obs.observe(el);
     return () => obs.disconnect();
-  }, [hasIncome]);
+  }, []);
   const scrollToResults = () => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   const scrollToInputs = () => inputsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -150,7 +149,7 @@ export function SettlementTool() {
     }
   };
 
-  const showBar = hasIncome && !showShare;
+  const showBar = !showShare;
 
   /** 测算结果正文：页面和分享弹层用同一份（内部没有可点的操作按钮） */
   const resultsBody = (
@@ -249,7 +248,7 @@ export function SettlementTool() {
         </div>
       )}
 
-      {showShare && hasIncome && (
+      {showShare && (
         <ShareModal
           title={`${profile.year} 年汇算清缴预估`}
           subtitle={shareSubtitle}
@@ -274,6 +273,21 @@ export function SettlementTool() {
             ))}
           </Select>
         </Field>
+        <Button variant="secondary" onClick={copyLink} className="mt-5 h-9">
+          {copied ? "已复制" : "复制链接"}
+        </Button>
+        <Button variant="primary" onClick={() => setShowShare(true)} className="mt-5 h-9">
+          分享报告
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={() => {
+            window.location.href = buildShareUrl(profile, "settlement");
+          }}
+          className="mt-5 h-9"
+        >
+          看完整测算 →
+        </Button>
         <Button variant="ghost" onClick={() => confirm("清空所有输入，恢复默认？") && reset()} className="mt-5 h-9">
           重置
         </Button>
@@ -311,26 +325,6 @@ export function SettlementTool() {
           <Card title={`${profile.year} 年汇算清缴预估`} action={<span className="text-xs text-muted">生成于 {dateText}</span>}>
             {resultsBody}
           </Card>
-
-          {hasIncome && (
-            <div className="flex flex-wrap items-center gap-2">
-              <Button variant="primary" className="h-9" onClick={() => setShowShare(true)}>
-                分享报告
-              </Button>
-              <Button variant="secondary" className="h-9" onClick={copyLink}>
-                {copied ? "已复制" : "复制链接"}
-              </Button>
-              <Button
-                variant="ghost"
-                className="h-9"
-                onClick={() => {
-                  window.location.href = buildShareUrl(profile, "settlement");
-                }}
-              >
-                看完整测算 →
-              </Button>
-            </div>
-          )}
         </div>
       </div>
 

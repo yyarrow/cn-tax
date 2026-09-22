@@ -114,14 +114,12 @@ export function App() {
 
         {/* 结果列 */}
         <div className="space-y-5 lg:sticky lg:top-6 lg:self-start" id="results" ref={resultsRef}>
-          {!hasIncome ? (
-            <Card>
-              <Hint>先在左侧填一段工作和税前月薪。</Hint>
-            </Card>
-          ) : (
-            <>
+          <>
               <Card title={`${profile.year} 年全年测算`} subtitle={currentMonth > 0 && currentMonth < 12 ? `${currentMonth} 月前按实际，之后为预测。` : undefined}>
-                <Summary a={result.annual} />
+                {!hasIncome && <Hint>先在左侧填一段工作和税前月薪，下面的数字会实时更新。</Hint>}
+                <div className={hasIncome ? "" : "mt-3"}>
+                  <Summary a={result.annual} />
+                </div>
               </Card>
 
               <Card title="逐月明细" subtitle="每月到手、扣款，以及预扣税率何时跳档。">
@@ -164,8 +162,7 @@ export function App() {
               <Card title="减税建议" subtitle="按预计节省排序，均为合规操作。">
                 <AdviceList items={result.advice} />
               </Card>
-            </>
-          )}
+          </>
         </div>
       </div>
 

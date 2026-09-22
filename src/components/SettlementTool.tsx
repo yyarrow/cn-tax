@@ -7,7 +7,7 @@ import { currentMonthFor, useProfile } from "@/lib/store";
 import { fmtMoney } from "@/lib/format";
 import { SITE, buildShareUrl } from "@/lib/share";
 import { exportNodeAsPng, savePng } from "@/lib/exportImage";
-import { Button, Card, Field, Hint, NumberInput, Select } from "./ui";
+import { Button, Card, Field, NumberInput, Select } from "./ui";
 import { Timeline } from "./Timeline";
 import { SegmentEditor } from "./SegmentEditor";
 import { DeductionsEditor } from "./DeductionsEditor";
@@ -94,24 +94,26 @@ export function SettlementTool() {
   const hasIncome = profile.segments.some((s) => s.monthlySalary > 0);
 
   const a = result.annual;
-  const isRefund = a.settlement < -0.5;
-  const isPay = a.settlement > 0.5;
-  const heroLabel = isRefund ? "预计退税" : isPay ? "预计补税" : "不退不补";
-  const heroValue = isRefund ? `+${fmtMoney(-a.settlement)}` : isPay ? fmtMoney(a.settlement) : fmtMoney(0);
+  const isRefund = hasIncome && a.settlement < -0.5;
+  const isPay = hasIncome && a.settlement > 0.5;
+  const heroLabel = !hasIncome ? "预计退税 / 补税" : isRefund ? "预计退税" : isPay ? "预计补税" : "不退不补";
+  const heroValue = !hasIncome ? "—" : isRefund ? `+${fmtMoney(-a.settlement)}` : isPay ? fmtMoney(a.settlement) : fmtMoney(0);
   const heroDot = isRefund ? "bg-good" : isPay ? "bg-danger" : "bg-white/40";
 
   const reasons = useMemo(() => buildReasons(profile, result), [profile, result]);
   const settlementAdvice = result.advice.filter((x) => x.kind === "settlement" || x.kind === "deduction");
 
-  const exemptMeaning = a.settlementExempt
-    ? "年收入不超 12 万或补税不超 400 元，可以不办、不用补。"
-    : isRefund
-      ? "退税要自己申请，不办就退不到账。"
-      : isPay
-        ? "不符合免申报条件，这笔补税必须自己申报缴清。"
-        : "照常申报即可，金额为 0。";
+  const exemptMeaning = !hasIncome
+    ? "填上工作经历和月薪，这里会判断你能不能免办。"
+    : a.settlementExempt
+      ? "年收入不超 12 万或补税不超 400 元，可以不办、不用补。"
+      : isRefund
+        ? "退税要自己申请，不办就退不到账。"
+        : isPay
+          ? "不符合免申报条件，这笔补税必须自己申报缴清。"
+          : "照常申报即可，金额为 0。";
 
-  const exportRef = useRef<HTMLDivElement>(null);
+  const exportRef = useRef<HTMLElement>(null);
   const inputsRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const [resultsVisible, setResultsVisible] = useState(false);
@@ -140,7 +142,7 @@ export function SettlementTool() {
     if (!exportRef.current || busy) return;
     setBusy(true);
     try {
-      const png = await exportNodeAsPng(exportRef.current, { fileName, background: "#f6f5f2" });
+      const png = await exportNodeAsPng(exportRef.current, { fileName, background: "#ffffff" });
       if (isMobile) setImageUrl(png);
       else savePng(png, fileName);
     } catch (err) {
@@ -236,30 +238,22 @@ export function SettlementTool() {
 
         {/* 结果列 */}
         <div className="space-y-4 lg:sticky lg:top-6 lg:self-start" id="results" ref={resultsRef}>
-          {!hasIncome ? (
-            <Card>
-              <Hint>先在上面填一段工作和税前月薪，就能算出今年退还是补。</Hint>
-            </Card>
-          ) : (
-            <>
-              <div ref={exportRef} className="space-y-3 rounded-2xl bg-paper p-4">
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <span className="text-sm font-semibold text-ink">{profile.year} 年汇算清缴预估</span>
-                  <span className="text-xs text-muted">生成于 {dateText}</span>
-                </div>
-
-                <div className="rounded-2xl bg-ink px-5 py-4 text-white">
+          <Card ref={exportRef} title={`${profile.year} 年汇算清缴预估`} action={<span className="text-xs text-muted">生成于 {dateText}</span>}>
+            <div className="divide-y divide-line">
+              {/* 1. 退补结论 */}
+              <section className="space-y-3 pb-4">
+                <div className="rounded-xl bg-ink px-5 py-4 text-white">
                   <div className="flex items-center gap-1.5 text-xs text-white/70">
                     <span className={`h-1.5 w-1.5 rounded-full ${heroDot}`} aria-hidden="true" />
                     {heroLabel}
                   </div>
                   <div className="mt-1 text-4xl font-semibold tabular-nums">{heroValue}</div>
                   <div className="mt-2 text-xs tabular-nums text-white/70">
-                    已预扣 {fmtMoney(a.withheld)} · 全年应纳 {fmtMoney(a.totalTax)}
+                    {hasIncome ? `已预扣 ${fmtMoney(a.withheld)} · 全年应纳 ${fmtMoney(a.totalTax)}` : "已预扣 — · 全年应纳 —"}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 divide-x divide-line rounded-2xl border border-line bg-white">
+                <div className="grid grid-cols-2 divide-x divide-line rounded-xl border border-line">
                   <div className="px-3 py-2.5">
                     <div className="text-xs text-muted">办理时间</div>
                     <div className="mt-1 text-sm font-semibold tabular-nums text-ink">
@@ -269,13 +263,16 @@ export function SettlementTool() {
                   </div>
                   <div className="px-3 py-2.5">
                     <div className="text-xs text-muted">免申报</div>
-                    <div className="mt-1 text-sm font-semibold text-ink">{a.settlementExempt ? "是" : "否"}</div>
+                    <div className="mt-1 text-sm font-semibold text-ink">{!hasIncome ? "—" : a.settlementExempt ? "是" : "否"}</div>
                     <div className="mt-0.5 text-xs text-muted">{exemptMeaning}</div>
                   </div>
                 </div>
+              </section>
 
-                <div className="rounded-2xl border border-line bg-white p-4">
-                  <h3 className="text-sm font-semibold text-ink">为什么</h3>
+              {/* 2. 退补来源 */}
+              <section className="py-4">
+                <h3 className="text-sm font-semibold text-ink">为什么</h3>
+                {hasIncome ? (
                   <ul className="mt-1 divide-y divide-line">
                     {reasons.map((r) => (
                       <li key={r.id} className="py-2 text-sm leading-relaxed text-ink">
@@ -283,56 +280,64 @@ export function SettlementTool() {
                       </li>
                     ))}
                   </ul>
-                </div>
+                ) : (
+                  <p className="mt-2 text-sm leading-relaxed text-muted">填上今年的工作经历和税前月薪，这里会列出退税或补税的来源。</p>
+                )}
+              </section>
 
-                <div className="rounded-2xl border border-line bg-white p-4">
-                  <h3 className="text-sm font-semibold text-ink">在个税 App 怎么办</h3>
-                  <ol className="mt-2 space-y-2">
-                    {STEPS.map((s, i) => (
-                      <li key={s} className="flex gap-2.5">
-                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-paper text-xs font-semibold text-muted">
-                          {i + 1}
-                        </span>
-                        <span className="text-sm leading-relaxed text-ink">{s}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
+              {/* 3. 办理步骤（与输入无关，始终完整显示） */}
+              <section className="py-4">
+                <h3 className="text-sm font-semibold text-ink">在个税 App 怎么办</h3>
+                <ol className="mt-2 space-y-2">
+                  {STEPS.map((s, i) => (
+                    <li key={s} className="flex gap-2.5">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-paper text-xs font-semibold text-muted">
+                        {i + 1}
+                      </span>
+                      <span className="text-sm leading-relaxed text-ink">{s}</span>
+                    </li>
+                  ))}
+                </ol>
+              </section>
 
-                <div className="rounded-2xl border border-line bg-white p-4">
-                  <h3 className="text-sm font-semibold text-ink">减税建议</h3>
-                  {settlementAdvice.length > 0 ? (
-                    <div className="mt-1">
-                      <AdviceList items={settlementAdvice} />
-                    </div>
-                  ) : (
-                    <p className="mt-2 text-sm text-muted">专项附加都填满了，汇算这边没有可再省的。</p>
-                  )}
-                </div>
+              {/* 4. 减税建议 */}
+              <section className="py-4">
+                <h3 className="text-sm font-semibold text-ink">减税建议</h3>
+                {!hasIncome ? (
+                  <p className="mt-2 text-sm leading-relaxed text-muted">填上工作经历和月薪，这里会按预计能退多少排出可补报的扣除。</p>
+                ) : settlementAdvice.length > 0 ? (
+                  <div className="mt-1">
+                    <AdviceList items={settlementAdvice} />
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm text-muted">专项附加都填满了，汇算这边没有可再省的。</p>
+                )}
+              </section>
 
-                <p className="text-xs leading-relaxed text-muted">
-                  {profile.year} 年口径 · 算你自己的：{host}
-                </p>
-              </div>
+              <p className="pt-4 text-xs leading-relaxed text-muted">
+                {profile.year} 年口径 · 算你自己的：{host}
+              </p>
+            </div>
+          </Card>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <Button variant="primary" className="h-9" onClick={exportPng}>
-                  {busy ? "生成中…" : "分享"}
-                </Button>
-                <Button variant="secondary" className="h-9" onClick={copyLink}>
-                  {copied ? "已复制" : "复制链接"}
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="h-9"
-                  onClick={() => {
-                    window.location.href = buildShareUrl(profile, "settlement");
-                  }}
-                >
-                  看完整测算 →
-                </Button>
-              </div>
-            </>
+          {hasIncome && (
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="primary" className="h-9" onClick={exportPng}>
+                {busy ? "生成中…" : "分享"}
+              </Button>
+              <Button variant="secondary" className="h-9" onClick={copyLink}>
+                {copied ? "已复制" : "复制链接"}
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-9"
+                onClick={() => {
+                  window.location.href = buildShareUrl(profile, "settlement");
+                }}
+              >
+                看完整测算 →
+              </Button>
+            </div>
           )}
         </div>
       </div>

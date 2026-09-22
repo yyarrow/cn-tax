@@ -1,11 +1,28 @@
 "use client";
 
-import { useState, type ReactNode, type SelectHTMLAttributes } from "react";
+import { useState, type ReactNode, type Ref, type SelectHTMLAttributes } from "react";
 import { MONTH_NAMES } from "@/lib/tax";
 
-export function Card({ title, subtitle, action, children, className = "" }: { title?: ReactNode; subtitle?: ReactNode; action?: ReactNode; children: ReactNode; className?: string }) {
+export function Card({
+  title,
+  subtitle,
+  action,
+  children,
+  className = "",
+  ref,
+  id,
+}: {
+  title?: ReactNode;
+  subtitle?: ReactNode;
+  action?: ReactNode;
+  children: ReactNode;
+  className?: string;
+  /** React 19：ref 作为普通 prop 传下去（导出图片时需要拿到这个 section） */
+  ref?: Ref<HTMLElement>;
+  id?: string;
+}) {
   return (
-    <section className={`rounded-2xl border border-line bg-white p-5 shadow-sm ${className}`}>
+    <section ref={ref} id={id} className={`rounded-2xl border border-line bg-white p-5 shadow-sm ${className}`}>
       {(title || action) && (
         <header className="mb-4 flex items-start justify-between gap-3">
           <div>

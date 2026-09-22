@@ -7,7 +7,7 @@ import { fmtMoney, fmtPct } from "@/lib/format";
 import { SITE, buildOfferShareUrl, buildShareUrl } from "@/lib/share";
 import { MAX_OFFERS, offerLabel, useOffers, wasLoadedFromShare } from "@/lib/offerStore";
 import { exportNodeAsPng, savePng } from "@/lib/exportImage";
-import { Button, Details, Field, Hint, NumberInput, Select, TextInput } from "./ui";
+import { Button, Card, Details, Field, Hint, NumberInput, Select, TextInput } from "./ui";
 
 /** 每份 offer 的标识色（与首页序列色一致） */
 const COLORS = ["#2a78d6", "#eb6834", "#1baf7a"];
@@ -59,7 +59,7 @@ export function OfferCompare() {
   const gap = runnerUp ? winner.r.netTotal - runnerUp.r.netTotal : 0;
   const splits = items.flatMap(({ r, name }) => (r.split && r.split.saving > 1 ? [{ id: r.id, name, split: r.split }] : []));
 
-  const exportRef = useRef<HTMLDivElement>(null);
+  const exportRef = useRef<HTMLElement>(null);
   const inputsRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const [resultsVisible, setResultsVisible] = useState(false);
@@ -85,7 +85,7 @@ export function OfferCompare() {
     if (!exportRef.current || busy) return;
     setBusy(true);
     try {
-      const png = await exportNodeAsPng(exportRef.current, { fileName: `offer-对比-${dateText}.png`, background: "#f6f5f2" });
+      const png = await exportNodeAsPng(exportRef.current, { fileName: `offer-对比-${dateText}.png`, background: "#ffffff" });
       if (isMobile) setImageUrl(png);
       else savePng(png, `offer-对比-${dateText}.png`);
     } catch (err) {
@@ -202,19 +202,13 @@ export function OfferCompare() {
 
         {/* 结果列 */}
         <div className="space-y-4 lg:sticky lg:top-6 lg:self-start" id="results" ref={resultsRef}>
-          {!hasIncome ? (
-            <Hint>先填一份 offer 的税前月薪。</Hint>
-          ) : (
-            <>
-              <div ref={exportRef} className="space-y-3 rounded-2xl bg-paper p-4">
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <span className="text-sm font-semibold text-ink">Offer 税后对比</span>
-                  <span className="text-xs text-muted">生成于 {dateText}</span>
-                </div>
-
-                <div className={`grid divide-x divide-line overflow-hidden rounded-2xl border border-line bg-white ${items.length > 2 ? "grid-cols-2 lg:grid-cols-3" : "grid-cols-2"}`}>
+          <Card ref={exportRef} title="Offer 税后对比" action={<span className="text-xs text-muted">生成于 {dateText}</span>}>
+            <div className="divide-y divide-line">
+              {/* 1. 全年到手对比 */}
+              <section className="pb-4">
+                <div className={`grid divide-x divide-line overflow-hidden rounded-xl border border-line ${items.length > 2 ? "grid-cols-2 lg:grid-cols-3" : "grid-cols-2"}`}>
                   {items.map(({ r, name, color }) => {
-                    const isWinner = r.id === comparison.bestId;
+                    const isWinner = hasIncome && r.id === comparison.bestId;
                     const delta = comparison.deltas[r.id] ?? 0;
                     return (
                       <div key={r.id} className={`p-3 sm:p-4 ${isWinner ? "bg-good/5" : ""}`}>
@@ -222,9 +216,11 @@ export function OfferCompare() {
                           <Dot color={color} />
                           <span className="truncate">{name}</span>
                         </div>
-                        <div className="mt-1 text-3xl font-semibold tabular-nums text-ink">{fmtMoney(r.netTotal)}</div>
+                        <div className="mt-1 text-3xl font-semibold tabular-nums text-ink">{hasIncome ? fmtMoney(r.netTotal) : "—"}</div>
                         <div className="mt-1.5">
-                          {isWinner ? (
+                          {!hasIncome ? (
+                            <span className="text-xs text-muted">—</span>
+                          ) : isWinner ? (
                             <span className="inline-flex items-center rounded-full bg-good px-2 py-0.5 text-xs font-medium text-white">到手最多</span>
                           ) : (
                             <span className="text-xs tabular-nums text-danger-text">
@@ -233,76 +229,89 @@ export function OfferCompare() {
                           )}
                         </div>
                         <div className="mt-1 text-xs tabular-nums text-muted">
-                          月均 {fmtMoney(r.netMonthly)} · 综合税负 {fmtPct(r.effectiveRate)}
+                          {hasIncome ? `月均 ${fmtMoney(r.netMonthly)} · 综合税负 ${fmtPct(r.effectiveRate)}` : "月均 — · 综合税负 —"}
                         </div>
                       </div>
                     );
                   })}
                 </div>
+                <div className="mt-3">
+                  {!hasIncome ? (
+                    <Hint>填上至少一份 offer 的税前月薪，这里会显示哪份全年到手更多、差多少。</Hint>
+                  ) : runnerUp && gap > 1 ? (
+                    <Hint>
+                      {winner.name} 全年到手比 {runnerUp.name} 多 {fmtMoney(gap)}，主要因为{reasonFor(winner.r, runnerUp.r, gap)}。
+                    </Hint>
+                  ) : runnerUp ? (
+                    <Hint>两份 offer 全年到手基本一样，可以看看公积金比例和年终奖拆分。</Hint>
+                  ) : null}
+                </div>
+              </section>
 
-                {runnerUp && gap > 1 && (
-                  <Hint>
-                    {winner.name} 全年到手比 {runnerUp.name} 多 {fmtMoney(gap)}，主要因为{reasonFor(winner.r, runnerUp.r, gap)}。
-                  </Hint>
-                )}
-                {runnerUp && gap <= 1 && <Hint>两份 offer 全年到手基本一样，可以看看公积金比例和年终奖拆分。</Hint>}
-
-                <div className="rounded-2xl border border-line bg-white p-4">
-                  <div className="overflow-x-auto">
-                    <table className="w-full min-w-[20rem] text-sm tabular-nums">
-                      <thead>
-                        <tr className="border-b border-line">
-                          <th scope="col" className="py-2 pr-3 text-left text-xs font-medium text-muted">
-                            项目
+              {/* 2. 逐项对比 */}
+              <section className="py-4">
+                <h3 className="text-sm font-semibold text-ink">逐项对比</h3>
+                <div className="mt-1 overflow-x-auto">
+                  <table className="w-full min-w-[20rem] text-sm tabular-nums">
+                    <thead>
+                      <tr className="border-b border-line">
+                        <th scope="col" className="py-2 pr-3 text-left text-xs font-medium text-muted">
+                          项目
+                        </th>
+                        {items.map(({ r, name, color }) => (
+                          <th key={r.id} scope="col" className="py-2 pl-3 text-right text-xs font-medium text-muted">
+                            <span className="inline-flex items-center gap-1.5">
+                              <Dot color={color} />
+                              <span className="truncate">{name}</span>
+                            </span>
                           </th>
-                          {items.map(({ r, name, color }) => (
-                            <th key={r.id} scope="col" className="py-2 pl-3 text-right text-xs font-medium text-muted">
-                              <span className="inline-flex items-center gap-1.5">
-                                <Dot color={color} />
-                                <span className="truncate">{name}</span>
-                              </span>
-                            </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-line">
+                      {ROWS.map((row) => (
+                        <tr key={row.label}>
+                          <th scope="row" className="py-2 pr-3 text-left text-xs font-medium text-muted">
+                            {row.label}
+                          </th>
+                          {items.map(({ r, o }) => (
+                            <td key={r.id} className={`py-2 pl-3 text-right ${row.bold ? "font-semibold text-ink" : "text-ink"}`}>
+                              {hasIncome ? row.value(r, o) : "—"}
+                            </td>
                           ))}
                         </tr>
-                      </thead>
-                      <tbody className="divide-y divide-line">
-                        {ROWS.map((row) => (
-                          <tr key={row.label}>
-                            <th scope="row" className="py-2 pr-3 text-left text-xs font-medium text-muted">
-                              {row.label}
-                            </th>
-                            {items.map(({ r, o }) => (
-                              <td key={r.id} className={`py-2 pl-3 text-right ${row.bold ? "font-semibold text-ink" : "text-ink"}`}>
-                                {row.value(r, o)}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-line bg-white p-4">
-                  <h3 className="text-sm font-semibold text-ink">拆分建议</h3>
-                  {splits.length > 0 ? (
-                    <div className="mt-1 divide-y divide-line">
-                      {splits.map(({ id, name, split }) => (
-                        <p key={id} className="py-2 text-sm leading-relaxed text-ink">
-                          {name}：总包不变，年终奖调到 {fmtMoney(split.bestBonus)}、其余进工资，可再省 {fmtMoney(split.saving)} / 年（谈 offer 时可以提）。
-                        </p>
                       ))}
-                    </div>
-                  ) : (
-                    <p className="mt-2 text-sm text-muted">各 offer 的工资 / 年终奖比例已是最省。</p>
-                  )}
+                    </tbody>
+                  </table>
                 </div>
+              </section>
 
-                <p className="text-xs leading-relaxed text-muted">
-                  {year} 年口径 · 专项附加扣除每月 {fmtMoney(sad)} · 算你自己的：{host}
-                </p>
-              </div>
+              {/* 3. 拆分建议 */}
+              <section className="py-4">
+                <h3 className="text-sm font-semibold text-ink">拆分建议</h3>
+                {!hasIncome ? (
+                  <p className="mt-2 text-sm leading-relaxed text-muted">填上月薪和年终奖，这里会给出总包不变时更省的工资 / 年终奖拆分。</p>
+                ) : splits.length > 0 ? (
+                  <div className="mt-1 divide-y divide-line">
+                    {splits.map(({ id, name, split }) => (
+                      <p key={id} className="py-2 text-sm leading-relaxed text-ink">
+                        {name}：总包不变，年终奖调到 {fmtMoney(split.bestBonus)}、其余进工资，可再省 {fmtMoney(split.saving)} / 年（谈 offer 时可以提）。
+                      </p>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm text-muted">各 offer 的工资 / 年终奖比例已是最省。</p>
+                )}
+              </section>
 
+              <p className="pt-4 text-xs leading-relaxed text-muted">
+                {year} 年口径 · 专项附加扣除每月 {fmtMoney(sad)} · 算你自己的：{host}
+              </p>
+            </div>
+          </Card>
+
+          {hasIncome && (
+            <>
               <div className="flex flex-wrap items-center gap-2">
                 <Button variant="primary" className="h-9" onClick={exportPng}>
                   {busy ? "生成中…" : "分享对比"}

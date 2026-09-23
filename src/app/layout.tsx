@@ -48,7 +48,12 @@ export const metadata: Metadata = {
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
   icons: { icon: "/icon.svg", apple: "/logo.png" },
-  other: { "baidu-site-verification": process.env.NEXT_PUBLIC_BAIDU_SITE_VERIFICATION ?? "" },
+  other: {
+    ...(process.env.NEXT_PUBLIC_BAIDU_SITE_VERIFICATION ? { "baidu-site-verification": process.env.NEXT_PUBLIC_BAIDU_SITE_VERIFICATION } : {}),
+    // 百度移动适配：同一 URL 自适应
+    "applicable-device": "pc,mobile",
+    "format-detection": "telephone=no",
+  },
 };
 
 export const viewport: Viewport = {

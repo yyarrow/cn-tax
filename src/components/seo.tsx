@@ -90,13 +90,42 @@ export function breadcrumbLd(items: { name: string; path: string }[]) {
   };
 }
 
-export function Article({ title, children }: { title: string; children: ReactNode; current?: string }) {
+const RELATED: { href: string; label: string; desc: string }[] = [
+  { href: "/", label: "个税计算器", desc: "按工作经历算全年个税、逐月预扣和汇算退补" },
+  { href: "/bonus", label: "年终奖计算器", desc: "单独计税还是并入、陷阱区间、最优拆分" },
+  { href: "/offer", label: "Offer 税后对比", desc: "两三份 offer 并排算全年到手和差额" },
+  { href: "/settlement", label: "汇算清缴退税计算器", desc: "今年能退多少、为什么、在个税 App 怎么办" },
+  { href: "/social-insurance", label: "税后工资计算器", desc: "月薪到手拆分，或从到手反推五险一金" },
+];
+
+/** 文章末尾的相关工具（内链 + 描述性锚文本） */
+function RelatedTools({ current }: { current?: string }) {
+  const items = RELATED.filter((r) => r.href !== current);
+  return (
+    <nav aria-label="相关工具" className="mt-8 rounded-2xl border border-line bg-white p-5">
+      <h2 className="text-sm font-semibold text-ink">相关工具</h2>
+      <ul className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-2">
+        {items.map((r) => (
+          <li key={r.href} className="text-sm leading-relaxed">
+            <Link href={r.href} className="font-medium text-accent-text hover:underline">
+              {r.label}
+            </Link>
+            <span className="text-muted">：{r.desc}</span>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+export function Article({ title, children, current }: { title: string; children: ReactNode; current?: string }) {
   return (
     <div className="mx-auto max-w-6xl px-4 pb-28 pt-2 sm:px-6 lg:pb-16">
       <article className="article rounded-2xl border border-line bg-white p-6 sm:p-8">
         <h2 className="!mt-0 text-xl font-semibold text-ink">{title}</h2>
         {children}
       </article>
+      <RelatedTools current={current} />
       <footer className="mt-8 space-y-1 text-xs leading-relaxed text-muted">
         <p>口径：累计预扣法预扣，汇算按全年 6 万减除 + 全年专项附加；年终奖、上市公司股权激励单独计税政策至 2027 年底。社保 / 公积金基数为各城市 2026 年度参考值（更新于 2026-09）。仅供测算，不构成税务建议。</p>
         <p>

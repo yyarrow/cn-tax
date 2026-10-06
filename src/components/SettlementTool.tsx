@@ -1,5 +1,6 @@
 "use client";
 
+import { ExampleHint } from "./ExampleHint";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CITY_PRESETS, MONTH_NAMES, computeAll, getCity, sadMonthly } from "@/lib/tax";
 import type { Profile } from "@/lib/tax";
@@ -71,7 +72,7 @@ function buildReasons(profile: Profile, result: ReturnType<typeof computeAll>): 
   if (sadMonthly(profile.deductions) === 0) {
     out.push({
       id: "sad",
-      text: "还没填任何专项附加扣除：租房、赡养老人、子女教育等补报后通常再退几千元。",
+      text: "还没填任何专项附加扣除：请核对符合条件的租房、赡养老人、子女教育等项目，补填后再比较全年税额。",
     });
   }
 
@@ -155,7 +156,7 @@ export function SettlementTool() {
   const resultsBody = (
     <div className="divide-y divide-line">
       {/* 1. 退补结论 */}
-      <section className="space-y-3 pb-4">
+      <section className="min-w-0 space-y-3 pb-4">
         <div className="rounded-xl bg-ink px-5 py-4 text-white">
           <div className="flex items-center gap-1.5 text-xs text-white/70">
             <span className={`h-1.5 w-1.5 rounded-full ${heroDot}`} aria-hidden="true" />
@@ -163,7 +164,7 @@ export function SettlementTool() {
           </div>
           <div className="mt-1 text-4xl font-semibold tabular-nums">{heroValue}</div>
           <div className="mt-2 text-xs tabular-nums text-white/70">
-            {hasIncome ? `已预扣 ${fmtMoney(a.withheld)} · 全年应纳 ${fmtMoney(a.totalTax)}` : "已预扣 — · 全年应纳 —"}
+            {hasIncome ? `预扣估算 ${fmtMoney(a.withheld)} · 全年应纳 ${fmtMoney(a.totalTax)}` : "预扣估算 — · 全年应纳 —"}
           </div>
         </div>
 
@@ -293,9 +294,11 @@ export function SettlementTool() {
         </Button>
       </div>
 
+      <ExampleHint storageKeys={["cn-tax-profile-v1"]} enabled={!preview} />
+
       <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         {/* 输入列 */}
-        <div className="space-y-5" ref={inputsRef}>
+        <div className="min-w-0 space-y-5" ref={inputsRef}>
           <Card title="今年的工作经历" subtitle="哪几个月有工资、换过几家，决定退还是补。" action={<Button onClick={addSegment}>＋ 加一段</Button>}>
             <Timeline segments={profile.segments} currentMonth={currentMonth} />
             <div className="mt-4 space-y-3">
@@ -315,14 +318,14 @@ export function SettlementTool() {
             {city.note && <p className="mt-3 text-xs text-muted">{city.note}</p>}
           </Card>
 
-          <Card title="专项附加扣除" subtitle="没在单位申报过的，汇算时补报同样能退。">
+          <Card title="专项附加扣除" subtitle="填写符合条件的项目，估算全年应纳税额。">
             <DeductionsEditor d={profile.deductions} onChange={patchDeductions} />
           </Card>
         </div>
 
         {/* 结果列 */}
-        <div className="space-y-4 lg:sticky lg:top-6 lg:self-start" id="results" ref={resultsRef}>
-          <Card title={`${profile.year} 年汇算清缴预估`} action={<span className="text-xs text-muted">生成于 {dateText}</span>}>
+        <div className="min-w-0 space-y-4 lg:sticky lg:top-6 lg:self-start" id="results" ref={resultsRef}>
+          <Card title={`${profile.year} 年汇算清缴预估`} subtitle="预扣金额由工作经历模拟，实际退补以申报结果为准。" action={<span className="text-xs text-muted">生成于 {dateText}</span>}>
             {resultsBody}
           </Card>
         </div>

@@ -44,7 +44,7 @@ export function SegmentEditor({
     <div className="rounded-xl border border-line bg-white p-4">
       <div className="mb-3 flex items-center gap-2">
         <i className="h-3 w-3 shrink-0 rounded-sm" style={{ background: segmentColor(index) }} />
-        <TextInput value={seg.name} onChange={(name) => onChange({ name })} placeholder={`公司 / 工作 ${index + 1}`} className="max-w-[200px]" />
+        <TextInput ariaLabel={`工作 ${index + 1} 名称`} value={seg.name} onChange={(name) => onChange({ name })} placeholder={`公司 / 工作 ${index + 1}`} className="max-w-[200px]" />
         <span className="ml-auto whitespace-nowrap text-xs text-muted">{months} 个月</span>
         {canRemove && (
           <Button variant="danger" onClick={onRemove} className="h-7 px-2">
@@ -86,6 +86,7 @@ export function SegmentEditor({
                     <td key={m} className="min-w-[72px]">
                       <NumberInput
                         dense
+                        ariaLabel={`${MONTH_NAMES[m - 1]}税前工资`}
                         value={seg.monthOverrides?.[m]}
                         placeholder={String(seg.monthlySalary)}
                         step={1000}
@@ -109,6 +110,7 @@ export function SegmentEditor({
                         <td key={m}>
                           <NumberInput
                             dense
+                            ariaLabel={`${MONTH_NAMES[m - 1]}个人五险一金`}
                             value={seg.socialOverrides?.[m]}
                             placeholder={String(Math.round(socialNormal))}
                             step={100}
@@ -159,113 +161,123 @@ export function SegmentEditor({
           </p>
         )}
 
-        <div className="mt-3 grid grid-cols-[1fr_1fr_auto] gap-2 sm:grid-cols-[1.2fr_0.8fr_1fr_auto]">
-          <Field label="某月到手">
-            <NumberInput
-              value={seg.netSample?.amount}
-              placeholder="税后到手"
-              prefix="¥"
-              onChange={(amount) =>
-                onChange({
-                  netSample: { month: seg.netSample?.month ?? Math.min(seg.endMonth, Math.max(seg.startMonth, seg.startMonth + 1)), amount },
-                  social: { ...social, mode: amount > 0 ? "infer" : "auto" },
-                })
-              }
-            />
-          </Field>
-          <Field label="月份">
-            <MonthSelect
-              value={seg.netSample?.month ?? seg.startMonth}
-              min={seg.startMonth}
-              max={seg.endMonth}
-              onChange={(month) => onChange({ netSample: { month, amount: seg.netSample?.amount ?? 0 } })}
-            />
-          </Field>
-          <Field label="工资条个税" className="col-span-2 sm:col-span-1">
-            <NumberInput
-              value={seg.netSample?.tax}
-              placeholder="可选"
-              prefix="¥"
-              disabled={!hasSample}
-              onChange={(tax) => seg.netSample && onChange({ netSample: { ...seg.netSample, tax: tax > 0 ? tax : tax === 0 ? 0 : undefined } })}
-            />
-          </Field>
-          <div className="mt-5">
-            {hasSample && (
-              <Button variant="ghost" onClick={() => onChange({ netSample: undefined, social: { ...social, mode: "auto" } })} className="h-9 px-2">
-                清除
-              </Button>
-            )}
-          </div>
-        </div>
-        <p className="mt-1 text-xs text-muted">填一个普通月份的到手即可反推；再填个税就直接相减，不用猜。</p>
-
         <div className="mt-3">
-          <Details summary={social.mode === "manual" ? "手动设置（已启用）" : "手动填社保 / 公积金"}>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <Field label="模式" className="col-span-2 sm:col-span-3">
-                <div className="flex flex-wrap gap-2 text-xs">
-                  {(["auto", "infer", "manual"] as const).map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => patchSocial({ mode: m })}
-                      disabled={m === "infer" && !hasSample}
-                      className={`rounded-md border px-2 py-1 ${social.mode === m ? "border-accent bg-accent/10 text-accent-text" : "border-line text-muted"} disabled:opacity-40`}
-                    >
-                      {m === "auto" ? "城市参考值" : m === "infer" ? "由到手反推" : "手动"}
-                    </button>
-                  ))}
-                </div>
-              </Field>
-              <Field label="五险一金合计" hint="工资条上的个人合计；填了就不看下面的明细" className="col-span-2 sm:col-span-3">
+          <Details summary="用工资条反推 / 手动设置" open={hasSample || social.mode === "manual"}>
+            <div className="mt-3 grid grid-cols-[1fr_1fr_auto] gap-2 sm:grid-cols-[1.2fr_0.8fr_1fr_auto]">
+              <Field label="某月到手">
                 <NumberInput
-                  value={social.totalMonthly}
-                  placeholder="元 / 月"
+                  value={seg.netSample?.amount}
+                  placeholder="税后到手"
                   prefix="¥"
-                  step={100}
-                  onChange={(v) => patchSocial(v > 0 ? { totalMonthly: v, mode: "manual" } : { totalMonthly: undefined })}
+                  onChange={(amount) =>
+                    onChange({
+                      netSample: { month: seg.netSample?.month ?? Math.min(seg.endMonth, Math.max(seg.startMonth, seg.startMonth + 1)), amount },
+                      social: { ...social, mode: amount > 0 ? "infer" : "auto" },
+                    })
+                  }
                 />
               </Field>
-              <Field label="社保基数" hint={`${city.name}参考 ${city.socialMin}–${city.socialMax}`}>
-                <NumberInput value={social.socialBase} placeholder="=月薪(封顶)" onChange={(v) => patchSocial({ socialBase: v || undefined, mode: "manual" })} />
+              <Field label="月份">
+                <MonthSelect
+                  value={seg.netSample?.month ?? seg.startMonth}
+                  min={seg.startMonth}
+                  max={seg.endMonth}
+                  onChange={(month) => onChange({ netSample: { month, amount: seg.netSample?.amount ?? 0 } })}
+                />
               </Field>
-              <Field label="公积金基数" hint={`参考上限 ${city.housingMax}`}>
-                <NumberInput value={social.housingBase} placeholder="=月薪(封顶)" onChange={(v) => patchSocial({ housingBase: v || undefined, mode: "manual" })} />
+              <Field label="工资条个税" className="col-span-2 sm:col-span-1">
+                <NumberInput
+                  value={seg.netSample?.tax}
+                  placeholder="可选"
+                  prefix="¥"
+                  disabled={!hasSample}
+                  onChange={(tax) => seg.netSample && onChange({ netSample: { ...seg.netSample, tax: tax > 0 ? tax : tax === 0 ? 0 : undefined } })}
+                />
               </Field>
-              <Field label="公积金比例">
-                <NumberInput value={Math.round((social.housingRate ?? city.housingRateDefault) * 100)} suffix="%" onChange={(v) => patchSocial({ housingRate: Math.min(20, Math.max(0, v)) / 100 })} />
-              </Field>
-              <Field label="补充公积金">
-                <NumberInput value={Math.round((social.supplementaryHousingRate ?? 0) * 100)} suffix="%" onChange={(v) => patchSocial({ supplementaryHousingRate: Math.min(20, Math.max(0, v)) / 100 })} />
-              </Field>
-              <Field label="养老 / 医疗 / 失业" hint="个人比例，%">
-                <div className="flex gap-1">
-                  <NumberInput value={+(((social.pensionRate ?? city.pensionRate) * 100).toFixed(2))} step={0.5} onChange={(v) => patchSocial({ pensionRate: v / 100 })} />
-                  <NumberInput value={+(((social.medicalRate ?? city.medicalRate) * 100).toFixed(2))} step={0.5} onChange={(v) => patchSocial({ medicalRate: v / 100 })} />
-                  <NumberInput value={+(((social.unemploymentRate ?? city.unemploymentRate) * 100).toFixed(2))} step={0.1} onChange={(v) => patchSocial({ unemploymentRate: v / 100 })} />
+              <div className="mt-5">
+                {hasSample && (
+                  <Button variant="ghost" onClick={() => onChange({ netSample: undefined, social: { ...social, mode: "auto" } })} className="h-9 px-2">
+                    清除
+                  </Button>
+                )}
+              </div>
+            </div>
+            <p className="mt-1 text-xs text-muted">填一个普通月份的到手即可反推；再填个税就直接相减，不用猜。</p>
+
+            <div className="mt-3">
+              <Details summary={social.mode === "manual" ? "手动设置（已启用）" : "手动填社保 / 公积金"} open={social.mode === "manual"}>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  <div className="col-span-2 space-y-1 sm:col-span-3">
+                    <p className="text-xs font-medium text-muted">模式</p>
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      {(["auto", "infer", "manual"] as const).map((m) => (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() => patchSocial({ mode: m })}
+                          disabled={m === "infer" && !hasSample}
+                          className={`rounded-md border px-2 py-1 ${social.mode === m ? "border-accent bg-accent/10 text-accent-text" : "border-line text-muted"} disabled:opacity-40`}
+                        >
+                          {m === "auto" ? "城市参考值" : m === "infer" ? "由到手反推" : "手动"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <Field label="五险一金合计" hint="工资条上的个人合计；填了就不看下面的明细" className="col-span-2 sm:col-span-3">
+                    <NumberInput
+                      value={social.totalMonthly}
+                      placeholder="元 / 月"
+                      prefix="¥"
+                      step={100}
+                      onChange={(v) => patchSocial(v > 0 ? { totalMonthly: v, mode: "manual" } : { totalMonthly: undefined })}
+                    />
+                  </Field>
+                  <Field label="社保基数" hint={`${city.name}参考 ${city.socialMin}–${city.socialMax}`}>
+                    <NumberInput value={social.socialBase} placeholder="=月薪(封顶)" onChange={(v) => patchSocial({ socialBase: v || undefined, mode: "manual" })} />
+                  </Field>
+                  <Field label="公积金基数" hint={`参考上限 ${city.housingMax}`}>
+                    <NumberInput value={social.housingBase} placeholder="=月薪(封顶)" onChange={(v) => patchSocial({ housingBase: v || undefined, mode: "manual" })} />
+                  </Field>
+                  <Field label="公积金比例">
+                    <NumberInput value={Math.round((social.housingRate ?? city.housingRateDefault) * 100)} suffix="%" onChange={(v) => patchSocial({ housingRate: Math.min(20, Math.max(0, v)) / 100 })} />
+                  </Field>
+                  <Field label="补充公积金">
+                    <NumberInput value={Math.round((social.supplementaryHousingRate ?? 0) * 100)} suffix="%" onChange={(v) => patchSocial({ supplementaryHousingRate: Math.min(20, Math.max(0, v)) / 100 })} />
+                  </Field>
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-muted">养老 / 医疗 / 失业（个人比例，%）</p>
+                    <div className="flex gap-1">
+                      <NumberInput ariaLabel="养老个人比例（%）" value={+(((social.pensionRate ?? city.pensionRate) * 100).toFixed(2))} step={0.5} onChange={(v) => patchSocial({ pensionRate: v / 100 })} />
+                      <NumberInput ariaLabel="医疗个人比例（%）" value={+(((social.medicalRate ?? city.medicalRate) * 100).toFixed(2))} step={0.5} onChange={(v) => patchSocial({ medicalRate: v / 100 })} />
+                      <NumberInput ariaLabel="失业个人比例（%）" value={+(((social.unemploymentRate ?? city.unemploymentRate) * 100).toFixed(2))} step={0.1} onChange={(v) => patchSocial({ unemploymentRate: v / 100 })} />
+                    </div>
+                  </div>
+                  <Field label="其他税前扣除" hint="企业年金个人部分等，元/月">
+                    <NumberInput value={social.extraMonthly} placeholder="0" onChange={(v) => patchSocial({ extraMonthly: v })} />
+                  </Field>
                 </div>
-              </Field>
-              <Field label="其他税前扣除" hint="企业年金个人部分等，元/月">
-                <NumberInput value={social.extraMonthly} placeholder="0" onChange={(v) => patchSocial({ extraMonthly: v })} />
-              </Field>
+              </Details>
             </div>
           </Details>
         </div>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-3">
-        <Field label="年终奖（可选）">
-          <NumberInput value={seg.bonus} placeholder="0" prefix="¥" step={5000} onChange={(bonus) => onChange({ bonus, bonusMonth: seg.bonusMonth ?? seg.endMonth })} />
-        </Field>
-        <Field label="发放月份">
-          <MonthSelect value={Math.min(seg.endMonth, Math.max(seg.startMonth, seg.bonusMonth ?? seg.endMonth))} min={seg.startMonth} max={seg.endMonth} onChange={(bonusMonth) => onChange({ bonusMonth })} />
-        </Field>
+      <div className="mt-3">
+        <Details summary="年终奖与应届设置" open={!!seg.bonus || !!seg.firstJobOfYear}>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <Field label="年终奖（可选）">
+              <NumberInput value={seg.bonus} placeholder="0" prefix="¥" step={5000} onChange={(bonus) => onChange({ bonus, bonusMonth: seg.bonusMonth ?? seg.endMonth })} />
+            </Field>
+            <Field label="发放月份">
+              <MonthSelect value={Math.min(seg.endMonth, Math.max(seg.startMonth, seg.bonusMonth ?? seg.endMonth))} min={seg.startMonth} max={seg.endMonth} onChange={(bonusMonth) => onChange({ bonusMonth })} />
+            </Field>
+          </div>
+          <label className="mt-3 flex items-center gap-2 text-xs text-muted">
+            <input type="checkbox" checked={!!seg.firstJobOfYear} onChange={(e) => onChange({ firstJobOfYear: e.target.checked })} className="accent-accent" />
+            今年首份工作（应届 / 之前无收入），减除费用从 1 月累计
+          </label>
+        </Details>
       </div>
-      <label className="mt-3 flex items-center gap-2 text-xs text-muted">
-        <input type="checkbox" checked={!!seg.firstJobOfYear} onChange={(e) => onChange({ firstJobOfYear: e.target.checked })} className="accent-accent" />
-        今年首份工作（应届 / 之前无收入），减除费用从 1 月累计
-      </label>
     </div>
   );
 }

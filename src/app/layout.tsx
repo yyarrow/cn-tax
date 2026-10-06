@@ -2,10 +2,8 @@ import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import type { ReactNode } from "react";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
-
-export const SITE_URL = "https://tax.warmbeing.com";
-export const SITE_NAME = "个税规划器";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

@@ -35,6 +35,7 @@ export function ShareModal({
   footerNote?: ReactNode;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const [busy, setBusy] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [qr, setQr] = useState<string>("");
@@ -58,15 +59,17 @@ export function ShareModal({
   }, [shareUrl]);
 
   useEffect(() => {
+    const dialog = dialogRef.current;
+    const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
+    dialog?.showModal();
     return () => {
+      dialog?.close();
       document.body.style.overflow = prev;
-      window.removeEventListener("keydown", onKey);
+      trigger?.focus();
     };
-  }, [onClose]);
+  }, []);
 
   const copyLink = async () => {
     try {
@@ -98,7 +101,11 @@ export function ShareModal({
   };
 
   return (
-    <div className="report-modal fixed inset-0 z-50 overflow-y-auto bg-ink/60 backdrop-blur-sm" onClick={onClose}>
+    <dialog ref={dialogRef} aria-label={title} className="report-modal fixed inset-0 z-50 m-0 h-full max-h-none w-full max-w-none overflow-y-auto border-0 bg-ink/60 p-0 text-ink backdrop-blur-sm" onClick={onClose} onCancel={(e) => {
+      e.preventDefault();
+      if (imageUrl) setImageUrl(null);
+      else onClose();
+    }}>
       <div className="mx-auto my-6 w-full max-w-3xl px-4" onClick={(e) => e.stopPropagation()}>
         <div className="report-toolbar mb-2 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/95 px-4 py-2.5 shadow-md">
           <span className="text-sm font-medium text-ink">报告预览</span>
@@ -179,6 +186,6 @@ export function ShareModal({
           </footer>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }

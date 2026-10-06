@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { ExampleHint } from "./ExampleHint";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CITY_PRESETS, bonusSeparateTax, bonusTrapZones, computeAll, getCity, round2, sadMonthly } from "@/lib/tax";
 import { findTrap } from "@/lib/tax/bonus";
@@ -262,9 +264,11 @@ export function BonusTool() {
         </Button>
       </div>
 
+      <ExampleHint storageKeys={["cn-tax-bonus-v1", "cn-tax-profile-v1"]} enabled={!wasBonusLoadedFromShare()} />
+
       <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         {/* 输入 */}
-        <div className="space-y-3 lg:col-start-1 lg:row-start-1" ref={inputsRef}>
+        <div className="min-w-0 space-y-3 lg:col-start-1 lg:row-start-1" ref={inputsRef}>
           <div className="rounded-2xl border border-line bg-white p-4">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <Field label="城市">
@@ -284,7 +288,7 @@ export function BonusTool() {
               </Field>
             </div>
             <div className="mt-3">
-              <Details summary="更多">
+              <Details summary="工资月数与缴费设置">
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   <Field label="公积金比例" hint={`${city.name} 常见 ${(city.housingRateDefault * 100).toFixed(0)}%`}>
                     <NumberInput
@@ -310,13 +314,14 @@ export function BonusTool() {
             </div>
           </div>
           <p className="text-xs leading-relaxed text-muted">
-            {year} 年口径 · 专项附加扣除沿用首页设置（每月 {fmtMoney(sad)}）。
+            {year} 年口径 · 专项附加扣除沿用首页设置（每月 {fmtMoney(sad)}）。{" "}
+            <Link href="/#deductions" className="text-accent-text underline underline-offset-2">修改扣除</Link>
           </p>
         </div>
 
         {/* 结果 */}
         <div
-          className="space-y-4 lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-6 lg:self-start"
+          className="min-w-0 space-y-4 lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-6 lg:self-start"
           id="results"
           ref={resultsRef}
         >
@@ -326,7 +331,7 @@ export function BonusTool() {
         </div>
 
         {/* 参考：与输入无关，始终完整显示 */}
-        <div className="space-y-4 lg:col-start-1 lg:row-start-2">
+        <div className="min-w-0 space-y-4 lg:col-start-1 lg:row-start-2">
           <Card title="陷阱区间" subtitle="单独计税跨档时多发反而少拿；表中行随你的年终奖高亮">
             {trapTable}
           </Card>
@@ -335,7 +340,7 @@ export function BonusTool() {
             {!analysis ? (
               <p className="text-sm leading-relaxed text-muted">填上年终奖和月薪，这里会生成一段可以直接发给 HR 的话术。</p>
             ) : (
-              <div className="space-y-2">
+              <div className="min-w-0 space-y-2">
                 {scriptText.split("\n").map((line) => (
                   <p key={line} className="text-sm leading-relaxed tabular-nums text-ink">
                     {line}

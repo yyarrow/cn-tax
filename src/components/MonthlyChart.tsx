@@ -58,7 +58,7 @@ export function MonthlyChart({ rows, currentMonth, staticMode = false }: { rows:
           <span className="inline-flex items-center gap-1"><i className="h-2.5 w-2.5 rounded-sm" style={{ background: "var(--series-tax)" }} />个税（预扣）</span>
           <span className="inline-flex items-center gap-1"><i className="h-2.5 w-2.5 rounded-sm" style={{ background: "var(--series-social)" }} />五险一金</span>
         </div>
-        {!staticMode && <Segmented value={view} onChange={setView} options={[{ value: "chart", label: "图" }, { value: "table", label: "表" }]} />}
+        {!staticMode && <Segmented label="逐月明细视图" value={view} onChange={setView} options={[{ value: "chart", label: "图" }, { value: "table", label: "表" }]} />}
       </div>
 
       {view === "chart" ? (

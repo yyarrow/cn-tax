@@ -51,11 +51,11 @@ export function Report({ profile, result, currentMonth, onClose }: { profile: Pr
       onClose={onClose}
       footerNote={mode === "brief" ? "年终奖、期权规划与减税建议在网页里。" : ""}
       extraControls={
-        <Segmented value={mode} onChange={setMode} options={[{ value: "brief", label: "摘要" }, { value: "full", label: "完整" }]} />
+        <Segmented label="报告内容" value={mode} onChange={setMode} options={[{ value: "brief", label: "摘要" }, { value: "full", label: "完整" }]} />
       }
     >
-      <Section title="全年测算" subtitle={currentMonth > 0 && currentMonth < 12 ? `${currentMonth} 月前按实际，之后为预测。` : undefined}>
-        <Summary a={result.annual} />
+      <Section title="全年测算" subtitle={currentMonth > 0 && currentMonth < 12 ? `按已填收入估算，${currentMonth + 1}–12 月为预测。` : undefined}>
+        <Summary a={result.annual} staticMode />
       </Section>
 
       <Section title="逐月明细" subtitle="每月到手、扣款，以及预扣税率何时跳档。">

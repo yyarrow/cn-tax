@@ -13,6 +13,7 @@ export function BonusPanel({ b, mode, onMode, bonusSeparate }: { b: BonusAnalysi
           年终奖 <b className="text-ink">{fmtMoney(b.bonus)}</b>，当前按「{bonusSeparate ? "单独计税" : "并入综合所得"}」计算
         </div>
         <Segmented
+          label="年终奖计税方式"
           value={mode}
           onChange={onMode}
           options={[

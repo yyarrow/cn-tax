@@ -1,10 +1,11 @@
 "use client";
 
+import { ExampleHint } from "./ExampleHint";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CITY_PRESETS, computeAll, getCity } from "@/lib/tax";
 import { currentMonthFor, useProfile } from "@/lib/store";
 import { fmtMoney } from "@/lib/format";
-import { Button, Card, Field, Hint, NumberInput, Select } from "./ui";
+import { Button, Card, Field, Hint, NumberInput, Select, Details } from "./ui";
 import { Timeline } from "./Timeline";
 import { SegmentEditor } from "./SegmentEditor";
 import { DeductionsEditor } from "./DeductionsEditor";
@@ -81,9 +82,11 @@ export function App() {
         </Button>
       </div>
 
+      <ExampleHint storageKeys={["cn-tax-profile-v1"]} enabled={!preview} />
+
       <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         {/* 输入列 */}
-        <div className="space-y-5" ref={inputsRef}>
+        <div className="min-w-0 space-y-5" ref={inputsRef}>
           <Card title="1 · 工作经历" subtitle="按段填税前月薪，没覆盖的月份即空档。" action={<Button onClick={addSegment}>＋ 加一段</Button>}>
             <Timeline segments={profile.segments} currentMonth={currentMonth} />
             <div className="mt-4 space-y-3">
@@ -103,19 +106,21 @@ export function App() {
             {city.note && <p className="mt-3 text-xs text-muted">{city.note}</p>}
           </Card>
 
-          <Card title="2 · 专项附加扣除" subtitle="没申报的项目会进减税建议。">
+          <Card id="deductions" className="scroll-mt-6" title="2 · 专项附加扣除" subtitle="填写符合条件的扣除项目。">
             <DeductionsEditor d={profile.deductions} onChange={patchDeductions} />
           </Card>
 
           <Card title="3 · 期权 / RSU（可选）" subtitle="选计税方式，填今年已兑现金额。">
-            <EquityEditor plan={profile.equity} onChange={(equity) => patch({ equity })} />
+            <Details summary="填写股权激励收入" open={hasEquityActivity}>
+              <EquityEditor plan={profile.equity} onChange={(equity) => patch({ equity })} />
+            </Details>
           </Card>
         </div>
 
         {/* 结果列 */}
-        <div className="space-y-5 lg:sticky lg:top-6 lg:self-start" id="results" ref={resultsRef}>
+        <div className="min-w-0 space-y-5 lg:sticky lg:top-6 lg:self-start" id="results" ref={resultsRef}>
           <>
-              <Card title={`${profile.year} 年全年测算`} subtitle={currentMonth > 0 && currentMonth < 12 ? `${currentMonth} 月前按实际，之后为预测。` : undefined}>
+              <Card title={`${profile.year} 年全年测算`} subtitle={currentMonth > 0 && currentMonth < 12 ? `按已填收入估算，${currentMonth + 1}–12 月为预测。` : undefined}>
                 {!hasIncome && <Hint>先在左侧填一段工作和税前月薪，下面的数字会实时更新。</Hint>}
                 <div className={hasIncome ? "" : "mt-3"}>
                   <Summary a={result.annual} />

@@ -12,7 +12,7 @@ export function DeductionsEditor({ d, onChange }: { d: SpecialDeductions; onChan
       <div className="grid grid-cols-2 gap-3">
         <Field label="住房" hint="租房或首套房贷利息，二选一">
           <Select value={d.housing} onChange={(e) => onChange({ housing: e.target.value as SpecialDeductions["housing"] })}>
-            <option value="none">没有 / 未申报</option>
+            <option value="none">不计此项扣除</option>
             <option value="rent">租房</option>
             <option value="loan">首套房贷利息（{SAD_STANDARD.housingLoan}/月）</option>
           </Select>
@@ -30,7 +30,7 @@ export function DeductionsEditor({ d, onChange }: { d: SpecialDeductions; onChan
         )}
         <Field label="赡养老人" hint="父母任一方满 60 岁即可">
           <Select value={d.elderly} onChange={(e) => onChange({ elderly: e.target.value as SpecialDeductions["elderly"] })}>
-            <option value="none">没有 / 未申报</option>
+            <option value="none">不计此项扣除</option>
             <option value="only">独生子女（{SAD_STANDARD.elderlyOnly}/月）</option>
             <option value="shared">非独生，分摊</option>
           </Select>
@@ -48,8 +48,10 @@ export function DeductionsEditor({ d, onChange }: { d: SpecialDeductions; onChan
         <Field label="3 岁以下婴幼儿" hint={`每个孩子 ${SAD_STANDARD.infant}/月`}>
           <NumberInput value={d.infants} onChange={(infants) => onChange({ infants })} suffix="个" />
         </Field>
-        <Field label="继续教育" hint="在职读学历或当年拿到证书" className="col-span-2">
+        <div className="col-span-2 space-y-1">
+          <p className="text-xs font-medium text-muted">继续教育</p>
           <Segmented
+            label="继续教育"
             value={d.continuingEducation}
             onChange={(continuingEducation) => onChange({ continuingEducation })}
             options={[
@@ -58,7 +60,8 @@ export function DeductionsEditor({ d, onChange }: { d: SpecialDeductions; onChan
               { value: "cert", label: `职业资格证（${SAD_STANDARD.continuingEducationCert}/年）` },
             ]}
           />
-        </Field>
+          <p className="text-xs text-muted">在职读学历或当年拿到证书</p>
+        </div>
       </div>
       <div className="grid grid-cols-2 gap-3 border-t border-line pt-4">
         <Field label="个人养老金" hint={`自愿缴，上限 ${SAD_STANDARD.personalPensionCap}/年`}>
@@ -75,6 +78,7 @@ export function DeductionsEditor({ d, onChange }: { d: SpecialDeductions; onChan
         合计：每月 <b className="text-ink">{fmtMoney(monthly)}</b>，全年 <b className="text-ink">{fmtMoney(monthly * 12 + annual.total)}</b>
         {annual.total > 0 ? `（含汇算时才扣的 ${fmtMoney(annual.total)}）` : ""}
       </p>
+      <p className="text-xs leading-relaxed text-muted">当前按上述月度扣除已用于工资预扣估算；未申报的扣除请在办理汇算时核对。</p>
     </div>
   );
 }

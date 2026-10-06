@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { SITE_NAME, SITE_URL } from "@/app/layout";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 const SITE_NAV = [
   { href: "/", label: "个税计算器" },
@@ -10,12 +10,12 @@ const SITE_NAV = [
   { href: "/social-insurance", label: "税后工资" },
 ];
 
-/** 全站导航：移动端横向滚动，当前项用强调色下划线标出 */
+/** 全站导航：移动端换行展示全部入口，当前项用强调色下划线标出 */
 function SiteNav({ current }: { current?: string }) {
   return (
     <nav
       aria-label="站点导航"
-      className="no-scrollbar -mx-4 mt-4 overflow-x-auto whitespace-nowrap border-b border-line px-4 text-sm sm:mx-0 sm:px-0"
+      className="mt-4 grid grid-cols-3 border-b border-line text-sm sm:block"
     >
       {SITE_NAV.map((n) => {
         const active = n.href === current;
@@ -24,7 +24,7 @@ function SiteNav({ current }: { current?: string }) {
             key={n.href}
             href={n.href}
             aria-current={active ? "page" : undefined}
-            className={`mr-6 inline-block border-b-2 py-2 last:mr-0 ${active ? "border-accent font-semibold text-ink" : "border-transparent text-muted hover:text-ink"}`}
+            className={`inline-flex min-h-11 items-center justify-center border-b-2 py-2 sm:mr-6 sm:inline-block sm:min-h-0 sm:last:mr-0 ${active ? "border-accent font-semibold text-ink" : "border-transparent text-muted hover:text-ink"}`}
           >
             {n.label}
           </Link>
@@ -47,11 +47,6 @@ export function Hero({ title, subtitle, current }: { title: string; subtitle: st
         </div>
       </div>
       <SiteNav current={current} />
-      <div className="mt-2 flex gap-1" aria-hidden="true">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <span key={i} className="h-1.5 flex-1 rounded-full bg-accent" style={{ opacity: 0.15 + (i * (1 - 0.15)) / 11 }} />
-        ))}
-      </div>
     </div>
   );
 }

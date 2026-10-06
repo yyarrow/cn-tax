@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { ExampleHint } from "./ExampleHint";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CITY_PRESETS, compareOffers, getCity, sadMonthly } from "@/lib/tax";
 import type { OfferInput, OfferResult } from "@/lib/tax";
@@ -57,6 +59,7 @@ export function OfferCompare() {
   const ranked = [...withIncome].sort((a, b) => b.r.netTotal - a.r.netTotal);
   const runnerUp = ranked[1];
   const gap = runnerUp ? winner.r.netTotal - runnerUp.r.netTotal : 0;
+  const tiedAtTop = withIncome.filter((x) => Math.abs(x.r.netTotal - winner.r.netTotal) <= 1).length > 1;
   const splits = items.flatMap(({ r, name }) => (r.split && r.split.saving > 1 ? [{ id: r.id, name, split: r.split }] : []));
 
   const inputsRef = useRef<HTMLDivElement>(null);
@@ -98,9 +101,9 @@ export function OfferCompare() {
     <div className="divide-y divide-line">
       {/* 1. 全年到手对比 */}
       <section className="pb-4">
-        <div className={`grid divide-x divide-line overflow-hidden rounded-xl border border-line ${items.length > 2 ? "grid-cols-2 lg:grid-cols-3" : "grid-cols-2"}`}>
+        <div className={`grid grid-cols-1 divide-y divide-line overflow-hidden sm:divide-x sm:divide-y-0 rounded-xl border border-line ${items.length > 2 ? "sm:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-2"}`}>
           {items.map(({ r, name, color }) => {
-            const isWinner = hasIncome && r.id === comparison.bestId;
+            const isWinner = hasIncome && !tiedAtTop && r.id === comparison.bestId;
             const delta = comparison.deltas[r.id] ?? 0;
             return (
               <div key={r.id} className={`p-3 sm:p-4 ${isWinner ? "bg-good/5" : ""}`}>
@@ -108,12 +111,14 @@ export function OfferCompare() {
                   <Dot color={color} />
                   <span className="truncate">{name}</span>
                 </div>
-                <div className="mt-1 text-3xl font-semibold tabular-nums text-ink">{hasIncome ? fmtMoney(r.netTotal) : "—"}</div>
+                <div className="mt-1 break-words text-2xl font-semibold sm:text-3xl tabular-nums text-ink">{hasIncome ? fmtMoney(r.netTotal) : "—"}</div>
                 <div className="mt-1.5">
                   {!hasIncome ? (
                     <span className="text-xs text-muted">—</span>
+                  ) : tiedAtTop && Math.abs(delta) <= 1 ? (
+                    <span className="inline-flex items-center rounded-full bg-paper px-2 py-0.5 text-xs font-medium text-muted">并列最多</span>
                   ) : isWinner ? (
-                    <span className="inline-flex items-center rounded-full bg-good px-2 py-0.5 text-xs font-medium text-white">到手最多</span>
+                    <span className="inline-flex items-center rounded-full bg-good/10 px-2 py-0.5 text-xs font-medium text-good-text">到手最多</span>
                   ) : (
                     <span className="text-xs tabular-nums text-danger-text">
                       比{winner.name}少 {fmtMoney(-delta)} / 年
@@ -135,7 +140,7 @@ export function OfferCompare() {
               {winner.name} 全年到手比 {runnerUp.name} 多 {fmtMoney(gap)}，主要因为{reasonFor(winner.r, runnerUp.r, gap)}。
             </Hint>
           ) : runnerUp ? (
-            <Hint>两份 offer 全年到手基本一样，可以看看公积金比例和年终奖拆分。</Hint>
+            <Hint>{withIncome.length > 2 ? "到手最多的几份" : "两份"} offer 全年到手基本一样，可以看看公积金比例和年终奖拆分。</Hint>
           ) : null}
         </div>
       </section>
@@ -143,6 +148,7 @@ export function OfferCompare() {
       {/* 2. 逐项对比 */}
       <section className="py-4">
         <h3 className="text-sm font-semibold text-ink">逐项对比</h3>
+        <p className="mt-1 text-xs text-muted sm:hidden">左右滑动查看全部对比列</p>
         <div className="mt-1 overflow-x-auto">
           <table className="w-full min-w-[20rem] text-sm tabular-nums">
             <thead>
@@ -232,9 +238,11 @@ export function OfferCompare() {
         </Button>
       </div>
 
+      <ExampleHint storageKeys={["cn-tax-offers-v1", "cn-tax-profile-v1"]} enabled={!wasLoadedFromShare()} />
+
       <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         {/* 输入列 */}
-        <div className="space-y-4" ref={inputsRef}>
+        <div className="min-w-0 space-y-4" ref={inputsRef}>
           {items.map(({ o, i, color }) => {
             const city = getCity(o.cityId);
             const ratePct = Math.round((o.housingRate ?? city.housingRateDefault) * 1000) / 10;
@@ -243,6 +251,7 @@ export function OfferCompare() {
                 <div className="flex items-center gap-2">
                   <Dot color={color} />
                   <TextInput
+                    ariaLabel={`Offer ${LETTERS[i] ?? i + 1} 名称`}
                     value={o.name}
                     onChange={(name) => patchOffer(o.id, { name })}
                     placeholder={`Offer ${LETTERS[i] ?? i + 1}`}
@@ -300,11 +309,12 @@ export function OfferCompare() {
               ＋ 再加一份 offer
             </Button>
           )}
-          <p className="text-xs leading-relaxed text-muted">专项附加扣除沿用首页设置（每月 {fmtMoney(sad)}）。</p>
+          <p className="text-xs leading-relaxed text-muted">专项附加扣除沿用首页设置（每月 {fmtMoney(sad)}）。{" "}
+            <Link href="/#deductions" className="text-accent-text underline underline-offset-2">修改扣除</Link></p>
         </div>
 
         {/* 结果列 */}
-        <div className="space-y-4 lg:sticky lg:top-6 lg:self-start" id="results" ref={resultsRef}>
+        <div className="min-w-0 space-y-4 lg:sticky lg:top-6 lg:self-start" id="results" ref={resultsRef}>
           <Card title="Offer 税后对比" action={<span className="text-xs text-muted">生成于 {dateText}</span>}>
             {resultsBody}
           </Card>
@@ -330,7 +340,7 @@ export function OfferCompare() {
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] lg:hidden">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
             <div className="min-w-0">
-              <div className="truncate text-xs text-muted">{winner.name} 全年到手</div>
+              <div className="truncate text-xs text-muted">{tiedAtTop ? "最高全年到手（并列）" : `${winner.name} 全年到手`}</div>
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                 <span className="text-lg font-semibold tabular-nums text-ink">{hasIncome ? fmtMoney(winner.r.netTotal) : "—"}</span>
                 {runnerUp && gap > 1 && <span className="text-xs tabular-nums text-good-text">比另一份多 {fmtMoney(gap)}</span>}

@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { ExampleHint } from "./ExampleHint";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { CITY_PRESETS, MONTH_NAMES, computeAll, getCity, sadMonthly } from "@/lib/tax";
 import { fmtMoney } from "@/lib/format";
@@ -159,11 +161,11 @@ export function SalaryTool() {
       <section className="py-4">
         <h3 className="text-sm font-semibold text-ink">全年一览</h3>
         <div className="pb-2 pt-1 text-xs text-muted">上排到手（万元）、下排预扣率（%）</div>
-        <div className="grid grid-cols-12 gap-1">
+        <div className={`grid gap-1 ${staticMode ? "grid-cols-12" : "grid-cols-4 min-[360px]:grid-cols-6 sm:grid-cols-12"}`}>
           {result.rows.map((r) => {
             const on = r.month === input.month;
             const blank = !ready || r.isGap;
-            const cellCls = `flex flex-col items-center gap-0.5 rounded-md border px-0 py-1 leading-tight tracking-tight transition ${
+            const cellCls = `flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-md border px-0 py-1 leading-tight tracking-tight transition ${
               on ? "border-accent/50 bg-accent/10" : "border-transparent bg-paper hover:border-line"
             } ${r.isGap ? "opacity-50" : ""}`;
             const title = blank
@@ -201,7 +203,7 @@ export function SalaryTool() {
 
       {/* 4. 反推口径 */}
       {inferring && (
-        <section className="space-y-2 py-4">
+        <section className="min-w-0 space-y-2 py-4">
           {ready ? (
             <>
               <Hint>
@@ -287,11 +289,13 @@ export function SalaryTool() {
         </Button>
       </div>
 
+      <ExampleHint storageKeys={["cn-tax-salary-v1", "cn-tax-profile-v1"]} enabled={!fromShare} />
+
       <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         {/* 输入 */}
-        <div className="space-y-3 lg:col-start-1 lg:row-start-1" ref={inputsRef}>
+        <div className="min-w-0 space-y-3 lg:col-start-1 lg:row-start-1" ref={inputsRef}>
           <div className="rounded-2xl border border-line bg-white p-4">
-            <Segmented value={input.mode} options={MODES} onChange={(mode) => patch({ mode })} />
+            <Segmented label="测算方式" value={input.mode} options={MODES} onChange={(mode) => patch({ mode })} />
 
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
               <Field label="城市">
@@ -323,7 +327,7 @@ export function SalaryTool() {
             )}
 
             <div className="mt-3">
-              <Details summary="更多">
+              <Details summary="入职时间与缴费设置">
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   <Field label="公积金比例" hint={`${city.name} 常见 ${(city.housingRateDefault * 100).toFixed(0)}%`}>
                     <NumberInput value={housingPct} onChange={(v) => patch({ housingRate: Math.min(20, Math.max(0, v)) / 100 })} max={20} suffix="%" step={1} />
@@ -337,13 +341,14 @@ export function SalaryTool() {
           </div>
 
           <p className="text-xs leading-relaxed text-muted">
-            {year} 年口径 · 专项附加扣除沿用首页设置（每月 {fmtMoney(sad)}）。
+            {year} 年口径 · 专项附加扣除沿用首页设置（每月 {fmtMoney(sad)}）。{" "}
+            <Link href="/#deductions" className="text-accent-text underline underline-offset-2">修改扣除</Link>
           </p>
         </div>
 
         {/* 结果 */}
         <div
-          className="space-y-4 lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-6 lg:self-start"
+          className="min-w-0 space-y-4 lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-6 lg:self-start"
           id="results"
           ref={resultsRef}
         >

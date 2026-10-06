@@ -22,10 +22,10 @@ export function Card({
   id?: string;
 }) {
   return (
-    <section ref={ref} id={id} className={`rounded-2xl border border-line bg-white p-5 shadow-sm ${className}`}>
+    <section ref={ref} id={id} className={`min-w-0 rounded-2xl border border-line bg-white p-5 shadow-sm ${className}`}>
       {(title || action) && (
-        <header className="mb-4 flex items-start justify-between gap-3">
-          <div>
+        <header className="mb-4 flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
             {title && <h2 className="text-base font-semibold text-ink">{title}</h2>}
             {subtitle && <p className="mt-0.5 text-xs text-muted">{subtitle}</p>}
           </div>
@@ -48,7 +48,7 @@ export function Field({ label, hint, children, className = "" }: { label: ReactN
 }
 
 const inputCls =
-  "h-9 w-full rounded-lg border border-line bg-white px-2.5 text-sm text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:bg-paper disabled:text-muted";
+  "h-11 w-full min-w-0 rounded-lg border border-line bg-white px-2.5 text-base text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:bg-paper disabled:text-muted sm:h-9 sm:text-sm";
 
 /** 数字输入：本地保留字符串，避免输入过程被格式化打断 */
 export function NumberInput({
@@ -63,6 +63,7 @@ export function NumberInput({
   disabled,
   className = "",
   dense = false,
+  ariaLabel,
 }: {
   value: number | undefined;
   onChange: (v: number) => void;
@@ -76,6 +77,7 @@ export function NumberInput({
   className?: string;
   /** 紧凑：更小的内边距和字号（用于一排很多个的小输入框） */
   dense?: boolean;
+  ariaLabel?: string;
 }) {
   const [text, setText] = useState(value === undefined || Number.isNaN(value) ? "" : String(value));
   const [prevValue, setPrevValue] = useState(value);
@@ -95,6 +97,7 @@ export function NumberInput({
       <input
         type="number"
         inputMode="decimal"
+        aria-label={ariaLabel}
         min={min}
         max={max}
         step={step}
@@ -114,8 +117,8 @@ export function NumberInput({
   );
 }
 
-export function TextInput({ value, onChange, placeholder, className = "" }: { value: string; onChange: (v: string) => void; placeholder?: string; className?: string }) {
-  return <input type="text" className={`${inputCls} ${className}`} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />;
+export function TextInput({ value, onChange, placeholder, className = "", ariaLabel }: { value: string; onChange: (v: string) => void; placeholder?: string; className?: string; ariaLabel?: string }) {
+  return <input type="text" aria-label={ariaLabel} className={`${inputCls} ${className}`} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />;
 }
 
 export function Select({ className = "", children, ...rest }: SelectHTMLAttributes<HTMLSelectElement>) {
@@ -141,17 +144,27 @@ export function MonthSelect({ value, onChange, min = 1, max = 12, className = ""
   );
 }
 
-export function Segmented<T extends string>({ value, options, onChange, className = "" }: { value: T; options: { value: T; label: ReactNode }[]; onChange: (v: T) => void; className?: string }) {
+export function Segmented<T extends string>({ value, options, onChange, label, className = "" }: { value: T; options: { value: T; label: ReactNode }[]; onChange: (v: T) => void; label: string; className?: string }) {
   return (
-    <div className={`inline-flex rounded-lg border border-line bg-paper p-0.5 text-sm ${className}`} role="radiogroup">
-      {options.map((o) => (
+    <div className={`inline-flex flex-wrap rounded-lg border border-line bg-paper p-0.5 text-sm ${className}`} role="radiogroup" aria-label={label}>
+      {options.map((o, index) => (
         <button
           key={o.value}
           type="button"
           role="radio"
           aria-checked={value === o.value}
+          tabIndex={value === o.value ? 0 : -1}
           onClick={() => onChange(o.value)}
-          className={`rounded-md px-3 py-1 transition ${value === o.value ? "bg-white text-ink shadow-sm" : "text-muted hover:text-ink"}`}
+          onKeyDown={(e) => {
+            const next = e.key === "Home" ? 0 : e.key === "End" ? options.length - 1
+              : e.key === "ArrowRight" || e.key === "ArrowDown" ? (index + 1) % options.length
+              : e.key === "ArrowLeft" || e.key === "ArrowUp" ? (index + options.length - 1) % options.length : null;
+            if (next === null) return;
+            e.preventDefault();
+            onChange(options[next].value);
+            (e.currentTarget.parentElement?.children[next] as HTMLButtonElement)?.focus();
+          }}
+          className={`min-h-11 rounded-md px-3 py-1 transition sm:min-h-0 ${value === o.value ? "bg-white text-ink shadow-sm" : "text-muted hover:text-ink"}`}
         >
           {o.label}
         </button>
@@ -162,13 +175,13 @@ export function Segmented<T extends string>({ value, options, onChange, classNam
 
 export function Button({ children, onClick, variant = "secondary", className = "", type = "button" }: { children: ReactNode; onClick?: () => void; variant?: "primary" | "secondary" | "ghost" | "danger"; className?: string; type?: "button" | "submit" }) {
   const v = {
-    primary: "bg-accent text-white hover:bg-accent/90",
+    primary: "bg-accent-text text-white hover:bg-accent-text/90",
     secondary: "border border-line bg-white text-ink hover:bg-paper",
     ghost: "text-muted hover:bg-paper hover:text-ink",
     danger: "text-danger-text hover:bg-danger/10",
   }[variant];
   return (
-    <button type={type} onClick={onClick} className={`inline-flex h-8 shrink-0 items-center gap-1 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition ${v} ${className}`}>
+    <button type={type} onClick={onClick} className={`inline-flex h-8 min-h-11 shrink-0 items-center gap-1 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition sm:min-h-0 ${v} ${className}`}>
       {children}
     </button>
   );
@@ -179,7 +192,7 @@ export function Stat({ label, value, sub, tone = "default", big = false }: { lab
   return (
     <div className="px-3 py-2.5">
       <div className="text-xs text-muted">{label}</div>
-      <div className={`mt-1 font-semibold tabular-nums ${big ? "text-3xl" : "text-xl"} ${color}`}>{value}</div>
+      <div className={`mt-1 whitespace-nowrap font-semibold tabular-nums ${big ? "text-3xl" : "text-xl @max-[20rem]:text-lg"} ${color}`}>{value}</div>
       {sub && <div className="mt-0.5 text-xs text-muted">{sub}</div>}
     </div>
   );

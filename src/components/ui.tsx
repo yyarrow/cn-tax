@@ -192,7 +192,7 @@ export function Stat({ label, value, sub, tone = "default", big = false }: { lab
   return (
     <div className="px-3 py-2.5">
       <div className="text-xs text-muted">{label}</div>
-      <div className={`mt-1 break-words font-semibold tabular-nums ${big ? "text-3xl" : "text-xl"} ${color}`}>{value}</div>
+      <div className={`mt-1 whitespace-nowrap font-semibold tabular-nums ${big ? "text-3xl" : "text-xl @max-[20rem]:text-lg"} ${color}`}>{value}</div>
       {sub && <div className="mt-0.5 text-xs text-muted">{sub}</div>}
     </div>
   );

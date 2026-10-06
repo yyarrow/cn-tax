@@ -4,7 +4,7 @@ import { ANNUAL_BRACKETS, type AnnualResult } from "@/lib/tax";
 import { fmtMoney, fmtPct } from "@/lib/format";
 import { Details, Stat, Hint } from "./ui";
 
-export function Summary({ a, staticMode = false }: { a: AnnualResult; staticMode?: boolean }) {
+export function Summary({ a }: { a: AnnualResult }) {
   const settlementLabel = a.settlement < -0.5 ? "汇算清缴预计退税" : a.settlement > 0.5 ? "汇算清缴预计补税" : "汇算清缴";
   const settlementTone = a.settlement < -0.5 ? "good" : a.settlement > 0.5 ? "bad" : "default";
   const next = ANNUAL_BRACKETS[a.bracketIndex + 1];
@@ -30,7 +30,7 @@ export function Summary({ a, staticMode = false }: { a: AnnualResult; staticMode
   }
 
   return (
-    <div className="space-y-3">
+    <div className="@container space-y-3">
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2 rounded-xl bg-ink px-5 py-4 text-white">
           <div className="text-xs text-white/70">全年到手（含年终奖、期权 / RSU）</div>
@@ -50,8 +50,8 @@ export function Summary({ a, staticMode = false }: { a: AnnualResult; staticMode
           {settlementNote.text}
         </Hint>
       )}
-      <Details summary="税率与扣除明细" open={staticMode}>
-        <div className="grid grid-cols-1 gap-3 rounded-xl border border-line p-3 min-[360px]:grid-cols-2">
+      <Details summary="税率与扣除明细" open>
+        <div className="grid grid-cols-1 gap-3 rounded-xl border border-line p-3 @min-[17rem]:grid-cols-2">
           <Stat label="应纳税所得额" value={fmtMoney(a.taxable)} sub={`收入 − 6 万 − 五险一金 − 专项附加 ${fmtMoney(a.sadAnnual + a.otherDeductions)}`} />
           <Stat label="所处税率档" value={a.taxable > 0 ? fmtPct(a.marginalRate, 0) : "免税"} tone="accent" sub={next ? `再多 ${fmtMoney(a.roomToNextBracket)} 进 ${fmtPct(next.rate, 0)} 档` : "已是最高档"} />
           <Stat label="五险一金（个人）" value={fmtMoney(a.totalSocial)} sub="税前扣除" />

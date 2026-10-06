@@ -140,7 +140,7 @@ export function OfferCompare() {
               {winner.name} 全年到手比 {runnerUp.name} 多 {fmtMoney(gap)}，主要因为{reasonFor(winner.r, runnerUp.r, gap)}。
             </Hint>
           ) : runnerUp ? (
-            <Hint>最高的 offer 全年到手基本一样，可以看看公积金比例和年终奖拆分。</Hint>
+            <Hint>{withIncome.length > 2 ? "到手最多的几份" : "两份"} offer 全年到手基本一样，可以看看公积金比例和年终奖拆分。</Hint>
           ) : null}
         </div>
       </section>

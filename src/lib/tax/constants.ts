@@ -3,6 +3,8 @@
  * 规则适用 2019–2027 纳税年度（年终奖单独计税、上市公司股权激励单独计税均延续至 2027-12-31）。
  */
 
+import { CITY_PRESETS } from "./cities";
+
 export const BASIC_DEDUCTION_MONTHLY = 5000;
 export const BASIC_DEDUCTION_ANNUAL = 60000;
 
@@ -69,8 +71,17 @@ export const SAD_STANDARD = {
 } as const;
 
 export interface CityPreset {
+  /** 拼音 slug；localStorage 和分享链接里存的是它，已有 id 不可改 */
   id: string;
+  /** 常用简称："杭州"、"延边" */
   name: string;
+  /** 省份简称；直辖市为自身；"其他城市"为空串 */
+  province: string;
+  provinceId: string;
+  /** 全拼（小写、无空格），搜索用 */
+  pinyin: string;
+  /** 拼音首字母（小写），搜索用 */
+  initials: string;
   /** 社保缴费基数上下限（元/月） */
   socialMin: number;
   socialMax: number;
@@ -87,62 +98,15 @@ export interface CityPreset {
   housingRateDefault: number;
   /** 房租扣除档位 */
   rentTier: 1 | 2 | 3;
+  /** 数据口径：city=该市公布值；province=沿用全省统一口径；estimated=推算值 */
+  quality: "city" | "province" | "estimated";
+  /** 数据年度（2026 = 2026-07 起执行的年度） */
+  year: number;
   note?: string;
 }
 
-/**
- * 城市参考值。基数上下限每年 7 月左右调整，这里是 2026 年度（2026-07 起）参考值，
- * 只影响默认估算；用户可在高级设置中覆盖。
- */
-export const CITY_PRESETS: CityPreset[] = [
-  {
-    id: "beijing", name: "北京",
-    socialMin: 7270, socialMax: 36348, housingMin: 2540, housingMax: 36348,
-    pensionRate: 0.08, medicalRate: 0.02, medicalFixed: 3, unemploymentRate: 0.002,
-    housingRateDefault: 0.12, rentTier: 1,
-  },
-  {
-    id: "shanghai", name: "上海",
-    socialMin: 7546, socialMax: 37731, housingMin: 2690, housingMax: 37302,
-    pensionRate: 0.08, medicalRate: 0.02, medicalFixed: 0, unemploymentRate: 0.005,
-    housingRateDefault: 0.07, rentTier: 1,
-    note: "上海基本公积金比例 5%–7%，可另有补充公积金 1%–5%",
-  },
-  {
-    id: "shenzhen", name: "深圳",
-    socialMin: 4775, socialMax: 27549, housingMin: 2520, housingMax: 48471,
-    pensionRate: 0.08, medicalRate: 0.02, medicalFixed: 0, unemploymentRate: 0.002,
-    housingRateDefault: 0.12, rentTier: 1,
-  },
-  {
-    id: "guangzhou", name: "广州",
-    socialMin: 5510, socialMax: 27549, housingMin: 2500, housingMax: 41697,
-    pensionRate: 0.08, medicalRate: 0.02, medicalFixed: 0, unemploymentRate: 0.002,
-    housingRateDefault: 0.12, rentTier: 1,
-  },
-  {
-    id: "hangzhou", name: "杭州",
-    socialMin: 4986, socialMax: 25299, housingMin: 2490, housingMax: 42151,
-    pensionRate: 0.08, medicalRate: 0.02, medicalFixed: 0, unemploymentRate: 0.005,
-    housingRateDefault: 0.12, rentTier: 1,
-  },
-  {
-    id: "chengdu", name: "成都",
-    socialMin: 4588, socialMax: 22938, housingMin: 2280, housingMax: 32969,
-    pensionRate: 0.08, medicalRate: 0.02, medicalFixed: 0, unemploymentRate: 0.004,
-    housingRateDefault: 0.12, rentTier: 1,
-  },
-  {
-    id: "other", name: "其他城市",
-    socialMin: 4000, socialMax: 25000, housingMin: 2000, housingMax: 30000,
-    pensionRate: 0.08, medicalRate: 0.02, medicalFixed: 0, unemploymentRate: 0.005,
-    housingRateDefault: 0.12, rentTier: 2,
-    note: "通用参考值，请按当地标准在高级设置中调整",
-  },
-];
-
 export function getCity(id: string): CityPreset {
-  return CITY_PRESETS.find((c) => c.id === id) ?? CITY_PRESETS[CITY_PRESETS.length - 1];
+  return CITY_PRESETS.find((c) => c.id === id) ?? CITY_PRESETS.find((c) => c.id === "other") ?? CITY_PRESETS[CITY_PRESETS.length - 1];
 }
 
 export const MONTH_NAMES = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];

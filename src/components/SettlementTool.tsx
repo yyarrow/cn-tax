@@ -2,12 +2,13 @@
 
 import { ExampleHint } from "./ExampleHint";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CITY_PRESETS, MONTH_NAMES, computeAll, getCity, sadMonthly } from "@/lib/tax";
+import { MONTH_NAMES, computeAll, getCity, sadMonthly } from "@/lib/tax";
 import type { Profile } from "@/lib/tax";
 import { currentMonthFor, useProfile } from "@/lib/store";
 import { fmtMoney } from "@/lib/format";
 import { SITE, buildShareUrl } from "@/lib/share";
-import { Button, Card, Field, NumberInput, Select } from "./ui";
+import { Button, Card, Field, NumberInput } from "./ui";
+import { CityPicker } from "./CityPicker";
 import { ShareModal } from "./ShareModal";
 import { Timeline } from "./Timeline";
 import { SegmentEditor } from "./SegmentEditor";
@@ -88,7 +89,7 @@ const STEPS = [
 ];
 
 export function SettlementTool() {
-  const { profile, ready, preview, keepPreview, discardPreview, patch, patchSegment, removeSegment, addSegment, patchDeductions, reset } = useProfile();
+  const { profile, ready, preview, keepPreview, discardPreview, patch, setCity, patchSegment, removeSegment, addSegment, patchDeductions, reset } = useProfile();
   const currentMonth = currentMonthFor(profile.year);
   const result = useMemo(() => computeAll(profile, currentMonth), [profile, currentMonth]);
   const city = getCity(profile.cityId);
@@ -266,13 +267,7 @@ export function SettlementTool() {
           <NumberInput value={profile.year} onChange={(year) => patch({ year: Math.round(year) })} className="w-24" min={2019} />
         </Field>
         <Field label="工作城市">
-          <Select value={profile.cityId} onChange={(e) => patch({ cityId: e.target.value })} className="w-32">
-            {CITY_PRESETS.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </Select>
+          <CityPicker value={profile.cityId} onChange={(id) => setCity(id)} className="w-36" />
         </Field>
         <Button variant="secondary" onClick={copyLink} className="mt-5 h-9">
           {copied ? "已复制" : "复制链接"}

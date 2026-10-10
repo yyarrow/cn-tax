@@ -47,7 +47,7 @@ export function Field({ label, hint, children, className = "" }: { label: ReactN
   );
 }
 
-const inputCls =
+export const inputCls =
   "h-11 w-full min-w-0 rounded-lg border border-line bg-white px-2.5 text-base text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:bg-paper disabled:text-muted sm:h-9 sm:text-sm";
 
 /** 数字输入：本地保留字符串，避免输入过程被格式化打断 */

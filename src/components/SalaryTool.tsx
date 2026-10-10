@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { ExampleHint } from "./ExampleHint";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { CITY_PRESETS, MONTH_NAMES, computeAll, getCity, sadMonthly } from "@/lib/tax";
+import { MONTH_NAMES, computeAll, getCity, sadMonthly } from "@/lib/tax";
 import { fmtMoney } from "@/lib/format";
 import { SITE, buildShareUrl } from "@/lib/share";
 import { SALARY_SEGMENT_ID, buildSalaryShareUrl, salaryProfile, useSalary, type SalaryMode } from "@/lib/salaryStore";
-import { Button, Card, Details, Field, Hint, MonthSelect, NumberInput, Segmented, Select } from "./ui";
+import { Button, Card, Details, Field, Hint, MonthSelect, NumberInput, Segmented } from "./ui";
+import { CityPicker } from "./CityPicker";
 import { ShareModal } from "./ShareModal";
 
 const MODES: { value: SalaryMode; label: string }[] = [
@@ -299,13 +300,7 @@ export function SalaryTool() {
 
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
               <Field label="城市">
-                <Select value={input.cityId} onChange={(e) => patch({ cityId: e.target.value })}>
-                  {CITY_PRESETS.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </Select>
+                <CityPicker value={input.cityId} onChange={(id) => patch({ cityId: id })} />
               </Field>
               <Field label="税前月薪">
                 <NumberInput value={input.monthlySalary} onChange={(monthlySalary) => patch({ monthlySalary })} prefix="¥" step={1000} />

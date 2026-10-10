@@ -1,0 +1,1788 @@
+{
+  "cities": [
+    {
+      "city": "北京",
+      "provinceId": "beijing",
+      "housingMin": 2540,
+      "housingMax": 36348,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202608/t20260824_4834975.html",
+      "sourceTitle": "北京住房公积金管理委员会办公室关于2026住房公积金年度缴存有关问题的通知",
+      "confidence": "high",
+      "note": "与参考值2540一致；上限36348（2025年度为35811）。领取基本生活费职工下限1778。通知2026-08-24发布，比例5%-12%。"
+    },
+    {
+      "city": "天津",
+      "provinceId": "tianjin",
+      "housingMin": 2510,
+      "housingMax": 28917,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://www.zfgjj.cn/tjgjjcms/mainSitePc/newsdetail.jsp?id=379379",
+      "sourceTitle": "《关于调整2026年住房公积金缴存额的通知》政策解读（天津市住房公积金管理中心）",
+      "confidence": "high",
+      "note": "上限另有住建委/财政局补充公积金通知印证（2025年在岗职工月均工资3倍=28917）。国家机关事业单位11%或12%，企业5%-12%。"
+    },
+    {
+      "city": "石家庄",
+      "provinceId": "hebei",
+      "housingMin": 2380,
+      "housingMax": 27938,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://460.net.cn/a/532799.html",
+      "sourceTitle": "石家庄住房公积金管理中心2026年度缴存基数调整通知（河北便民信息网转载）",
+      "confidence": "medium",
+      "note": "下限按最低工资分档：市区、正定县2380；晋州/新乐/行唐2230；井陉矿区等10县2080（2026-09-01起部分县最低工资升至2230，下限随之）。取主城区最高档2380。原文为图片通知，数字取自转载。缴存比例上限0.12按省/全国通行口径，未逐城核对原文。"
+    },
+    {
+      "city": "太原",
+      "provinceId": "shanxi",
+      "housingMin": 2150,
+      "housingMax": 29100,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://m.gmw.cn/2026-07/05/content_1304520573.htm",
+      "sourceTitle": "太原市住房公积金管理中心2026年度缴存基数调整通知（光明网转载黄河新闻网）",
+      "confidence": "medium",
+      "note": "下限分档：小店/迎泽/杏花岭/万柏林/尖草坪/晋源/古交/清徐2150；阳曲2050；娄烦1950。取主城区2150。上限基于2025年平均工资116394元。缴存比例上限0.12按省/全国通行口径，未逐城核对原文。 | [校验]下限 2150 低于山西 2026-10-01 起新最低工资一档 2350,疑似仍是旧口径,实际下限可能已上调。"
+    },
+    {
+      "city": "呼和浩特",
+      "provinceId": "neimenggu",
+      "housingMin": 2380,
+      "housingMax": 30498,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://www.sina.cn/news/detail/5315598875626428.html",
+      "sourceTitle": "内蒙古自治区住房资金中心关于调整2026年住房公积金缴存比例和基数的通知（新浪转载）",
+      "confidence": "medium",
+      "note": "下限2380适用呼和浩特四区、和林格尔县；土默特左旗/托克托/清水河/武川为2310。比例5%-12%。通知发文2026-06-30，自7-1起施行。"
+    },
+    {
+      "city": "济南",
+      "provinceId": "shandong",
+      "housingMin": 2400,
+      "housingMax": 33902,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://gjj.jinan.gov.cn/col/col65559/art/2026/art_a025e5da370e4af08b1c1214b23a704c.html",
+      "sourceTitle": "济南住房公积金中心关于调整2026年度住房公积金缴存基数的通知（济住中字〔2026〕9号）",
+      "confidence": "high",
+      "note": "下限分档：历下/市中/槐荫/天桥/历城（官方问答含高新区）2400；长清/章丘/济阳/莱芜/钢城/平阴/商河2210。取2400。比例5%-12%。"
+    },
+    {
+      "city": "青岛",
+      "provinceId": "shandong",
+      "housingMin": 2400,
+      "housingMax": 34342.75,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "http://www.qingdao.gov.cn/zwgk/xxgk/gjjgl/gkml/zcjd/202607/t20260706_10652622.shtml",
+      "sourceTitle": "青岛市住房公积金管理中心关于做好2026年度住房公积金缴存基数调整工作的通知（青住金发〔2026〕5号）政策解读",
+      "confidence": "high",
+      "note": "上限为小数34342.75。下限七区（市南/市北/李沧/崂山/黄岛/城阳/即墨）2400，胶州/平度/莱西2210。比例5%-12%。"
+    },
+    {
+      "city": "郑州",
+      "provinceId": "henan",
+      "housingMin": 2350,
+      "housingMax": 28849,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://cbgc.scol.com.cn/news/7841194",
+      "sourceTitle": "郑州住房公积金管理中心2026年度缴存基数通知（2026-08-11，川观新闻转载）",
+      "confidence": "medium",
+      "note": "上限=2025年度非私营单位在岗职工月均工资3倍；下限=2025年度最低工资标准2350。比例5%-12%。与参考示例一致。"
+    },
+    {
+      "city": "唐山",
+      "provinceId": "hebei",
+      "housingMin": 2380,
+      "housingMax": 25635,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://www.tsgjj.com/website/announcement-detail.html?seqno=1525&itemId=0102",
+      "sourceTitle": "唐山住房公积金官网公告：2026年度缴存基数调整通知",
+      "confidence": "high",
+      "note": "来自唐山公积金官网公告（经页面抓取）。比例5%-12%。若最低工资调整按新标准执行。"
+    },
+    {
+      "city": "烟台",
+      "provinceId": "shandong",
+      "housingMin": 2400,
+      "housingMax": 28692,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "http://www.sd.news.cn/20260710/281fa9aa1778498c89ce9049f01ad8ae/c.html",
+      "sourceTitle": "烟台住房公积金最高月缴存基数调整为28692元（新华网山东）",
+      "confidence": "medium",
+      "note": "下限：莱阳/栖霞/海阳2210，市直及其他区市2400，取2400。比例5%-12%。原通知2026-07-07发布。"
+    },
+    {
+      "city": "潍坊",
+      "provinceId": "shandong",
+      "housingMin": 2400,
+      "housingMax": 24909,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://www.163.com/dy/article/L0R2H8AG0514CFC7.html",
+      "sourceTitle": "潍坊市住房公积金管理中心关于做好2026年度住房公积金缴存基数调整工作的通知（网易转载）",
+      "confidence": "medium",
+      "note": "媒体转载，未核对官网原文。缴存比例上限0.12按省/全国通行口径，未逐城核对原文。"
+    },
+    {
+      "city": "临沂",
+      "provinceId": "shandong",
+      "housingMin": 2210,
+      "housingMax": 25484,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://gjj.linyi.gov.cn/info/1141/9231.htm",
+      "sourceTitle": "临沂市住房公积金中心关于调整2026年度住房公积金缴存基数的通知（临住字〔2026〕15号）",
+      "confidence": "high",
+      "note": "下限：市辖区（兰山/罗庄/河东，市直、沂河新区参照）2210；九县2020。取2210。比例5%-12%。"
+    },
+    {
+      "city": "淄博",
+      "provinceId": "shandong",
+      "housingMin": 2400,
+      "housingMax": 26736.5,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://zfgjj.zibo.gov.cn/art/2026/7/7/art_448_3009603.html",
+      "sourceTitle": "关于做好2026年度住房公积金缴存基数和缴存比例调整工作的通知（淄博市住房公积金管理中心）",
+      "confidence": "high",
+      "note": "上限为小数26736.5。下限：张店/淄川/临淄/高新区/经开区2400；博山/周村/桓台2210；高青/沂源2020。取2400。比例5%-12%。"
+    },
+    {
+      "city": "济宁",
+      "provinceId": "shandong",
+      "housingMin": 2210,
+      "housingMax": 25548,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://www.jining.gov.cn/art/2026/7/28/art_102115_21880.html",
+      "sourceTitle": "济宁市住房公积金管理中心关于调整2026年度住房公积金缴存基数的通知（济住发〔2026〕21号）",
+      "confidence": "high",
+      "note": "下限：任城/兖州/邹城/曲阜/微山（高新区、太白湖、经开区参照）2210；泗水等6县2020。取2210。缴存比例上限0.12按省/全国通行口径，未逐城核对原文。"
+    },
+    {
+      "city": "保定",
+      "provinceId": "hebei",
+      "housingMin": 2380,
+      "housingMax": 24345,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://cbgc.scol.com.cn/news/7758934",
+      "sourceTitle": "保定市住房公积金管理中心2026年度缴存基数调整通知（2026-07-13，川观新闻转载河北日报）",
+      "confidence": "medium",
+      "note": "下限：市区及满城/徐水/涿州/白沟/高碑店/安国2380；高阳等县2230。取2380。上限=2025年平均工资8115元×3（不含定州、雄安）。缴存比例上限0.12按省/全国通行口径，未逐城核对原文。"
+    },
+    {
+      "city": "邯郸",
+      "provinceId": "hebei",
+      "housingMin": 2380,
+      "housingMax": 23754,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://news.qq.com/rain/a/20260716A06XJH00",
+      "sourceTitle": "邯郸市住房公积金管理中心2026年度缴存基数调整通知（邯郸本地宝转载）",
+      "confidence": "medium",
+      "note": "下限分三档：丛台/邯山/复兴/经开区/武安2380；永年/峰峰/冀南/涉县/大名/魏县2230；肥乡等9县2080。取2380。缴存比例上限0.12按省/全国通行口径，未逐城核对原文。"
+    },
+    {
+      "city": "洛阳",
+      "provinceId": "henan",
+      "housingMin": 2100,
+      "housingMax": 22471,
+      "period": "2025-07~2026-06",
+      "year": 2025,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://m.ly.bendibao.com/live/33574.shtm",
+      "sourceTitle": "2025洛阳公积金缴存基数规定（洛阳本地宝）",
+      "confidence": "low",
+      "note": "未查到洛阳2026年度通知（搜索额度耗尽）；此为2025年度数据（2024年平均工资7490.17元×3），下限2100已过时（河南2026年最低工资2350，2026年下限大概率升至2350，但未证实）。搜索曾出现31545/2260的结果，实为连云港页面误匹配，勿采信。 | [校验]仅 2025 年度旧值;河南 2025-12-01 起最低工资一档为 2350,下限已过时。"
+    },
+    {
+      "city": "东营",
+      "provinceId": "shandong",
+      "housingMin": 2400,
+      "housingMax": 34431,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://www.163.com/dy/article/L1FIFGVD0514CFC7.html",
+      "sourceTitle": "东营市公布2026年度住房公积金缴存基数及月缴存额标准（网易转载）",
+      "confidence": "medium",
+      "note": "上限依据2025年全口径年平均工资137726元。下限2400自2025-10-01起执行。比例5%-12%。"
+    },
+    {
+      "city": "威海",
+      "provinceId": "shandong",
+      "housingMin": 2400,
+      "housingMax": 24950,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://www.weihai.gov.cn/art/2026/7/10/art_58820_6474088.html",
+      "sourceTitle": "威海公积金2026年度最新缴存基数和比例定了（威海市人民政府便民提示，通知2026-07-09发布）",
+      "confidence": "high",
+      "note": "比例5%-12%。"
+    },
+    {
+      "city": "泰安",
+      "provinceId": "shandong",
+      "housingMin": 2210,
+      "housingMax": 23809,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://hb.dzwww.com/p/p5KSJ9afWGe.html",
+      "sourceTitle": "缴存基数调整！泰安市住房公积金中心发布最新通知（海报新闻）",
+      "confidence": "medium",
+      "note": "通知落款2026-06-29。下限：泰山/新泰/肥城2210；岱岳/宁阳/东平2020。取2210。比例5%-12%。"
+    },
+    {
+      "city": "廊坊",
+      "provinceId": "hebei",
+      "housingMin": 2200,
+      "housingMax": 28968,
+      "period": "2025-07~2026-06",
+      "year": 2025,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://m.lf.bendibao.com/live/16132.shtm",
+      "sourceTitle": "2025廊坊住房公积金缴存基数最新调整（廊坊本地宝）",
+      "confidence": "low",
+      "note": "廊坊中心已于2026-07-13发布2026年度通知，但未能取得具体数字（搜索额度耗尽）；此为2025年度数据（上限28968/下限2200）。当前最低工资：市区、三河2380，固安等2230（2025-12-01起），2026年度下限应不低于此，仅为推断。缴存比例上限0.12按省/全国通行口径，未逐城核对原文。 | [校验]仅 2025 年度旧值;河北 2025-12-01 起一档最低工资 2380,下限已过时。"
+    },
+    {
+      "city": "大同",
+      "provinceId": "shanxi",
+      "housingMin": 2150,
+      "housingMax": 23543,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://ai.dt.gov.cn/dtszf/gbtokzzstpgjjjczc/202607/06ed2b8ade7c45eb8ed503cac174d97f.shtml",
+      "sourceTitle": "关于调整2026年度大同市住房公积金缴存基数的通知（大同市人民政府门户网站）",
+      "confidence": "high",
+      "note": "下限：平城区、云冈区2150；新荣/云州/左云2050；浑源等五县1950。取2150。上限基于2025年平均工资94171元。缴存比例上限0.12按省/全国通行口径，未逐城核对原文。 | [校验]下限 2150 低于山西 2026-10-01 起新最低工资 2350,疑似旧口径。"
+    },
+    {
+      "city": "包头",
+      "provinceId": "neimenggu",
+      "housingMin": 2380,
+      "housingMax": 29284,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://btwb.baotounews.com.cn/paper/wap/content/202607/07/content_212010.html",
+      "sourceTitle": "我市公积金缴存基数调整（包头日报）",
+      "confidence": "medium",
+      "note": "下限：昆都仑/青山/东河/九原/石拐/白云鄂博/稀土高新区2380；土右旗/达茂旗/固阳2310。取2380。比例5%-12%。未找到中心官网原文。"
+    },
+    {
+      "city": "鄂尔多斯",
+      "provinceId": "neimenggu",
+      "housingMin": 2380,
+      "housingMax": 36108,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://www.163.com/dy/article/L0QFUCM30534BR9J.html",
+      "sourceTitle": "鄂尔多斯市住房公积金中心关于调整2026年度住房公积金缴存基数和缴存比例的通知（鄂公中发〔2026〕11号，网易转载）",
+      "confidence": "medium",
+      "note": "官方原文页 http://www.ordosgjj.org.cn/zcfg202405/zcfgnr202405/zxgdw/202607/t20260701_3906743.html 证书校验失败未能直接读取，数字取自转载；上限=2025年月均工资12036×3，自洽。比例5%-12%。"
+    },
+    {
+      "city": "上海",
+      "provinceId": "shanghai",
+      "housingMin": 2740,
+      "housingMax": 37731,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.07,
+      "sourceUrl": "https://m.sh.bendibao.com/zffw/307384.html",
+      "sourceTitle": "2026年度住房公积金缴存基数调整温馨提示(上海本地宝转载,2026-08-19);下限2740另见澎湃政务号转载上海公积金通知 https://www.thepaper.cn/newsDetail_forward_33567909",
+      "confidence": "medium",
+      "note": "下限2740已核实(上海公积金官方提示,经澎湃政务号转载,=2025-07起最低工资标准),参考值2690已过期。上限37731=2025年度全口径平均工资12577x3,2026-08-18公布;7月1日至公布前曾暂按上年37302执行,参考值37302为旧值。37731未找到公积金中心原文,来自本地宝转载及与月缴存额5282(x14%)互相印证。单位/个人比例各5%-7%。"
+    },
+    {
+      "city": "南京",
+      "provinceId": "jiangsu",
+      "housingMin": 2660,
+      "housingMax": 42400,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://www.yzwb.net/news/jiangsu/nanjing/202607/t20260717_373062.html",
+      "sourceTitle": "南京住房公积金中心2026年度缴存基数调整通知(2026-07-17,扬子晚报网转载)",
+      "confidence": "medium",
+      "note": "上限=2025年在岗职工月人均工资x3;下限=南京现行最低工资标准2660。通知有效期至2027-06-30。比例上限12%为通行值,通知页未列。"
+    },
+    {
+      "city": "杭州",
+      "provinceId": "zhejiang",
+      "housingMin": 2660,
+      "housingMax": 42151,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://hznews.hangzhou.com.cn/jingji/content/2026-07/25/content_9263759.htm",
+      "sourceTitle": "杭州住房公积金中心2026年度缴存基数调整通知(杭州网转载)",
+      "confidence": "medium",
+      "note": "与参考值不一致:参考下限2490是2025年度旧值,2026年杭州市区下限为2660(桐庐/淳安/建德为2430);上限42151一致。上限=2025年全市非私营单位月平均工资x3。比例5%-12%,灵活就业10%-24%。2026-10-01起对低于下限者上调至下限。"
+    },
+    {
+      "city": "宁波",
+      "provinceId": "zhejiang",
+      "housingMin": 2660,
+      "housingMax": 38907,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://www.sohu.com/a/1038368591_121123820",
+      "sourceTitle": "2026年度宁波公积金缴存基数调整(搜狐转载市住建局通知)",
+      "confidence": "medium",
+      "note": "上限38907为暂按2025年度上限执行,待新社平工资公布后另行通知调整,可能后续变动(未查到更新)。下限分两档:海曙/江北/镇海/北仑/鄞州/奉化2660,余姚/慈溪/宁海/象山2430,此处取主城区较高档。比例5%-12%。"
+    },
+    {
+      "city": "合肥",
+      "provinceId": "anhui",
+      "housingMin": 2320,
+      "housingMax": 31564,
+      "period": "2026-01~2026-12",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://m.thepaper.cn/newsDetail_forward_33482220",
+      "sourceTitle": "合肥市住房公积金管理中心关于调整2026年度合肥市住房公积金缴存基数的通知(2026-06-29,澎湃转载)",
+      "confidence": "medium",
+      "note": "合肥按自然年度2026-01~12执行。上限31564=2025年合肥城镇非私营单位年均工资126259/12x3,为合肥市中心通知(安徽省直通知亦同值,但此处取市本级通知)。下限通知只写'按合肥现行最低工资标准',2320为合肥市区第一档最低工资(2025-09-01起,据本地宝),为推算值,非通知原文;市辖四县一市为2100。比例5%-12%。"
+    },
+    {
+      "city": "福州",
+      "provinceId": "fujian",
+      "housingMin": 2195,
+      "housingMax": 32430,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://zfgjj.fuzhou.gov.cn/zwgk/gzdt/tzgg/202606/t20260625_5338356.htm",
+      "sourceTitle": "福州住房公积金管理委员会关于调整2026年度福州住房公积金缴存基数的通知",
+      "confidence": "high",
+      "note": "官网原文。上限=2025年福州城镇非私营单位月平均工资x3;下限2195=福州月最低工资标准,年内若调整新开户按新标准。通知未列比例范围(依管委会另文),12%仅为解读文件示例/通行上限。"
+    },
+    {
+      "city": "厦门",
+      "provinceId": "fujian",
+      "housingMin": 2265,
+      "housingMax": 32937,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://news.xmnn.cn/xmxw/202606/t20260630_437137.html",
+      "sourceTitle": "7月1日起 厦门调整住房公积金缴存基数和月缴存额上下限(厦门网,转载公积金中心通知)",
+      "confidence": "medium",
+      "note": "月缴存额上限7904/下限226(按5%-12%两端)。部分第三方站点仍显示旧值35283,不可采用。比例5%-12%。"
+    },
+    {
+      "city": "南昌",
+      "provinceId": "jiangxi",
+      "housingMin": 2600,
+      "housingMax": 30165,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://m.nc.bendibao.com/live/100532.shtm",
+      "sourceTitle": "南昌2026年度住房公积金缴存基数(洪房公〔2026〕27号,南昌本地宝)",
+      "confidence": "low",
+      "note": "上限30165=2025年南昌城镇非私营单位在岗月平均工资x3,多处一致。下限:官方文件摘要只给出月缴存额上限7240/下限260(单位+个人),未写基数下限;2600是由260/10%反推并有江西便民信息网称2600,未见官方原文,低置信。对照:南昌一类区域最低工资2240(2025-12-01起),若下限按最低工资则为2240。比例5%-12%。"
+    },
+    {
+      "city": "苏州",
+      "provinceId": "jiangsu",
+      "housingMin": 4952,
+      "housingMax": 40600,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://www.suzhou.gov.cn/szsrmzf/zwgg/202607/501539493f89439aa33768e34a069914.shtml",
+      "sourceTitle": "苏州市2026年度住房公积金缴存基数调整(苏州市人民政府网站,苏州公积金)",
+      "confidence": "low",
+      "note": "上限40600=苏州市区2025年在岗职工月平均工资x3(官方)。下限官方口径为'本市社保最低缴费基数',通知未给数字;4952取自苏州工业园区通知(2026-07-01起园区下限4952)及与社保最低缴费基数相同的第三方报道,苏州市区同口径推断,社保新基数若发布可能变动。灵活就业按月缴存模式每月下限266(最低工资的10%)。比例5%-12%。 | [校验]housingMin=4952 取自苏州工业园区通知(按社保最低缴费基数口径),市区为推断,并非最低工资档(江苏一类档 2660);用作兜底时请谨慎,可能高估下限。"
+    },
+    {
+      "city": "无锡",
+      "provinceId": "jiangsu",
+      "housingMin": 2490,
+      "housingMax": 36800,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://www.wuxi.gov.cn/gjj/doc/2026/08/05/4814421.shtml",
+      "sourceTitle": "关于调整住房公积金缴存基数等有关事项的通知(锡房金规〔2026〕2号)",
+      "confidence": "high",
+      "note": "上限36800(市区,官网原文;上年35200)。下限官方原文按人社部门公布的上年度最低工资标准确定,未列数字;2490来自媒体解读(2026-07-01至2027-06-30为2490,2027-07-01起调为2660,依锡人社发文件),故下限为medium。江阴、宜兴参照执行。比例5%-12%。 | [校验]下限 2490 为媒体解读,低于江苏 2026-01-01 起一类档最低工资 2660,疑似未随最低工资更新。"
+    },
+    {
+      "city": "深圳",
+      "provinceId": "guangdong",
+      "housingMin": 2520,
+      "housingMax": 48471,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://m.bendibao.com/bsy636403.html",
+      "sourceTitle": "深圳公积金缴费基数2026最新(深圳本地宝)",
+      "confidence": "medium",
+      "note": "与参考值 2520-48471 一致。未取得公积金中心原文，数字来自深圳本地宝/网易转述。另：自2026-09-01起，新参加工作及新调入职工的缴存基数下限调整为2700元（与广东省自2026-09-01深圳最低工资2700元一致，见 hrss.gd.gov.cn/gkmlpt/content/4/4942/post_4942224.html），存量职工仍按2520。比例区间5%-12%。 | [校验]存量下限 2520;自 2026-09-01 起新参加工作/新调入职工下限 2700(仅见深圳本地宝,未见公积金中心原文)。"
+    },
+    {
+      "city": "广州",
+      "provinceId": "guangdong",
+      "housingMin": 2680,
+      "housingMax": 41697,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://www.gz.gov.cn/zwfw/zxfw/zffw/content/post_10983586.html",
+      "sourceTitle": "广州调整住房公积金最低缴存基数：9月1日起由2500元调整为2680元(广州市政府网，转载公积金中心2026-08-28通知)",
+      "confidence": "medium",
+      "note": "已核实：下限自2026-09-01起由2500调整为2680（对应广东省粤府函〔2026〕188号，广州最低工资2680），官方通知2026-08-28；2026-07~2026-08期间下限为2500（参考值2500为旧值）。上限41697=2025年社平工资×3，来自2026-06-30《关于2026年度住房公积金缴存调整有关问题的通知》的媒体转述(news.qq.com/rain/a/20260703A0640300、sohu汇总)，未取得中心原文。比例5%-12%。"
+    },
+    {
+      "city": "武汉",
+      "provinceId": "hubei",
+      "housingMin": 2400,
+      "housingMax": 36072.25,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://news.qq.com/rain/a/20260818A04UTL00",
+      "sourceTitle": "2026武汉公积金缴存基数已调整！最新上下限是多少？(九派武汉/腾讯新闻)",
+      "confidence": "medium",
+      "note": "上限36072.25=2025年武汉城镇非私营单位月平均工资×3；下限按湖北省全日制月最低工资标准2400。媒体转述公积金中心消息，未取得中心原文；sohu汇总写作36072.5（舍入差异）。比例5%-12%。"
+    },
+    {
+      "city": "长沙",
+      "provinceId": "hunan",
+      "housingMin": 2200,
+      "housingMax": 32744,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://m.thepaper.cn/newsDetail_forward_33548981",
+      "sourceTitle": "长沙住房公积金通知，调整2026年度缴存基数及比例(澎湃/长沙住房公积金管理中心2026-07-08通知)",
+      "confidence": "medium",
+      "note": "下限=长沙主城区(芙蓉/天心/开福/雨花/望城/湘江新区)最低工资2200；上限=2025年长沙月平均工资10914.58×3。月缴存额范围220-7858。多家媒体(长沙晚报、中新网湖南、华声在线)一致；未取得中心原文。比例5%-12%。注意湖南省直中心数值不同，已不采用。"
+    },
+    {
+      "city": "南宁",
+      "provinceId": "guangxi",
+      "housingMin": null,
+      "housingMax": null,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://m.fang.com/news/nn/03_54061745.html",
+      "sourceTitle": "2026年度南宁公积金缴存基数调整新规出炉(房天下)",
+      "confidence": "low",
+      "note": "未查到2026年度具体上下限数字（调研时搜索额度耗尽）；仅确认比例区间5%-12%、基数不低于最低工资。2025年度参考(未核实是否市本级，疑为广西区直口径)：上限28020、下限2200，来源 m.nn.bendibao.com/live/77726.shtm，不建议直接采用。"
+    },
+    {
+      "city": "海口",
+      "provinceId": "hainan",
+      "housingMin": 2250,
+      "housingMax": 30452.67,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "http://m.hkwb.net/content/2026-06/30/content_4365664.htm",
+      "sourceTitle": "海南调整2026年度住房公积金缴存基数范围 海口缴存基数下限为2250元(海口网)",
+      "confidence": "medium",
+      "note": "依据海南省住房公积金管理局2026-06-26《关于2026年度住房公积金缴存基数范围的通告》，按市县分别核定；海口数字来自海口网标题及sohu汇总，未打开通告附件原文。2025年度海口上限29190.42。海南公积金比例5%-12%。"
+    },
+    {
+      "city": "三亚",
+      "provinceId": "hainan",
+      "housingMin": 2250,
+      "housingMax": 30099.27,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://www.sanyarb.com.cn/hainanxinwen/2026/06/28/detail_20260628506551.html",
+      "sourceTitle": "海南省通告2026年度住房公积金缴存基数范围(三亚新闻网)",
+      "confidence": "medium",
+      "note": "来自三亚新闻网报道，sohu汇总交叉一致(2250 / 30099.27)；未打开省公积金局通告附件原文。"
+    },
+    {
+      "city": "佛山",
+      "provinceId": "guangdong",
+      "housingMin": 2080,
+      "housingMax": 31395,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://m.21jingji.com/article/20260625/herald/45e9a4fac20eaf62992388ee13b52c9d.html",
+      "sourceTitle": "佛山住房公积金缴存调整通告(21财经，佛山公积金中心2026-06-23通告)",
+      "confidence": "medium",
+      "note": "通告日期2026-06-23，上限31395、下限2080，职工/单位比例5%-12%。但广东省最低工资自2026-09-01起二类地区(含佛山)调为2300（hrss.gd.gov.cn），有佛山本地宝称下限9月1日起调为2300，未见中心官方通知，故保留2080；实际现行下限可能为2300。 | [校验]广东 2026-09-01 起二类档最低工资 2300,公积金下限可能已随之上调,未找到官方通知。"
+    },
+    {
+      "city": "东莞",
+      "provinceId": "guangdong",
+      "housingMin": 2300,
+      "housingMax": 27700,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://news.qq.com/rain/a/20260831A09PVX00",
+      "sourceTitle": "东莞住房公积金缴存基数调整，上限调整至27700元(腾讯新闻/南方都市报转述东莞公积金中心2026-08-31通知)",
+      "confidence": "medium",
+      "note": "年初公布2026年度范围2080-27391；2026-08-31通知：自2026-07起上限调为27700，自2026-09-01起新参加工作/新调入职工及灵活就业人员下限2300；存量缴存人过渡期内可维持不低于2080，2027-01起统一不低于2300。2025年下限通知原文见 dggjj.dg.gov.cn/gkmlpt/content/4/4340/post_4340645.html(2080)。比例5%-12%（未在报道中核实）。"
+    },
+    {
+      "city": "珠海",
+      "provinceId": "guangdong",
+      "housingMin": 2080,
+      "housingMax": 36279,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://www.sohu.com/a/1050696868_99924238",
+      "sourceTitle": "各省市2026社保公积金基数，7月起执行！(搜狐汇总)",
+      "confidence": "low",
+      "note": "仅有一篇汇总文章转述(2080 / 36279)，未找到珠海公积金中心原文。珠海属广东二类地区，最低工资自2026-09-01调为2300，现行下限可能已为2300，待核实。比例未核实。 | [校验]广东 2026-09-01 起二类档最低工资 2300,公积金下限可能已随之上调,未找到官方通知。"
+    },
+    {
+      "city": "惠州",
+      "provinceId": "guangdong",
+      "housingMin": null,
+      "housingMax": 34290,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://m.mp.oeeee.com/a/BAAFRD0000202606281616791.html",
+      "sourceTitle": "惠州公积金中心《关于做好2026年度住房公积金缴存基数和缴存限额调整工作的通知》(南方都市报转述)",
+      "confidence": "low",
+      "note": "上限34290(2025年度为31765)，月缴存额上限合计8230，比例5%-12%。报道未给下限；惠州属广东三类地区，最低工资自2026-09-01为2040，但公积金下限未核实，故填null。"
+    },
+    {
+      "city": "汕头",
+      "provinceId": "guangdong",
+      "housingMin": null,
+      "housingMax": 27698,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": null,
+      "sourceUrl": "https://www.sohu.com/a/1050696868_99924238",
+      "sourceTitle": "各省市2026社保公积金基数，7月起执行！(搜狐汇总)",
+      "confidence": "low",
+      "note": "仅汇总文章转述上限27698，下限未列出，未找到汕头中心原文。汕头属广东三类地区(最低工资自2026-09-01为2040)，下限未核实。"
+    },
+    {
+      "city": "湛江",
+      "provinceId": "guangdong",
+      "housingMin": 1850,
+      "housingMax": 29640,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": null,
+      "sourceUrl": "https://www.sohu.com/a/1050696868_99924238",
+      "sourceTitle": "各省市2026社保公积金基数，7月起执行！(搜狐汇总)",
+      "confidence": "low",
+      "note": "仅汇总文章转述(1850 / 29640)，未找到湛江中心原文；下限1850疑为2025年最低工资口径，广东三类地区自2026-09-01最低工资调为2040，现行下限可能已变。 | [校验]下限 1850 疑似旧口径(广东 2026-09-01 起四类档 2040)。"
+    },
+    {
+      "city": "重庆",
+      "provinceId": "chongqing",
+      "housingMin": 2330,
+      "housingMax": 30318,
+      "period": "2025",
+      "year": 2025,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://cq.bendibao.com/live/2013812/37618.shtm",
+      "sourceTitle": "重庆公积金缴存基数（上限+下限）- 重庆本地宝（引渝公积金发〔2025〕54号）",
+      "confidence": "medium",
+      "note": "截至2026-10-10，重庆公积金中心官网(cqgjj.cn)通知栏第1页(至2026-09-30)未见2026年度上下限通知，故用2025年度值(本地宝转述渝公积金发〔2025〕54号)。下限2330为主城及多数区县，城口/丰都/垫江/忠县/云阳/奉节/巫山/彭水等12县为2200(渝公积金发〔2025〕7号)。2026年上限若按市统计局2025年非私营月均工资10464.17元×3≈31393，仅为推算、非官方，不要采用；网上有29362(2024年值)、35283(来源不明)等混乱数字。"
+    },
+    {
+      "city": "成都",
+      "provinceId": "sichuan",
+      "housingMin": 2330,
+      "housingMax": 32969,
+      "period": "2026-01~2026-12",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://cbgc.scol.com.cn/news/7812483",
+      "sourceTitle": "川观新闻/蓉城政事：成都2026年度住房公积金缴存基数上限32969元（2026-07-31，引成都住房公积金管理中心通知）",
+      "confidence": "medium",
+      "note": "上限32969；下限为城市新区和中心城区(锦江/青羊/金牛/武侯等及天府新区/东部新区/高新区)2330，县市新城(简阳/都江堰/彭州/邛崃/崇州/金堂/大邑/蒲江)2200。已核实：参考值2280是旧值，2026年中心城区下限应为2330。基数自2026-01-01起适用(成都按自然年，7月底才发通知，差额补缴)；缴存比例5%-12%。"
+    },
+    {
+      "city": "贵阳",
+      "provinceId": "guizhou",
+      "housingMin": 2130,
+      "housingMax": 25980,
+      "period": "2026-01~2026-12",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "http://gjj.guiyang.gov.cn/zfxxgk/fdzdgknr/gggs/fdzdgknrtzgg/202607/t20260708_90598362.html",
+      "sourceTitle": "贵阳市住房公积金管理中心关于2026年度贵阳贵安住房公积金缴存基数及缴存比例执行标准的通知",
+      "confidence": "high",
+      "note": "官网原文：上限25980(月缴存额上限6236)，下限2130(月缴存额下限214，依据贵州省一类地区最低工资标准)；自2026年1月起执行，通知日期2026-07-07。1月曾暂按25392执行，已被7月通知取代。比例5%-12%。"
+    },
+    {
+      "city": "昆明",
+      "provinceId": "yunnan",
+      "housingMin": 2270,
+      "housingMax": 32543,
+      "period": "2026-01~2026-12",
+      "year": 2026,
+      "housingRateDefault": null,
+      "sourceUrl": "https://news.qq.com/rain/a/20260910A08OBZ00",
+      "sourceTitle": "昆明住房公积金缴存基数上限调至32543元（昆明日报/开屏新闻，引昆明住房公积金管理中心2026-09-08通知）",
+      "confidence": "medium",
+      "note": "上限32543=昆明2025年非私营月均工资10847.83×3。下限分三类区：一类区2270(五华/盘龙/西山/官渡/呈贡/晋宁/安宁/嵩明)、二类区2120(其他县及东川)、三类区1970(磨憨-磨丁合作区)，取一类区。下限新标准自2026-09-01起(云人社发〔2026〕9号)；此前暂按2025年标准(上限32470/下限2170)。未取得官网原文，系媒体转述。"
+    },
+    {
+      "city": "拉萨",
+      "provinceId": "xizang",
+      "housingMin": 2360,
+      "housingMax": 42214,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": null,
+      "sourceUrl": null,
+      "sourceTitle": "拉萨2026年度住房公积金缴存基数7月1日起调整（中共拉萨市委/西藏自治区人民政府/西藏日报 2026-06-28~29，仅见搜索摘要）",
+      "confidence": "medium",
+      "note": "多家官方媒体摘要一致：上限42214元/月(单位/个人月缴存额上限各5066)、下限不低于2360元/月(自治区最低工资标准)，自2026-07-01起执行。仅读到搜索摘要，未打开原文页面，无直链；执行截止日按惯例推定为2027-06。"
+    },
+    {
+      "city": "西安",
+      "provinceId": "shaanxi",
+      "housingMin": 2376,
+      "housingMax": 32726,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://zfgjj.xa.gov.cn/gzdt/tzgg/2070405479618592769.html",
+      "sourceTitle": "西安住房公积金管理委员会关于调整2026年度住房公积金缴存基数的通知",
+      "confidence": "high",
+      "note": "官网原文：上限=2025年西安城镇非私营单位月均工资×3=32726；下限为最低工资标准2376(鄠邑/蓝田/周至三区县为2250)。通知落款2026-06-18，官网发布2026-06-26。比例5%-12%。"
+    },
+    {
+      "city": "兰州",
+      "provinceId": "gansu",
+      "housingMin": 2200,
+      "housingMax": 30090.75,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://szb.gansudaily.com.cn/gsjjrb/pad/con/202606/25/c284039.html",
+      "sourceTitle": "兰州住房公积金缴存标准7月1日起调整（甘肃日报，兰州住房公积金管理中心2026-06-24通知）",
+      "confidence": "medium",
+      "note": "上限=2025年兰州非私营月均工资10030.25×3=30090.75；下限：兰州新区及城关/七里河/安宁/西固/红古区2200，永登/榆中/皋兰三县2130，取2200。兰州通知称自2026-07-01执行；另有摘要称甘肃省住房资金管理中心(省直)同数字但按2026-01-01~12-31自然年执行，注意区分。数字由搜索摘要得出，未打开报纸原文。"
+    },
+    {
+      "city": "西宁",
+      "provinceId": "qinghai",
+      "housingMin": 2080,
+      "housingMax": 31995,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://m.thepaper.cn/newsDetail_forward_33497442",
+      "sourceTitle": "关于调整2026年度住房公积金缴存基数的通知（西宁住房公积金管理中心，澎湃转载，2026-07-01）",
+      "confidence": "medium",
+      "note": "核实与参考值一致：上限31995(=2025年西宁非私营月均工资×3)，下限2080(现行最低工资标准)；单位调整窗口2026-07-01~08-31；灵活就业月缴存额上限7678/下限208。比例5%-12%。另见一条低质量来源称西宁行政事业单位1-2月调整用上限30534，未证实，不采用。"
+    },
+    {
+      "city": "银川",
+      "provinceId": "ningxia",
+      "housingMin": 2235,
+      "housingMax": 33747,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://www.sohu.com/a/1047908987_121106869",
+      "sourceTitle": "银川住房公积金管理中心2026年度缴存基数调整（搜狐转载，2026-07-09）",
+      "confidence": "medium",
+      "note": "上限33747(月缴存额上限8100)；下限为一类区最低工资2235(兴庆/金凤/西夏/永宁/贺兰/灵武)，其余县区最低工资更低，取2235。宁夏住房资金管理中心通知摘要同为33747/2235。银川政府网站列有原通知(发布日2026-06-29)，未能打开原文。比例5%-12%。"
+    },
+    {
+      "city": "乌鲁木齐",
+      "provinceId": "xinjiang",
+      "housingMin": 2070,
+      "housingMax": 35071,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": 0.12,
+      "sourceUrl": "https://www.wlmq.gov.cn/wlmqs/c119055/202607/f44e534b85c048eea20eca66dd43b01d.shtml",
+      "sourceTitle": "关于乌鲁木齐住房公积金管理中心2026年度缴存基数调整工作的通知（乌鲁木齐市人民政府，2026-06-26）",
+      "confidence": "high",
+      "note": "政府网站原文：上限35071、下限2070(新疆最低工资标准)；基数调整窗口2026-07-01~07-31。比例5%-12%(通行规定)。 | [校验]下限 2070 低于新疆 2026-10-01 起新最低工资一档 2270,疑似旧口径。"
+    },
+    {
+      "city": "大连",
+      "provinceId": "liaoning",
+      "housingMin": null,
+      "housingMax": 31929,
+      "period": "2026-07~2027-06",
+      "year": 2026,
+      "housingRateDefault": null,
+      "sourceUrl": "https://gjj.dl.gov.cn/art/2026/7/15/art_5552_2523410.html",
+      "sourceTitle": "关于做好2026年缴存基数调整工作的通知 大房金发〔2026〕12号（大连住房公积金管理中心）",
+      "confidence": "low",
+      "note": "官网原文：月缴存基数最高不得超过31929；下限仅写明'低于2025年最低工资标准的按最低工资标准'，未列金额，故housingMin留空。执行2026-07-01~2027-06-30，通知落款2026-07-10。上限是官网原文(可信)，仅下限缺失导致整体置信度标low。"
+    }
+  ],
+  "minWage": [
+    {
+      "provinceId": "anhui",
+      "province": "安徽",
+      "effectiveFrom": "2025-09-01",
+      "tiers": [
+        {
+          "amount": 2320,
+          "cities": [
+            "合肥",
+            "铜陵"
+          ]
+        },
+        {
+          "amount": 2170,
+          "cities": [
+            "淮北",
+            "宿州",
+            "蚌埠",
+            "淮南",
+            "滁州",
+            "六安",
+            "马鞍山",
+            "芜湖",
+            "宣城",
+            "池州",
+            "安庆"
+          ]
+        },
+        {
+          "amount": 2100,
+          "cities": [
+            "亳州",
+            "阜阳",
+            "黄山"
+          ]
+        },
+        {
+          "amount": 2000,
+          "cities": []
+        }
+      ],
+      "sourceUrl": "https://wageindicator.org/zh-cn/work-in-china/minimum-wage/6819-/",
+      "note": "四档2320/2170/2100/2000(金额来自人社部汇总表,档次名单来自WageIndicator,未核对省级原文)。均指市区:合肥、铜陵市区一档;亳州、阜阳市区及黄山屯溪区为三档;四档仅县(市):如濉溪、蒙城、涡阳、利辛、颍上、界首、临泉、阜南、太和、含山、和县、无为、黄山区/徽州区等。合肥肥东/肥西/长丰/庐江/巢湖为三档。铜陵列一档与常识略有出入,建议复核。"
+    },
+    {
+      "provinceId": "beijing",
+      "province": "北京",
+      "effectiveFrom": "2025-09-01",
+      "tiers": [
+        {
+          "amount": 2540,
+          "cities": [
+            "北京"
+          ]
+        }
+      ],
+      "sourceUrl": "https://m.gmw.cn/2025-08/23/content_1304121050.htm",
+      "note": "全市统一一档2540元(小时27.7元)。人社部截至2026-01-01公布表仍为2540;未查到2026年新调整。"
+    },
+    {
+      "provinceId": "chongqing",
+      "province": "重庆",
+      "effectiveFrom": "2025-01-01",
+      "tiers": [
+        {
+          "amount": 2330,
+          "cities": [
+            "重庆"
+          ]
+        },
+        {
+          "amount": 2200,
+          "cities": []
+        }
+      ],
+      "sourceUrl": "https://wageindicator.org/zh-cn/work-in-china/minimum-wage/6825-/",
+      "note": "一档2330(23元/小时)含主城区及万州、涪陵等29个区,二档2200(22元/小时)仅城口、丰都、垫江、忠县、云阳、奉节、巫山、巫溪、石柱、秀山、酉阳、彭水12县,故二档不对应主城。人社部口径截至2025-10-01一档2330已被媒体确认。"
+    },
+    {
+      "provinceId": "fujian",
+      "province": "福建",
+      "effectiveFrom": "2025-04-01",
+      "tiers": [
+        {
+          "amount": 2265,
+          "cities": [
+            "厦门"
+          ]
+        },
+        {
+          "amount": 2195,
+          "cities": [
+            "福州",
+            "泉州",
+            "漳州"
+          ]
+        },
+        {
+          "amount": 2045,
+          "cities": [
+            "莆田",
+            "三明",
+            "南平",
+            "宁德",
+            "龙岩"
+          ]
+        },
+        {
+          "amount": 1895,
+          "cities": []
+        }
+      ],
+      "sourceUrl": "https://wageindicator.org/zh-cn/work-in-china/minimum-wage/6828-/",
+      "note": "四档2265/2195/2045/1895(金额来自人社部汇总表,档次名单与生效日来自WageIndicator,未核对省级原文)。厦门全市一档;福州市区及福清/闽侯等、泉州市区及晋江/石狮/南安/惠安二档;泉州安溪/永春/德化三档;漳州芗城/龙文(主城区)二档、龙海/漳浦/云霄等县区三档;莆田、三明市区、南平延平、宁德蕉城、龙岩永定三档(龙岩新罗区页面未列,按同属三档推断);四档仅县:三明清流/宁化等、南平顺昌/浦城等、龙岩武平/长汀/连城、宁德霞浦/寿宁/周宁/柘荣/古田/屏南。"
+    },
+    {
+      "provinceId": "gansu",
+      "province": "甘肃",
+      "effectiveFrom": "2025-12-01",
+      "tiers": [
+        {
+          "amount": 2200,
+          "cities": [
+            "兰州",
+            "嘉峪关",
+            "金昌",
+            "酒泉",
+            "白银",
+            "平凉",
+            "庆阳",
+            "武威"
+          ]
+        },
+        {
+          "amount": 2130,
+          "cities": [
+            "张掖",
+            "定西",
+            "天水",
+            "陇南",
+            "甘南",
+            "临夏"
+          ]
+        },
+        {
+          "amount": 2080,
+          "cities": []
+        }
+      ],
+      "sourceUrl": "https://wageindicator.org/zh-cn/work-in-china/minimum-wage/6834-/",
+      "note": "按县区分档,此处为各市主城区所属档(金昌金川、酒泉肃州、白银白银区、平凉崆峒、庆阳西峰、武威凉州为一档;张掖甘州、定西安定、天水秦州/麦积、陇南武都、合作、临夏市为二档);三档为各县。WageIndicator名单中兰州永登/榆中/皋兰同时出现在一、二档,存在歧义。 金额来自维基百科汇总表(截至2026-01)与WageIndicator分区名单交叉印证,未取得省级官方原文,建议复核。"
+    },
+    {
+      "provinceId": "guangdong",
+      "province": "广东",
+      "effectiveFrom": "2026-09-01",
+      "tiers": [
+        {
+          "amount": 2700,
+          "cities": [
+            "深圳"
+          ]
+        },
+        {
+          "amount": 2680,
+          "cities": [
+            "广州"
+          ]
+        },
+        {
+          "amount": 2300,
+          "cities": [
+            "珠海",
+            "佛山",
+            "东莞",
+            "中山"
+          ]
+        },
+        {
+          "amount": 2040,
+          "cities": [
+            "汕头",
+            "韶关",
+            "河源",
+            "梅州",
+            "惠州",
+            "汕尾",
+            "江门",
+            "阳江",
+            "湛江",
+            "茂名",
+            "肇庆",
+            "清远",
+            "潮州",
+            "揭阳",
+            "云浮"
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.sz.gov.cn/cn/xxgk/zfxxgj/zwdt/content/post_12936470.html",
+      "note": "粤府函〔2026〕188号,2026-08-13发布,2026-09-01起执行。省内按地市分档(非按县区),一类=广州2680/深圳2700,二类2300,三类2040;非全日制小时25.4/21.9/20.2。有条件地市可在此基础上上调。2025-03-01起旧标准为深圳2520/广州2500/2080/1850/1750。多家媒体(中工网、金羊网、第一财经)转载一致,未直接读到省政府原文。"
+    },
+    {
+      "provinceId": "guangxi",
+      "province": "广西",
+      "effectiveFrom": "2025-07-01",
+      "tiers": [
+        {
+          "amount": 2200,
+          "cities": [
+            "南宁",
+            "柳州",
+            "桂林",
+            "梧州",
+            "北海",
+            "防城港",
+            "钦州"
+          ]
+        },
+        {
+          "amount": 2040,
+          "cities": [
+            "贵港",
+            "玉林",
+            "百色",
+            "贺州",
+            "河池",
+            "来宾",
+            "崇左"
+          ]
+        },
+        {
+          "amount": 1870,
+          "cities": []
+        }
+      ],
+      "sourceUrl": "https://www.chinanews.com.cn/gn/2025/08-23/10469956.shtml",
+      "note": "一类:上述七市市区+东兴市;二类:贵港等七市市区;三类:各县、县级市(东兴除外),无对应地级市。小时标准22.4/20.7/19。金额由多家媒体转述的省政府通知确认。"
+    },
+    {
+      "provinceId": "guizhou",
+      "province": "贵州",
+      "effectiveFrom": "2025-02-01",
+      "tiers": [
+        {
+          "amount": 2130,
+          "cities": [
+            "贵阳",
+            "遵义",
+            "六盘水",
+            "安顺",
+            "毕节",
+            "铜仁",
+            "凯里",
+            "都匀",
+            "兴义"
+          ]
+        },
+        {
+          "amount": 1980,
+          "cities": []
+        },
+        {
+          "amount": 1890,
+          "cities": []
+        }
+      ],
+      "sourceUrl": "https://wageindicator.org/zh-cn/work-in-china/minimum-wage/6850-/",
+      "note": "各地级市/州府所在地城区均为一档(凯里=黔东南,都匀=黔南,兴义=黔西南)。二档为开阳、桐梓、湄潭、六枝、水城、黔西、织金等县,三档为息烽、修文、道真、赫章、威宁、松桃等县,无对应地级市主城。 金额来自维基百科汇总表(截至2026-01)与WageIndicator分区名单交叉印证,未取得省级官方原文,建议复核。"
+    },
+    {
+      "provinceId": "hainan",
+      "province": "海南",
+      "effectiveFrom": "2025-12-01",
+      "tiers": [
+        {
+          "amount": 2250,
+          "cities": [
+            "海口",
+            "三亚",
+            "儋州",
+            "三沙"
+          ]
+        },
+        {
+          "amount": 2070,
+          "cities": [
+            "文昌",
+            "琼海",
+            "万宁",
+            "东方",
+            "五指山"
+          ]
+        }
+      ],
+      "sourceUrl": "https://wageindicator.org/zh-cn/work-in-china/minimum-wage/6854-",
+      "note": "文号琼人社发〔2025〕7号(住建公积金通告引用确认存在)。二档另含澄迈/乐东/临高/定安/屯昌/陵水/昌江/保亭/琼中/白沙等县。WageIndicator新闻称区间2010-2250,与二档2070略有出入,小时标准20/18.4按2070核对一致。 金额来自维基百科汇总表(截至2026-01)与WageIndicator分区名单交叉印证,未取得省级官方原文,建议复核。"
+    },
+    {
+      "provinceId": "hebei",
+      "province": "河北",
+      "effectiveFrom": "2025-12-01",
+      "tiers": [
+        {
+          "amount": 2380,
+          "cities": [
+            "石家庄",
+            "唐山",
+            "秦皇岛",
+            "邯郸",
+            "保定",
+            "沧州",
+            "廊坊"
+          ]
+        },
+        {
+          "amount": 2230,
+          "cities": [
+            "邢台",
+            "张家口",
+            "承德",
+            "衡水"
+          ]
+        },
+        {
+          "amount": 2080,
+          "cities": []
+        }
+      ],
+      "sourceUrl": "https://news.bjd.com.cn/2025/12/15/11463850.shtml",
+      "note": "冀人社字〔2025〕137号,三档2380/2230/2080。廊坊、衡水、承德、邢台的分档来自各市通知(河北日报转载,已核实:廊坊市区2380;邢台/承德/衡水市区2230)。石家庄、唐山、秦皇岛、邯郸、保定、沧州、张家口的分档来自WageIndicator,未核对省级原文,置信度中等(该来源把邢台市区误列第一档,已按市通知纠正)。2080档仅适用县:承德平泉等县、衡水枣强等县、邢台临西等县、石家庄井陉矿区/井陉县等、邯郸成安等、张家口康保等,无地级市市区;石家庄晋州/新乐/行唐、秦皇岛昌黎等县为2230。"
+    },
+    {
+      "provinceId": "heilongjiang",
+      "province": "黑龙江",
+      "effectiveFrom": "2025-12-01",
+      "tiers": [
+        {
+          "amount": 2270,
+          "cities": [
+            "哈尔滨",
+            "大庆"
+          ]
+        },
+        {
+          "amount": 2010,
+          "cities": [
+            "齐齐哈尔",
+            "牡丹江",
+            "佳木斯",
+            "鸡西",
+            "双鸭山",
+            "七台河",
+            "鹤岗",
+            "绥化",
+            "大兴安岭"
+          ]
+        },
+        {
+          "amount": 1910,
+          "cities": [
+            "伊春",
+            "黑河"
+          ]
+        }
+      ],
+      "sourceUrl": "https://wageindicator.org/zh-cn/work-in-china/minimum-wage/6863-/",
+      "note": "三档2270/2010/1910(金额来自人社部汇总表,档次名单来自WageIndicator,未核对省级原文)。哈尔滨呼兰/阿城/双城为2010;各市其余县(市)多为1910;牡丹江含绥芬河、佳木斯含抚远为2010。"
+    },
+    {
+      "provinceId": "henan",
+      "province": "河南",
+      "effectiveFrom": "2025-12-01",
+      "tiers": [
+        {
+          "amount": 2350,
+          "cities": [
+            "郑州",
+            "开封",
+            "洛阳",
+            "平顶山",
+            "安阳",
+            "鹤壁",
+            "新乡",
+            "焦作",
+            "濮阳",
+            "许昌",
+            "漯河",
+            "三门峡",
+            "南阳",
+            "商丘",
+            "信阳",
+            "周口",
+            "驻马店",
+            "济源"
+          ]
+        },
+        {
+          "amount": 2150,
+          "cities": []
+        },
+        {
+          "amount": 2000,
+          "cities": []
+        }
+      ],
+      "sourceUrl": "https://wageindicator.org/zh-cn/work-in-china/minimum-wage/6868-/",
+      "note": "三档2350/2150/2000(金额来自人社部汇总表,档次名单与生效日来自WageIndicator,未核对省级原文)。17个地级市市区及济源示范区均为一档2350;郑州巩义/荥阳/新郑/新密/登封/中牟、洛阳新安/栾川、平顶山舞钢、三门峡义马/渑池/灵宝亦为一档。各市下辖县(市)多为二档2150(如安阳林州、新乡辉县等),部分县为三档2000(如开封祥符区、洛阳偃师、信阳罗山/商城等),2150/2000档无地级市市区。"
+    },
+    {
+      "provinceId": "hubei",
+      "province": "湖北",
+      "effectiveFrom": "2025-12-01",
+      "tiers": [
+        {
+          "amount": 2400,
+          "cities": [
+            "武汉",
+            "襄阳",
+            "宜昌"
+          ]
+        },
+        {
+          "amount": 2130,
+          "cities": [
+            "黄石",
+            "十堰",
+            "荆州",
+            "荆门"
+          ]
+        },
+        {
+          "amount": 1970,
+          "cities": [
+            "鄂州",
+            "孝感",
+            "黄冈",
+            "咸宁",
+            "随州",
+            "恩施",
+            "仙桃",
+            "天门",
+            "潜江",
+            "神农架"
+          ]
+        }
+      ],
+      "sourceUrl": "https://wageindicator.org/zh-cn/work-in-china/minimum-wage/6872-/",
+      "note": "按县区分档,此处为各市主城区所属档。襄阳仅襄城/樊城等市区为一档,枣阳等为二档;宜昌仅西陵/伍家岗/点军/猇亭为一档,夷陵等为二档,其余县市三档;孝感孝南为三档(汉川、应城为二档)。小时标准24/21.5/20(二手报道)。 金额来自维基百科汇总表(截至2026-01)与WageIndicator分区名单交叉印证,未取得省级官方原文,建议复核。"
+    },
+    {
+      "provinceId": "hunan",
+      "province": "湖南",
+      "effectiveFrom": "2025-09-01",
+      "tiers": [
+        {
+          "amount": 2200,
+          "cities": [
+            "长沙",
+            "株洲",
+            "湘潭",
+            "衡阳"
+          ]
+        },
+        {
+          "amount": 2000,
+          "cities": [
+            "岳阳",
+            "常德",
+            "张家界"
+          ]
+        },
+        {
+          "amount": 1800,
+          "cities": [
+            "邵阳",
+            "益阳",
+            "永州",
+            "怀化",
+            "娄底",
+            "湘西",
+            "郴州"
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.chinanews.com.cn/gn/2025/08-23/10469956.shtml",
+      "note": "三档金额2200/2000/1800(省人社厅通知,媒体转述)。各市州可自选适用档并备案;档位归属据WageIndicator分区名单:长沙县/浏阳/宁乡、株洲渌口/醴陵/攸县、湘潭县/湘乡/韶山为二档;株洲茶陵/炎陵、衡阳各县为三档。此处为主城区所属档。"
+    },
+    {
+      "provinceId": "jiangsu",
+      "province": "江苏",
+      "effectiveFrom": "2026-01-01",
+      "tiers": [
+        {
+          "amount": 2660,
+          "cities": [
+            "南京",
+            "无锡",
+            "常州",
+            "苏州",
+            "镇江"
+          ]
+        },
+        {
+          "amount": 2430,
+          "cities": [
+            "徐州",
+            "南通",
+            "连云港",
+            "淮安",
+            "盐城",
+            "扬州",
+            "泰州"
+          ]
+        },
+        {
+          "amount": 2180,
+          "cities": [
+            "宿迁"
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.zgjssw.gov.cn/yaowen/202512/t20251230_8549080.shtml",
+      "note": "苏人社规〔2025〕3号,2026-01-01起,一/二/三类2660/2430/2180(小时25/23/21)。省通知无城市名单,分档来自WageIndicator,淮安经淮安市人社局转发文件核实(市直、清江浦二类;淮安区/淮阴区/洪泽/涟水/盱眙/金湖三类)。徐州不在WageIndicator页面,按历史划分归二类,未核实。县区差异:南通海安/如皋/如东、连云港赣榆/东海/灌云/灌南为三类;宿迁全市三类;无锡含江阴/宜兴一类。"
+    },
+    {
+      "provinceId": "jiangxi",
+      "province": "江西",
+      "effectiveFrom": "2025-12-01",
+      "tiers": [
+        {
+          "amount": 2240,
+          "cities": [
+            "南昌"
+          ]
+        },
+        {
+          "amount": 2090,
+          "cities": [
+            "九江",
+            "景德镇",
+            "萍乡",
+            "新余",
+            "鹰潭",
+            "赣州",
+            "宜春",
+            "上饶",
+            "吉安",
+            "抚州"
+          ]
+        },
+        {
+          "amount": 1950,
+          "cities": []
+        }
+      ],
+      "sourceUrl": "https://wageindicator.org/zh-cn/work-in-china/minimum-wage/6890-/",
+      "note": "三档2240/2090/1950(金额来自人社部汇总表,档次名单与生效日来自WageIndicator,未核对省级原文)。一档仅南昌东湖/西湖/青云谱/青山湖/红谷滩及经开区、高新区;南昌新建/南昌县为二档,进贤/安义三档。其余10个地级市市区为二档(景德镇昌江区三档);各市县(市)多为三档1950。"
+    },
+    {
+      "provinceId": "jilin",
+      "province": "吉林",
+      "effectiveFrom": "2025-12-01",
+      "tiers": [
+        {
+          "amount": 2230,
+          "cities": [
+            "长春"
+          ]
+        },
+        {
+          "amount": 2020,
+          "cities": [
+            "吉林",
+            "白山",
+            "松原",
+            "延边"
+          ]
+        },
+        {
+          "amount": 1870,
+          "cities": [
+            "四平",
+            "辽源",
+            "通化",
+            "白城"
+          ]
+        }
+      ],
+      "sourceUrl": "https://wageindicator.org/zh-cn/work-in-china/minimum-wage/6895-/",
+      "note": "三档2230/2020/1870(金额来自人社部汇总表,档次名单来自WageIndicator,未核对省级原文)。一档:长春市区(含双阳、九台);二档:吉林市区、白山市区(浑江/江源)、松原市区、延吉市、珲春市、长白山保护开发区;三档:四平、辽源、通化、白城、梅河口及其余县(市)。延边仅延吉、珲春为2020,延边其余县市为1870;其余地级市的县(市)也多为1870。"
+    },
+    {
+      "provinceId": "liaoning",
+      "province": "辽宁",
+      "effectiveFrom": "2025-12-01",
+      "tiers": [
+        {
+          "amount": 2230,
+          "cities": [
+            "沈阳",
+            "大连"
+          ]
+        },
+        {
+          "amount": 2080,
+          "cities": [
+            "鞍山",
+            "本溪",
+            "丹东",
+            "抚顺",
+            "辽阳",
+            "盘锦",
+            "营口",
+            "锦州"
+          ]
+        },
+        {
+          "amount": 1930,
+          "cities": [
+            "朝阳",
+            "阜新",
+            "铁岭",
+            "葫芦岛"
+          ]
+        }
+      ],
+      "sourceUrl": "https://wageindicator.org/zh-cn/work-in-china/minimum-wage/6899-/",
+      "note": "三档2230/2080/1930(金额来自人社部汇总表,档次名单来自WageIndicator,未核对省级原文)。沈阳辽中/新民/法库/康平为1930档;大连全市2230;辽阳县/灯塔、抚顺县/清原/新宾、本溪县/桓仁、丹东东港/凤城/宽甸为1930档。锦州、盘锦在WageIndicator页面中同时出现在二档和三档,此处按市区二档处理,置信度较低,建议复核。"
+    },
+    {
+      "provinceId": "neimenggu",
+      "province": "内蒙古",
+      "effectiveFrom": "2025-12-01",
+      "tiers": [
+        {
+          "amount": 2380,
+          "cities": [
+            "呼和浩特",
+            "包头",
+            "乌海",
+            "鄂尔多斯",
+            "锡林郭勒",
+            "阿拉善"
+          ]
+        },
+        {
+          "amount": 2310,
+          "cities": [
+            "呼伦贝尔",
+            "兴安盟",
+            "通辽",
+            "赤峰",
+            "乌兰察布",
+            "巴彦淖尔"
+          ]
+        },
+        {
+          "amount": 2250,
+          "cities": []
+        }
+      ],
+      "sourceUrl": "https://wageindicator.org/zh-cn/work-in-china/minimum-wage/6881-/",
+      "note": "三类地区2380/2310/2250(金额来自人社部汇总表,档次名单来自WageIndicator,未找到自治区官方文件原文)。分档按盟市中心城区:锡林浩特、阿拉善左旗、满洲里、二连浩特属2380;呼伦贝尔(海拉尔)、通辽(科尔沁区)、赤峰(红山/松山/元宝山)、乌兰察布(集宁)、巴彦淖尔(临河)、兴安盟(乌兰浩特)属2310。呼和浩特/包头下辖旗县多为2310,其余旗县多为2250。2250档无地级市主城区。"
+    },
+    {
+      "provinceId": "ningxia",
+      "province": "宁夏",
+      "effectiveFrom": "2025-10-01",
+      "tiers": [
+        {
+          "amount": 2235,
+          "cities": [
+            "银川",
+            "石嘴山",
+            "吴忠",
+            "中卫"
+          ]
+        },
+        {
+          "amount": 2080,
+          "cities": [
+            "固原"
+          ]
+        }
+      ],
+      "sourceUrl": "https://wageindicator.org/zh-cn/work-in-china/minimum-wage/6904-ningxia",
+      "note": "一档:银川兴庆/金凤/西夏/永宁/贺兰/灵武,石嘴山大武口/惠农/平罗,吴忠利通/青铜峡,中卫沙坡头/中宁;二档:吴忠红寺堡/盐池/同心,固原全部,中卫海原。小时22/20。 金额来自维基百科汇总表(截至2026-01)与WageIndicator分区名单交叉印证,未取得省级官方原文,建议复核。"
+    },
+    {
+      "provinceId": "qinghai",
+      "province": "青海",
+      "effectiveFrom": "2025-05-01",
+      "tiers": [
+        {
+          "amount": 2080,
+          "cities": [
+            "西宁",
+            "海东",
+            "海西",
+            "海北",
+            "黄南",
+            "海南",
+            "果洛",
+            "玉树"
+          ]
+        }
+      ],
+      "sourceUrl": "https://zh.wikipedia.org/wiki/中国大陆最低工资标准",
+      "note": "维基汇总表仅列单一标准2080(较旧1880约+10.6%,与第一财经称青海一档涨超10%吻合),生效日期2025-05-01取自WageIndicator;但WageIndicator页面仅列出果洛/海西/玉树,且维基正文称青海1750为全国最低,存在矛盾,是否另有低档不确定,强烈建议复核。"
+    },
+    {
+      "provinceId": "shaanxi",
+      "province": "陕西",
+      "effectiveFrom": "2026-01-01",
+      "tiers": [
+        {
+          "amount": 2376,
+          "cities": [
+            "西安",
+            "咸阳",
+            "榆林",
+            "杨凌"
+          ]
+        },
+        {
+          "amount": 2250,
+          "cities": [
+            "宝鸡",
+            "铜川",
+            "渭南",
+            "延安",
+            "汉中",
+            "商洛",
+            "韩城"
+          ]
+        },
+        {
+          "amount": 2140,
+          "cities": [
+            "安康"
+          ]
+        }
+      ],
+      "sourceUrl": "https://wageindicator.org/zh-cn/work-in-china/minimum-wage/6912-/",
+      "note": "按县区分档,此处为各市主城区所属档:西安鄠邑/蓝田/周至为二档;咸阳兴平等为二档;宝鸡凤翔等县、渭南华州等县、安康各县区等为三档;安康汉滨区在WageIndicator名单中列于三档。2376这一非整数金额仅见于维基汇总表,请重点复核。 金额来自维基百科汇总表(截至2026-01)与WageIndicator分区名单交叉印证,未取得省级官方原文,建议复核。"
+    },
+    {
+      "provinceId": "shandong",
+      "province": "山东",
+      "effectiveFrom": "2025-10-01",
+      "tiers": [
+        {
+          "amount": 2400,
+          "cities": [
+            "济南",
+            "青岛",
+            "淄博",
+            "东营",
+            "烟台",
+            "潍坊",
+            "威海"
+          ]
+        },
+        {
+          "amount": 2210,
+          "cities": [
+            "枣庄",
+            "济宁",
+            "泰安",
+            "日照",
+            "临沂",
+            "滨州"
+          ]
+        },
+        {
+          "amount": 2020,
+          "cities": [
+            "德州",
+            "聊城",
+            "菏泽"
+          ]
+        }
+      ],
+      "sourceUrl": "https://wageindicator.org/zh-cn/work-in-china/minimum-wage/6917-/",
+      "note": "三档2400/2210/2020(金额来自人社部汇总表,档次名单与生效日来自WageIndicator,未核对省级原文)。莱芜已并入济南(莱芜区二档)。济南长清/章丘/济阳/平阴/商河、青岛胶州/平度/莱西、淄博博山/周村/桓台、烟台莱阳/栖霞/海阳、潍坊青州/安丘/高密等为二档;淄博高青/沂源、枣庄峄城等、济宁鱼台等、泰安岱岳等、临沂沂南等、滨州沾化等为三档。"
+    },
+    {
+      "provinceId": "shanghai",
+      "province": "上海",
+      "effectiveFrom": "2025-07-01",
+      "tiers": [
+        {
+          "amount": 2740,
+          "cities": [
+            "上海"
+          ]
+        }
+      ],
+      "sourceUrl": "https://rsj.sh.gov.cn/cmsres/2c/2c52da60c7ed423c949a1a8524195c92/4221087aea40a7da06e928da75ab2369.pdf",
+      "note": "全市统一2740元(小时25元)。上海市人社局2025年7月通知,2025-07-01起执行;未查到2026年新调整。"
+    },
+    {
+      "provinceId": "shanxi",
+      "province": "山西",
+      "effectiveFrom": "2026-10-01",
+      "tiers": [
+        {
+          "amount": 2350,
+          "cities": [
+            "太原",
+            "大同",
+            "阳泉",
+            "长治",
+            "晋城",
+            "朔州",
+            "忻州",
+            "晋中",
+            "临汾",
+            "吕梁",
+            "运城"
+          ]
+        },
+        {
+          "amount": 2250,
+          "cities": []
+        },
+        {
+          "amount": 2150,
+          "cities": []
+        }
+      ],
+      "sourceUrl": "https://finance.ifeng.com/c/8vjDoI1nQix",
+      "note": "晋政办发〔2026〕29号,2026-10-01起全省执行,一类2350/二类2250/三类2150(各涨200)。2026新文件的县区名单未查到;各市市区分档按2025年旧划分(WageIndicator):11个地级市市区均为一类。二类仅县:太原阳曲、大同新荣/云州/左云、阳泉盂县/平定、长治潞城/上党/屯留等、朔州怀仁等、忻州代县等、晋中平遥等、临汾侯马/霍州等、运城永济等;三类如太原娄烦、大同浑源等、长治平顺等、晋城陵川、忻州五台等。旧标准(2025-01-01起)为2150/2050/1950。"
+    },
+    {
+      "provinceId": "sichuan",
+      "province": "四川",
+      "effectiveFrom": "2025-01-01",
+      "tiers": [
+        {
+          "amount": 2330,
+          "cities": [
+            "成都",
+            "攀枝花"
+          ]
+        },
+        {
+          "amount": 2200,
+          "cities": [
+            "自贡",
+            "泸州",
+            "德阳",
+            "绵阳",
+            "广元",
+            "遂宁",
+            "内江",
+            "乐山",
+            "南充",
+            "眉山",
+            "宜宾",
+            "广安",
+            "达州",
+            "雅安",
+            "巴中",
+            "资阳",
+            "阿坝",
+            "甘孜",
+            "凉山"
+          ]
+        }
+      ],
+      "sourceUrl": "https://wageindicator.org/zh-cn/work-in-china/minimum-wage/6926-/",
+      "note": "成都仅天府新区/高新区及锦江、青羊、金牛、武侯、成华、龙泉驿、青白江、新都、温江、双流、郫都、新津为一档;简阳、都江堰、彭州、邛崃、崇州、金堂、大邑、蒲江为二档。广安仅川渝高竹新区为一档。 金额来自维基百科汇总表(截至2026-01)与WageIndicator分区名单交叉印证,未取得省级官方原文,建议复核。四川日报(scol)标题亦为一档2330/二档2200。"
+    },
+    {
+      "provinceId": "tianjin",
+      "province": "天津",
+      "effectiveFrom": "2025-09-01",
+      "tiers": [
+        {
+          "amount": 2510,
+          "cities": [
+            "天津"
+          ]
+        }
+      ],
+      "sourceUrl": "https://m.bendibao.com/bsy643977.html",
+      "note": "全市统一一档2510元(小时26.6元),金额来自人社部截至2026-01-01汇总表(bendibao转载),生效日期来自WageIndicator;未查到2026年新调整,未核对省级原文。"
+    },
+    {
+      "provinceId": "xinjiang",
+      "province": "新疆",
+      "effectiveFrom": "2026-10-01",
+      "tiers": [
+        {
+          "amount": 2270,
+          "cities": [
+            "乌鲁木齐",
+            "克拉玛依"
+          ]
+        },
+        {
+          "amount": 2080,
+          "cities": [
+            "伊宁",
+            "奎屯",
+            "昌吉",
+            "哈密",
+            "库尔勒",
+            "阿克苏",
+            "石河子",
+            "五家渠",
+            "阿拉尔"
+          ]
+        },
+        {
+          "amount": 1930,
+          "cities": [
+            "吐鲁番",
+            "塔城",
+            "阿勒泰",
+            "博乐",
+            "阿图什",
+            "喀什",
+            "和田",
+            "图木舒克"
+          ]
+        }
+      ],
+      "sourceUrl": "https://rst.xinjiang.gov.cn/xjrst/c112485/202608/cf9bc983a5924369baea2a94b737f1db.shtml",
+      "note": "自治区政府通知(2026-08),2026-10-01起,三档2270/2080/1930,小时22.7/20.8/19.3,官方页确认。但2026年各档地区名单未读到;城市归档按2025年旧通知(新政发〔2024〕66号:一档乌鲁木齐、克拉玛依;二档伊宁/昌吉/库尔勒/阿克苏/石河子等27县市区;三档高昌区、塔城、阿勒泰、博乐、喀什等69县市区)推定,三档金额增幅(+200/+190/+180)与旧三档结构吻合。"
+    },
+    {
+      "provinceId": "xizang",
+      "province": "西藏",
+      "effectiveFrom": "2025-11-01",
+      "tiers": [
+        {
+          "amount": 2360,
+          "cities": [
+            "拉萨",
+            "日喀则",
+            "昌都",
+            "林芝",
+            "山南",
+            "那曲",
+            "阿里"
+          ]
+        }
+      ],
+      "sourceUrl": "https://wageindicator.org/zh-cn/work-in-china/minimum-wage/6932-/",
+      "note": "全区单一标准2360(维基汇总表),WageIndicator显示七地市同一档、2025-11-01起。 金额来自维基百科汇总表(截至2026-01)与WageIndicator分区名单交叉印证,未取得省级官方原文,建议复核。"
+    },
+    {
+      "provinceId": "yunnan",
+      "province": "云南",
+      "effectiveFrom": "2026-09-01",
+      "tiers": [
+        {
+          "amount": 2270,
+          "cities": [
+            "昆明"
+          ]
+        },
+        {
+          "amount": 2120,
+          "cities": [
+            "曲靖",
+            "玉溪",
+            "保山",
+            "昭通",
+            "丽江",
+            "普洱",
+            "临沧",
+            "楚雄",
+            "红河",
+            "文山",
+            "西双版纳",
+            "大理",
+            "德宏",
+            "怒江",
+            "迪庆"
+          ]
+        },
+        {
+          "amount": 1970,
+          "cities": []
+        }
+      ],
+      "sourceUrl": "https://news.qq.com/rain/a/20260901A09ZAX00",
+      "note": "云人社发〔2026〕9号(媒体转述),2026-09-01起,比旧标准(2170/2020/1870)各+100;小时22/21/20。一类:昆明五华/盘龙/西山/官渡/呈贡/晋宁、安宁、嵩明;二类:昆明其他县区、东川、其他州市所辖县级市及市辖区(各州市府所在地)、玉龙、德钦;三类:全省其他县。未读到人社厅原文。"
+    },
+    {
+      "provinceId": "zhejiang",
+      "province": "浙江",
+      "effectiveFrom": "2026-01-01",
+      "tiers": [
+        {
+          "amount": 2660,
+          "cities": [
+            "杭州",
+            "宁波",
+            "温州"
+          ]
+        },
+        {
+          "amount": 2430,
+          "cities": [
+            "嘉兴",
+            "湖州",
+            "绍兴",
+            "舟山",
+            "台州",
+            "金华"
+          ]
+        },
+        {
+          "amount": 2180,
+          "cities": [
+            "衢州",
+            "丽水"
+          ]
+        }
+      ],
+      "sourceUrl": "https://www.yicai.com/news/102979037.html",
+      "note": "浙江省政府2025-12-26通知,2026-01-01起三档2660/2430/2180(小时25/23/21);省通知未列城市,要求各设区市自行确定适用标准并公布。城市分档来自WageIndicator(未核对各市公告),置信度中等。杭州桐庐/淳安/建德、宁波余姚/慈溪/宁海/象山、温州乐清/瑞安为二档;温州永嘉/文成/平阳/泰顺/苍南/龙港、台州天台/仙居/三门、金华武义/磐安为三档;衢州、丽水页面仅列三档。"
+    }
+  ]
+}

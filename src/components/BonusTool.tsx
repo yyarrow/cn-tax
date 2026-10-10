@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { ExampleHint } from "./ExampleHint";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CITY_PRESETS, bonusSeparateTax, bonusTrapZones, computeAll, getCity, round2, sadMonthly } from "@/lib/tax";
+import { bonusSeparateTax, bonusTrapZones, computeAll, getCity, round2, sadMonthly } from "@/lib/tax";
 import { findTrap } from "@/lib/tax/bonus";
 import { fmtMoney } from "@/lib/format";
 import { SITE, buildShareUrl } from "@/lib/share";
 import { bonusToProfile, buildBonusShareUrl, useBonusInput, wasBonusLoadedFromShare } from "@/lib/bonusStore";
-import { Button, Card, Details, Field, Hint, NumberInput, Select } from "./ui";
+import { Button, Card, Details, Field, Hint, NumberInput } from "./ui";
+import { CityPicker } from "./CityPicker";
 import { ShareModal } from "./ShareModal";
 
 /** 陷阱区间表：区间下限的税额，以及刚过下限时最多少拿多少（多发 1 分钱的代价） */
@@ -272,13 +273,7 @@ export function BonusTool() {
           <div className="rounded-2xl border border-line bg-white p-4">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <Field label="城市">
-                <Select value={input.cityId} onChange={(e) => patch({ cityId: e.target.value })}>
-                  {CITY_PRESETS.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </Select>
+                <CityPicker value={input.cityId} onChange={(id) => patch({ cityId: id })} />
               </Field>
               <Field label="税前月薪">
                 <NumberInput value={input.monthlySalary} onChange={(monthlySalary) => patch({ monthlySalary })} prefix="¥" step={1000} />

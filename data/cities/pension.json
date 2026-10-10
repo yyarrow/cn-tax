@@ -1,0 +1,1241 @@
+{
+  "asOf": "2026-10-10",
+  "baseByProvince": [
+    {
+      "provinceId": "beijing",
+      "province": "北京",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 12049,
+        "sourceUrl": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202511/t20251107_4265441.html",
+        "sourceTitle": "北京市人社局等：关于2025年本市参保人员社会保险待遇有关问题的通告（2025-10-27，官方）"
+      },
+      "history": [
+        {
+          "year": 2022,
+          "value": 11082,
+          "sourceUrl": "https://www.bbtnews.com.cn/2022/0912/451605.shtml"
+        },
+        {
+          "year": 2024,
+          "value": 11883,
+          "sourceUrl": "https://c.m.163.com/news/a/KDSNKHP705446M2K.html",
+          "note": "网易号称\"去年是11883\"，与12049/1.014一致"
+        },
+        {
+          "year": 2025,
+          "value": 12049,
+          "sourceUrl": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202511/t20251107_4265441.html"
+        }
+      ],
+      "confidence": "high",
+      "note": "2025值来自北京市官方通告（已读原文）：2025年达到退休年龄并办理手续者按12049元/月计算，1月1日起已退休者重算补差。2026值截至2026-10-10未见官方文件；腾讯新闻一篇称2026=11256（比2025低）无出处、不可信，不采用。参考：2026年缴费基数上限36348/下限7270→缴费口径社平约12116元（北京日报2026-08-21），北京历年计发基数略高于/接近缴费口径社平。",
+      "contributionWageBase": [
+        {
+          "year": 2026,
+          "value": 12116,
+          "derivation": "36348/3；7270/0.6=12117",
+          "sourceUrl": "https://news.bjd.com.cn/2026/08/21/11925637.shtml"
+        }
+      ]
+    },
+    {
+      "provinceId": "shanghai",
+      "province": "上海",
+      "unified": true,
+      "latest": {
+        "year": 2026,
+        "value": 12577,
+        "sourceUrl": "https://m.thepaper.cn/newsDetail_forward_33839702",
+        "sourceTitle": "腾讯新闻：上海2026年计发基数12577元（上海市人社局2026-08-18公告，媒体转述）",
+        "note": "由上海2026年缴费基数上限37731=3×12577、下限7546=0.6×12577反推，与上海市人社局2026-08-18公告媒体转述一致；上海计发基数就是当年公布的\"上年度全市城镇单位就业人员月平均工资\""
+      },
+      "history": [
+        {
+          "year": 2024,
+          "value": 12307,
+          "sourceUrl": "https://news.qq.com/rain/a/20260704A06NNZ00",
+          "note": "由\"2025年比2024年仅涨127元\"反推"
+        },
+        {
+          "year": 2025,
+          "value": 12434,
+          "sourceUrl": "https://www.sohu.com/a/987867947_120130950"
+        },
+        {
+          "year": 2026,
+          "value": 12577,
+          "sourceUrl": "https://m.thepaper.cn/newsDetail_forward_33839702"
+        }
+      ],
+      "confidence": "high",
+      "note": "上海计发办法见沪人社规〔2021〕32号（官方PDF，有效期至2026-12-31）：基础养老金=（上年度全市城镇单位就业人员月平均工资+本人指数化月平均缴费工资）÷2×缴费年限×1%；缴费工资指数的分母与计发基数是同一个数（全市城镇单位就业人员月平均工资）。注意上海对指数有特殊底线：视同缴费年限指数按1；1993–2010年指数低于1按1；2011–2013年分别不低于1/0.85/0.75。新数公布前上半年退休者先按旧值预发后补差。",
+      "contributionWageBase": [
+        {
+          "year": 2026,
+          "value": 12577,
+          "derivation": "与计发基数相同",
+          "sourceUrl": "https://m.thepaper.cn/newsDetail_forward_33839702"
+        },
+        {
+          "year": 2025,
+          "value": 12434,
+          "derivation": "与计发基数相同",
+          "sourceUrl": "https://www.sohu.com/a/987867947_120130950"
+        }
+      ]
+    },
+    {
+      "provinceId": "tianjin",
+      "province": "天津",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 9417,
+        "sourceUrl": "https://m.gmw.cn/2025-11/17/content_1304228674.htm",
+        "sourceTitle": "光明网：天津发布2025年度基本养老金计发基数9417元（引天津人社局/财政局2025-11-17通知；正文未能读取，数值取自搜索摘要，并与sohu31交叉一致）"
+      },
+      "history": [
+        {
+          "year": 2024,
+          "value": 9232,
+          "sourceUrl": "https://c.m.163.com/news/a/KDSNKHP705446M2K.html"
+        },
+        {
+          "year": 2025,
+          "value": 9417,
+          "sourceUrl": "https://m.gmw.cn/2025-11/17/content_1304228674.htm"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2025年度9417元，据天津人社局/财政局2025-11-17通知（光明网转述，原文未读到；sohu31与9232×1.02一致）。2026年未见公布（天津历来11月底前后公布）。有媒体称2026预计9610，仅为预测，不采用。"
+    },
+    {
+      "provinceId": "chongqing",
+      "province": "重庆",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 8240,
+        "sourceUrl": "https://www.sohu.com/a/987867947_120130950",
+        "sourceTitle": "暖心人社人：31省份2025年养老金计发基数（搜狐，2026-02-16，自媒体汇总）"
+      },
+      "history": [
+        {
+          "year": 2024,
+          "value": 8160,
+          "sourceUrl": "https://c.m.163.com/news/a/KDSNKHP705446M2K.html"
+        },
+        {
+          "year": 2025,
+          "value": 8240,
+          "sourceUrl": "https://www.sohu.com/a/987867947_120130950"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2025=8240（增长0.98%，与2024年8160一致）。仅自媒体来源，未找到重庆人社局原文。2026未公布。"
+    },
+    {
+      "provinceId": "hebei",
+      "province": "河北",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 7410,
+        "sourceUrl": "https://www.sohu.com/a/987867947_120130950",
+        "sourceTitle": "暖心人社人：31省份2025年养老金计发基数（搜狐，2026-02-16，自媒体汇总）"
+      },
+      "history": [
+        {
+          "year": 2022,
+          "value": 6849,
+          "sourceUrl": null,
+          "confidence": "low",
+          "note": "来自一次搜索摘要引用的解读文章，未能定位原文"
+        },
+        {
+          "year": 2023,
+          "value": 7122,
+          "sourceUrl": null,
+          "confidence": "low",
+          "note": "同上"
+        },
+        {
+          "year": 2024,
+          "value": 7265,
+          "sourceUrl": null,
+          "confidence": "low",
+          "note": "同上；与7410/1.02一致"
+        },
+        {
+          "year": 2025,
+          "value": 7410,
+          "sourceUrl": "https://www.sohu.com/a/987867947_120130950"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2025=7410（sohu31、163a一致，增长2%）。有一篇自媒体称2026=7521（+1.74%）但与自身增幅不自洽、无文号，不采用。河北2026缴费基数口径社平：6794元/月（搜索摘要，下限4076，上限20382，澎湃号2026-08-24可佐证上下限），计发基数明显高于缴费口径。",
+      "contributionWageBase": [
+        {
+          "year": 2026,
+          "value": 6794,
+          "derivation": "下限4076/0.6≈6793；上限20382/3=6794",
+          "sourceUrl": "https://m.thepaper.cn/newsDetail_forward_33839702"
+        }
+      ]
+    },
+    {
+      "provinceId": "shanxi",
+      "province": "山西",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 7253,
+        "sourceUrl": "https://i.ifeng.com/c/8wv6LXUbEe2",
+        "sourceTitle": "凤凰网：山西2025年计发基数7253元（自媒体；另有山西缴费基数下限4244，对应全口径月均工资7073）"
+      },
+      "history": [
+        {
+          "year": 2025,
+          "value": 7253,
+          "sourceUrl": "https://i.ifeng.com/c/8wv6LXUbEe2"
+        }
+      ],
+      "confidence": "low",
+      "note": "2025=7253仅见一篇凤凰网自媒体；sohu31只说山西增长2%、未给数值。2026缴费基数口径社平7073元（下限4244）。山西人社厅原文未找到。",
+      "contributionWageBase": [
+        {
+          "year": 2026,
+          "value": 7073,
+          "derivation": "下限4244/0.6",
+          "sourceUrl": "https://i.ifeng.com/c/8wv6LXUbEe2"
+        }
+      ]
+    },
+    {
+      "provinceId": "neimenggu",
+      "province": "内蒙古",
+      "unified": true,
+      "latest": {
+        "year": 2026,
+        "value": 8430,
+        "sourceUrl": "https://news.qq.com/rain/a/20260919A06W6A00",
+        "sourceTitle": "养老三支柱：2026年养老金计发基数6省落地（自媒体；上海/西藏/新疆/内蒙古/黑龙江/贵州）",
+        "note": "文号报道不一致：qq0919作\"内人社办发〔2026〕85号\"，3zhizhu作\"内人社发〔2026〕85号\"；2026-08公布，较2025年增251元（+3.07%）"
+      },
+      "history": [
+        {
+          "year": 2025,
+          "value": 8179,
+          "sourceUrl": "https://c.m.163.com/news/a/KDSNKHP705446M2K.html",
+          "note": "inews与163a均为8179；sohu31写作8197应为笔误；8430-251=8179印证"
+        },
+        {
+          "year": 2026,
+          "value": 8430,
+          "sourceUrl": "https://news.qq.com/rain/a/20260919A06W6A00"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2026已公布8430（两篇媒体+文号，涨幅与2025值自洽）。"
+    },
+    {
+      "provinceId": "liaoning",
+      "province": "辽宁",
+      "unified": false,
+      "latest": {
+        "year": 2025,
+        "value": 7346,
+        "sourceUrl": "https://3zhizhu.cn/2025%E5%B9%B4%E5%85%BB%E8%80%81%E9%87%91%E8%AE%A1%E5%8F%91%E5%9F%BA%E6%95%B0%E6%8E%92%E8%A1%8C%E6%A6%9C%EF%BC%9A%E4%B8%8A%E6%B5%B712434%E3%80%81%E5%8C%97%E4%BA%AC12049%EF%BC%8C%E6%9C%80%E4%BD%8E/",
+        "sourceTitle": "养老三支柱：2025年养老金计发基数排行榜（自媒体；列出辽人社〔2025〕17号、粤人社发〔2025〕32号、沈阳8390/大连8956）",
+        "note": "辽人社〔2025〕17号（媒体转述，2025-09-20）；全省普通口径；沈阳、大连企业单列"
+      },
+      "history": [
+        {
+          "year": 2025,
+          "value": 7346,
+          "sourceUrl": "https://3zhizhu.cn/2025%E5%B9%B4%E5%85%BB%E8%80%81%E9%87%91%E8%AE%A1%E5%8F%91%E5%9F%BA%E6%95%B0%E6%8E%92%E8%A1%8C%E6%A6%9C%EF%BC%9A%E4%B8%8A%E6%B5%B712434%E3%80%81%E5%8C%97%E4%BA%AC12049%EF%BC%8C%E6%9C%80%E4%BD%8E/"
+        }
+      ],
+      "confidence": "medium",
+      "note": "辽宁分三档：普通7346、沈阳企业8390、大连企业8956（2025，辽人社〔2025〕17号；增长率2%/1.5%/1.5%）。2026未公布。"
+    },
+    {
+      "provinceId": "jilin",
+      "province": "吉林",
+      "unified": false,
+      "latest": {
+        "year": 2025,
+        "value": 7322.08,
+        "sourceUrl": "https://www.sohu.com/a/987867947_120130950",
+        "sourceTitle": "暖心人社人：31省份2025年养老金计发基数（搜狐，2026-02-16，自媒体汇总）",
+        "note": "\"其他地区\"口径，增长2%；长春7978.25；农垦企业2223.42"
+      },
+      "history": [
+        {
+          "year": 2025,
+          "value": 7322.08,
+          "sourceUrl": "https://c.m.163.com/news/a/KDSNKHP705446M2K.html"
+        }
+      ],
+      "confidence": "medium",
+      "note": "吉林已由过去50多个值合并为三类：长春7978.25（+1.6%）、农垦企业2223.42（+7.08%）、其他地区7322.08（+2%）。sohu31与163a一致。2026未公布。"
+    },
+    {
+      "provinceId": "heilongjiang",
+      "province": "黑龙江",
+      "unified": true,
+      "latest": {
+        "year": 2026,
+        "value": 7705,
+        "sourceUrl": "https://news.qq.com/rain/a/20260919A06W6A00",
+        "sourceTitle": "养老三支柱：2026年养老金计发基数6省落地（自媒体；上海/西藏/新疆/内蒙古/黑龙江/贵州）",
+        "note": "黑人社函〔2025〕611号，2025-12-24发布，自2026-01-01起执行（+1.78%）"
+      },
+      "history": [
+        {
+          "year": 2023,
+          "value": 6430,
+          "sourceUrl": "https://c.m.163.com/news/a/JR9FQ73O0539E5LQ.html",
+          "note": "由\"2024年比2023年涨580元(9.02%)\"反推"
+        },
+        {
+          "year": 2024,
+          "value": 7010,
+          "sourceUrl": "https://c.m.163.com/news/a/JR9FQ73O0539E5LQ.html"
+        },
+        {
+          "year": 2025,
+          "value": 7570,
+          "sourceUrl": "https://c.m.163.com/news/a/JR9FQ73O0539E5LQ.html",
+          "note": "涨560元，+7.99%"
+        },
+        {
+          "year": 2026,
+          "value": 7705,
+          "sourceUrl": "https://news.qq.com/rain/a/20260919A06W6A00"
+        }
+      ],
+      "confidence": "medium",
+      "note": "黑龙江按上年度（全口径）平均工资确定并年初公布，是唯一当年1月就出新基数、退休时无需补差的省份。2026=7705有文号、多源一致。"
+    },
+    {
+      "provinceId": "jiangsu",
+      "province": "江苏",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 8917,
+        "sourceUrl": "https://news.qq.com/rain/a/20260530A06YR500",
+        "sourceTitle": "腾讯新闻：江苏2025计发基数8785→8917（2026-05-30，自媒体）"
+      },
+      "history": [
+        {
+          "year": 2024,
+          "value": 8785,
+          "sourceUrl": "https://news.qq.com/rain/a/20260530A06YR500"
+        },
+        {
+          "year": 2025,
+          "value": 8917,
+          "sourceUrl": "https://news.qq.com/rain/a/20260530A06YR500",
+          "note": "增长1.5%；个别文章把8917当\"2026暂定\"，但多篇及增长率表明它是2025值"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2025=8917（上年8785，+1.5%）。2026未见公布。过渡性养老金自2024-01-01起按新办法（1995年底前缴费指数×1995年底前缴费年限×1.2%×计发基数）。缴费口径社平（2025）：缴费上限24762→8254元（苏人社发〔2025〕33号）。",
+      "contributionWageBase": [
+        {
+          "year": 2025,
+          "value": 8254,
+          "derivation": "缴费基数上限24762/3",
+          "sourceUrl": "https://www.yzwb.net/news/jiangsu/202509/t20250918_265779.html"
+        }
+      ]
+    },
+    {
+      "provinceId": "zhejiang",
+      "province": "浙江",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 8433,
+        "sourceUrl": "https://c.m.163.com/news/a/KDSNKHP705446M2K.html",
+        "sourceTitle": "暖心人社：各省份2025年养老金计发基数陆续公布中（网易号，2025-11-09，自媒体汇总，含部分2024值）"
+      },
+      "history": [
+        {
+          "year": 2024,
+          "value": 8310,
+          "sourceUrl": "https://c.m.163.com/news/a/KDSNKHP705446M2K.html",
+          "note": "由8433/1.0148反推；搜索摘要提到文号浙人社发〔2024〕61号=8310，未能核对原文"
+        },
+        {
+          "year": 2025,
+          "value": 8433,
+          "sourceUrl": "https://c.m.163.com/news/a/KDSNKHP705446M2K.html"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2025=8433（+1.48%，sohu31、163a、inews一致）。浙江计发基数与（非私营+私营加权）平均工资并轨：2026年缴费基数通知称2025年度加权平均工资102446元（8537元/月），推测2026计发基数将在8537附近，但未见官方公布；有一篇自媒体称2026=8869，无出处，不采用。"
+    },
+    {
+      "provinceId": "anhui",
+      "province": "安徽",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 7999,
+        "sourceUrl": "https://www.sohu.com/a/987867947_120130950",
+        "sourceTitle": "暖心人社人：31省份2025年养老金计发基数（搜狐，2026-02-16，自媒体汇总）"
+      },
+      "history": [
+        {
+          "year": 2025,
+          "value": 7999,
+          "sourceUrl": "https://c.m.163.com/news/a/KDSNKHP705446M2K.html"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2025=7999（+2%，sohu31/163a/inews一致）。未找到安徽人社厅原文。"
+    },
+    {
+      "provinceId": "fujian",
+      "province": "福建",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 7932,
+        "sourceUrl": "https://rst.fj.gov.cn/zw/zfxxgk/zfxxgkml/zyywgz/ldgx/202509/P020250922637617093307.pdf",
+        "sourceTitle": "福建省人社厅等：关于调整2025年城镇职工基本养老保险缴费基数和计发基数的通知（闽人社文〔2025〕45号，官方PDF，已读原文）"
+      },
+      "history": [
+        {
+          "year": 2025,
+          "value": 7932,
+          "sourceUrl": "https://rst.fj.gov.cn/zw/zfxxgk/zfxxgkml/zyywgz/ldgx/202509/P020250922637617093307.pdf"
+        }
+      ],
+      "confidence": "high",
+      "note": "官方原文（闽人社文〔2025〕45号，2025-09-22）：2025年我省城镇职工基本养老保险计发基数为7932元/月；同文件企业缴费基数上限22607/下限4043，机关事业上限22607/下限4521。2026年尚未公布养老计发基数（仅发布了2026年工伤待遇口径：月平均工资8460元/101516元年，闽人社文〔2026〕12号，可作2026计发基数的上限/参考信号但不等同）。",
+      "contributionWageBase": [
+        {
+          "year": 2025,
+          "value": 7536,
+          "derivation": "缴费基数上限22607/3",
+          "sourceUrl": "https://rst.fj.gov.cn/zw/zfxxgk/zfxxgkml/zyywgz/ldgx/202509/P020250922637617093307.pdf"
+        }
+      ]
+    },
+    {
+      "provinceId": "jiangxi",
+      "province": "江西",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 7054,
+        "sourceUrl": "https://c.m.163.com/news/a/L2OFEJF005446M2K.html",
+        "sourceTitle": "网易号：江西2025年计发基数7054元，全口径社平工资6525元"
+      },
+      "history": [
+        {
+          "year": 2025,
+          "value": 7054,
+          "sourceUrl": "https://c.m.163.com/news/a/L2OFEJF005446M2K.html"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2025=7054（inews/163a/qq0704一致）；而缴费指数分母用全口径社平6525元（比计发基数低约8%）。2026未公布。江西过渡系数1.3%。",
+      "contributionWageBase": [
+        {
+          "year": 2025,
+          "value": 6525,
+          "derivation": "文章称\"全口径社平工资6525元，缴费指数与之相比\"",
+          "sourceUrl": "https://c.m.163.com/news/a/L2OFEJF005446M2K.html"
+        }
+      ]
+    },
+    {
+      "provinceId": "shandong",
+      "province": "山东",
+      "unified": false,
+      "latest": {
+        "year": 2025,
+        "value": 7831,
+        "sourceUrl": "https://news.qq.com/rain/a/20260604A06BB500",
+        "sourceTitle": "腾讯新闻：山东2025年计发基数7831（2024年7678；青岛9010、菏泽7506；2026-06-04，自媒体）"
+      },
+      "history": [
+        {
+          "year": 2024,
+          "value": 7678,
+          "sourceUrl": "https://news.qq.com/rain/a/20260604A06BB500"
+        },
+        {
+          "year": 2025,
+          "value": 7831,
+          "sourceUrl": "https://news.qq.com/rain/a/20260604A06BB500"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2025全省普通7831（省直企业并轨，2024年7678；+1.99%）。菏泽企业按100%缴费档次单列7506；青岛9010（仅qq 20260604A06BB500一篇提及，confidence低）。缴费指数分母：2025年以7506元（全口径）为基数。2026未公布；有文章推测约7988（+2%），仅预测。山东过渡系数1.3%。",
+      "contributionWageBase": [
+        {
+          "year": 2025,
+          "value": 7506,
+          "derivation": "qq0722称\"计算当年月缴费工资指数时以7506元为基数\"；4504/0.6=7507",
+          "sourceUrl": "https://news.qq.com/rain/a/20260722A0CLYP00"
+        }
+      ]
+    },
+    {
+      "provinceId": "henan",
+      "province": "河南",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 6738,
+        "sourceUrl": "https://c.m.163.com/news/a/KNJGCNAV0552TUTA.html",
+        "sourceTitle": "2025年城镇职工养老金计发基数全解析（网易号，自媒体）"
+      },
+      "history": [
+        {
+          "year": 2024,
+          "value": 6606,
+          "sourceUrl": "https://c.m.163.com/news/a/KDSNKHP705446M2K.html"
+        },
+        {
+          "year": 2025,
+          "value": 6738,
+          "sourceUrl": "https://c.m.163.com/news/a/KNJGCNAV0552TUTA.html",
+          "note": "6606×1.02=6738，吻合"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2025=6738（+2%）。缴费口径社平：2025-07至2026-06以6385元/月确定缴费基数（下限3831/上限19155）。2026未公布。",
+      "contributionWageBase": [
+        {
+          "year": 2025,
+          "value": 6385,
+          "derivation": "下限3831/0.6；上限19155/3（2025-07至2026-06）",
+          "sourceUrl": "https://www.thepaper.cn/newsDetail_forward_31994464"
+        }
+      ]
+    },
+    {
+      "provinceId": "hubei",
+      "province": "湖北",
+      "unified": false,
+      "latest": {
+        "year": 2025,
+        "value": null,
+        "sourceUrl": "https://www.sohu.com/a/987867947_120130950",
+        "sourceTitle": "暖心人社人：31省份2025年养老金计发基数（搜狐，2026-02-16，自媒体汇总）",
+        "note": "湖北无全省统一计发基数：武汉9112，其他地区多数在7200-7400之间"
+      },
+      "history": [],
+      "confidence": "low",
+      "note": "湖北各统筹地区各自公布，未并轨。武汉2025=9112（sohu31）；\"大多数地方7200-7400\"为区间描述，无具体值，故latest.value=null，请按用户所在地市另查。",
+      "valueRange": [
+        7200,
+        7400
+      ]
+    },
+    {
+      "provinceId": "hunan",
+      "province": "湖南",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 7694,
+        "sourceUrl": "https://www.sohu.com/a/987867947_120130950",
+        "sourceTitle": "暖心人社人：31省份2025年养老金计发基数（搜狐，2026-02-16，自媒体汇总）"
+      },
+      "history": [
+        {
+          "year": 2025,
+          "value": 7694,
+          "sourceUrl": "https://www.sohu.com/a/987867947_120130950"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2025=7694（+1%，sohu31；163b同）。同年缴费基数基准值（暂定）7180元/月，计发基数高约7.2%。2026未公布。",
+      "contributionWageBase": [
+        {
+          "year": 2025,
+          "value": 7180,
+          "derivation": "缴费基数基准值（暂定）",
+          "sourceUrl": "https://www.toutiao.com/zixun/7536379080427112457/"
+        }
+      ]
+    },
+    {
+      "provinceId": "guangdong",
+      "province": "广东",
+      "unified": false,
+      "latest": {
+        "year": 2025,
+        "value": 9493,
+        "sourceUrl": "https://cbgc.scol.com.cn/news/6903360",
+        "sourceTitle": "成都商报：广东明确2025年职工基本养老保险缴费基数上下限和基本养老金计发基数（引粤人社发〔2025〕32号；广东9493/2024年9307）",
+        "note": "粤人社发〔2025〕32号，2025年1月1日至12月31日适用；2025-10-24/27发布；深圳企业单列"
+      },
+      "history": [
+        {
+          "year": 2024,
+          "value": 9307,
+          "sourceUrl": "https://cbgc.scol.com.cn/news/6903360"
+        },
+        {
+          "year": 2025,
+          "value": 9493,
+          "sourceUrl": "https://cbgc.scol.com.cn/news/6903360"
+        }
+      ],
+      "confidence": "medium",
+      "note": "全省（深圳以外）2025=9493（+2%），2024=9307。深圳企业职工单列：2024=11181、2025=11293（+1%）。2026年截至2026-07尚未公布广东新值（搜索摘要）。缴费口径：2025-07起上限27549→9183元。",
+      "contributionWageBase": [
+        {
+          "year": 2025,
+          "value": 9183,
+          "derivation": "缴费基数上限27549/3",
+          "sourceUrl": "https://cbgc.scol.com.cn/news/6903360"
+        }
+      ]
+    },
+    {
+      "provinceId": "guangxi",
+      "province": "广西",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 6983,
+        "sourceUrl": "https://www.sohu.com/a/987867947_120130950",
+        "sourceTitle": "暖心人社人：31省份2025年养老金计发基数（搜狐，2026-02-16，自媒体汇总）"
+      },
+      "history": [
+        {
+          "year": 2025,
+          "value": 6983,
+          "sourceUrl": "https://c.m.163.com/news/a/KDSNKHP705446M2K.html",
+          "note": "2025-09-23公布，约+2%"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2025=6983（全国最低梯队，sohu31/163a/inews一致）。"
+    },
+    {
+      "provinceId": "hainan",
+      "province": "海南",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 8188,
+        "sourceUrl": "https://www.sohu.com/a/987867947_120130950",
+        "sourceTitle": "暖心人社人：31省份2025年养老金计发基数（搜狐，2026-02-16，自媒体汇总）"
+      },
+      "history": [
+        {
+          "year": 2025,
+          "value": 8188,
+          "sourceUrl": "https://c.m.163.com/news/a/KDSNKHP705446M2K.html",
+          "note": "较上年仅+0.7%，全国增幅最低"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2025=8188（sohu31/163a/inews一致）。海南计发基数与社平工资并轨。"
+    },
+    {
+      "provinceId": "sichuan",
+      "province": "四川",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 8462,
+        "sourceUrl": "https://www.sohu.com/a/987867947_120130950",
+        "sourceTitle": "暖心人社人：31省份2025年养老金计发基数（搜狐，2026-02-16，自媒体汇总）"
+      },
+      "history": [
+        {
+          "year": 2024,
+          "value": 8312,
+          "sourceUrl": "https://c.m.163.com/news/a/KDSNKHP705446M2K.html",
+          "confidence": "low",
+          "note": "163a称2024年8312，但sohu31称2025增长1.69%（对应2024约8321），二者不自洽"
+        },
+        {
+          "year": 2025,
+          "value": 8462,
+          "sourceUrl": "https://www.sohu.com/a/987867947_120130950"
+        }
+      ],
+      "confidence": "low",
+      "note": "2025=8462仅sohu31；163a仅给出2024=8312。未找到四川人社厅原文。"
+    },
+    {
+      "provinceId": "guizhou",
+      "province": "贵州",
+      "unified": true,
+      "latest": {
+        "year": 2026,
+        "value": 7376.75,
+        "sourceUrl": "https://news.qq.com/rain/a/20260919A06W6A00",
+        "sourceTitle": "养老三支柱：2026年养老金计发基数6省落地（自媒体；上海/西藏/新疆/内蒙古/黑龙江/贵州）",
+        "note": "黔人社发〔2026〕7号（媒体转述）；由2025年度全口径社平88521元/12得出；较2025年7324.5增52.25元（+0.71%）"
+      },
+      "history": [
+        {
+          "year": 2025,
+          "value": 7324.5,
+          "sourceUrl": "https://c.m.163.com/news/a/KDSNKHP705446M2K.html"
+        },
+        {
+          "year": 2026,
+          "value": 7376.75,
+          "sourceUrl": "https://news.qq.com/rain/a/20260919A06W6A00"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2026=7376.75（两篇媒体+文号）；贵州计发基数=上年度全口径社平。"
+    },
+    {
+      "provinceId": "yunnan",
+      "province": "云南",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 8265,
+        "sourceUrl": "https://news.qq.com/rain/a/20260604A06GPJ00",
+        "sourceTitle": "腾讯新闻：云南2025年工资数据与计发基数（8265/2024年8183；2026-06-04）"
+      },
+      "history": [
+        {
+          "year": 2024,
+          "value": 8183,
+          "sourceUrl": "https://news.qq.com/rain/a/20260604A06GPJ00"
+        },
+        {
+          "year": 2025,
+          "value": 8265,
+          "sourceUrl": "https://news.qq.com/rain/a/20260604A06GPJ00"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2025=8265（2024=8183，+1%）；腾讯新闻（引云南统计局数据）称2026年退休者使用的是8265。云南2025年度全口径月均工资7263元（缴费口径）。2026新值未公布。",
+      "contributionWageBase": [
+        {
+          "year": 2025,
+          "value": 7263,
+          "derivation": "文章称\"社保使用的全口径月均工资7263元\"（年份口径含糊）",
+          "sourceUrl": "https://news.qq.com/rain/a/20260604A06GPJ00"
+        }
+      ]
+    },
+    {
+      "provinceId": "xizang",
+      "province": "西藏",
+      "unified": true,
+      "latest": {
+        "year": 2026,
+        "value": 11954,
+        "sourceUrl": "https://3zhizhu.cn/2026%E5%B9%B4%E5%85%BB%E8%80%81%E9%87%91%E8%AE%A1%E5%8F%91%E5%9F%BA%E6%95%B06%E7%9C%81%E8%90%BD%E5%9C%B0%EF%BC%9A%E4%B8%8A%E6%B5%B712577%E3%80%81%E9%BB%91%E9%BE%99%E6%B1%9F7705%EF%BC%8C%E4%BD%A0/",
+        "sourceTitle": "养老三支柱：2026年养老金计发基数6省落地（自媒体；上海/西藏/新疆/内蒙古/黑龙江/贵州）",
+        "note": "藏人社发〔2026〕46号（媒体转述，约2026-09-14公布）；+1.5%"
+      },
+      "history": [
+        {
+          "year": 2025,
+          "value": 11777,
+          "sourceUrl": "https://www.sohu.com/a/987867947_120130950",
+          "note": "+2%；2024年增幅7%，2022年9%"
+        },
+        {
+          "year": 2026,
+          "value": 11954,
+          "sourceUrl": "https://3zhizhu.cn/2026%E5%B9%B4%E5%85%BB%E8%80%81%E9%87%91%E8%AE%A1%E5%8F%91%E5%9F%BA%E6%95%B06%E7%9C%81%E8%90%BD%E5%9C%B0%EF%BC%9A%E4%B8%8A%E6%B5%B712577%E3%80%81%E9%BB%91%E9%BE%99%E6%B1%9F7705%EF%BC%8C%E4%BD%A0/"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2026=11954（3zhizhu与qq0928一致）。西藏计发基数与全口径社平并轨，居全国第三。"
+    },
+    {
+      "provinceId": "shaanxi",
+      "province": "陕西",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 7881,
+        "sourceUrl": "https://view.inews.qq.com/a/20251107A021L500",
+        "sourceTitle": "社保小达人：多省公布2025年养老金计发基数（腾讯新闻，2025-11-10，自媒体）"
+      },
+      "history": [
+        {
+          "year": 2025,
+          "value": 7881,
+          "sourceUrl": "https://c.m.163.com/news/a/KDSNKHP705446M2K.html",
+          "note": "+1.99%"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2025=7881（inews/163a一致；sohu31未提）。"
+    },
+    {
+      "provinceId": "gansu",
+      "province": "甘肃",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 7746,
+        "sourceUrl": "https://c.m.163.com/news/a/KNJGCNAV0552TUTA.html",
+        "sourceTitle": "2025年城镇职工养老金计发基数全解析（网易号，自媒体）"
+      },
+      "history": [
+        {
+          "year": 2024,
+          "value": 7594,
+          "sourceUrl": "https://c.m.163.com/news/a/KDSNKHP705446M2K.html"
+        },
+        {
+          "year": 2025,
+          "value": 7746,
+          "sourceUrl": "https://c.m.163.com/news/a/KNJGCNAV0552TUTA.html",
+          "note": "7594×1.02=7746"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2025=7746（163b；sohu31写作7446疑为笔误，因2%增幅对应7746）。"
+    },
+    {
+      "provinceId": "qinghai",
+      "province": "青海",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 9056,
+        "sourceUrl": "https://www.sohu.com/a/987867947_120130950",
+        "sourceTitle": "暖心人社人：31省份2025年养老金计发基数（搜狐，2026-02-16，自媒体汇总）"
+      },
+      "history": [
+        {
+          "year": 2025,
+          "value": 9056,
+          "sourceUrl": "https://view.inews.qq.com/a/20251107A021L500",
+          "note": "+2%"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2025=9056（sohu31/inews/163a一致）。"
+    },
+    {
+      "provinceId": "ningxia",
+      "province": "宁夏",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 8366,
+        "sourceUrl": "https://www.sohu.com/a/987867947_120130950",
+        "sourceTitle": "暖心人社人：31省份2025年养老金计发基数（搜狐，2026-02-16，自媒体汇总）"
+      },
+      "history": [
+        {
+          "year": 2025,
+          "value": 8366,
+          "sourceUrl": "https://view.inews.qq.com/a/20251107A021L500",
+          "note": "+2%"
+        }
+      ],
+      "confidence": "medium",
+      "note": "2025=8366（sohu31/inews一致）。"
+    },
+    {
+      "provinceId": "xinjiang",
+      "province": "新疆",
+      "unified": true,
+      "latest": {
+        "year": 2025,
+        "value": 8448,
+        "sourceUrl": "https://www.sohu.com/a/987867947_120130950",
+        "sourceTitle": "暖心人社人：31省份2025年养老金计发基数（搜狐，2026-02-16，自媒体汇总）"
+      },
+      "history": [
+        {
+          "year": 2025,
+          "value": 8448,
+          "sourceUrl": "https://view.inews.qq.com/a/20251107A021L500",
+          "confidence": "low",
+          "note": "163a写作8488，sohu31与inews为8448；增幅+1.39%"
+        }
+      ],
+      "confidence": "low",
+      "note": "2025=8448（sohu31、inews）vs 8488（163a），存在分歧。2026=8744仅见3zhizhu（自称暂未获官方文件确认），未采用为latest。新疆计发基数与全口径社平并轨。",
+      "candidate2026": {
+        "value": 8744,
+        "sourceUrl": "https://3zhizhu.cn/2026%E5%B9%B4%E5%85%BB%E8%80%81%E9%87%91%E8%AE%A1%E5%8F%91%E5%9F%BA%E6%95%B06%E7%9C%81%E8%90%BD%E5%9C%B0%EF%BC%9A%E4%B8%8A%E6%B5%B712577%E3%80%81%E9%BB%91%E9%BE%99%E6%B1%9F7705%EF%BC%8C%E4%BD%A0/",
+        "status": "未经官方确认"
+      }
+    }
+  ],
+  "baseByCity": [
+    {
+      "city": "深圳",
+      "provinceId": "guangdong",
+      "latest": {
+        "year": 2025,
+        "value": 11293,
+        "sourceUrl": "https://news.qq.com/rain/a/20260704A06NNZ00",
+        "sourceTitle": "养老百事通：2026年养老金计发基数高达9000元都是哪的（腾讯新闻，2026-07-04，自媒体；含深圳11293、上海较2024涨127元等）",
+        "note": "深圳企业职工养老保险计发基数，单列；广东全省其他地区用9493"
+      },
+      "history": [
+        {
+          "year": 2024,
+          "value": 11181,
+          "sourceUrl": "https://c.m.163.com/news/a/KDSNKHP705446M2K.html",
+          "note": "2024年12月才公布"
+        }
+      ],
+      "note": "sohu31称2025深圳11293、+1%（广东全省普通+2%，二者逐年并轨）。2026-07仍沿用11293。深圳官方原文未读到，confidence=medium。"
+    },
+    {
+      "city": "沈阳",
+      "provinceId": "liaoning",
+      "latest": {
+        "year": 2025,
+        "value": 8390,
+        "sourceUrl": "https://3zhizhu.cn/2025%E5%B9%B4%E5%85%BB%E8%80%81%E9%87%91%E8%AE%A1%E5%8F%91%E5%9F%BA%E6%95%B0%E6%8E%92%E8%A1%8C%E6%A6%9C%EF%BC%9A%E4%B8%8A%E6%B5%B712434%E3%80%81%E5%8C%97%E4%BA%AC12049%EF%BC%8C%E6%9C%80%E4%BD%8E/",
+        "sourceTitle": "养老三支柱：2025年养老金计发基数排行榜（自媒体；列出辽人社〔2025〕17号、粤人社发〔2025〕32号、沈阳8390/大连8956）"
+      },
+      "history": [],
+      "note": "沈阳企业单列（辽人社〔2025〕17号），+1.5%。"
+    },
+    {
+      "city": "大连",
+      "provinceId": "liaoning",
+      "latest": {
+        "year": 2025,
+        "value": 8956,
+        "sourceUrl": "https://3zhizhu.cn/2025%E5%B9%B4%E5%85%BB%E8%80%81%E9%87%91%E8%AE%A1%E5%8F%91%E5%9F%BA%E6%95%B0%E6%8E%92%E8%A1%8C%E6%A6%9C%EF%BC%9A%E4%B8%8A%E6%B5%B712434%E3%80%81%E5%8C%97%E4%BA%AC12049%EF%BC%8C%E6%9C%80%E4%BD%8E/",
+        "sourceTitle": "养老三支柱：2025年养老金计发基数排行榜（自媒体；列出辽人社〔2025〕17号、粤人社发〔2025〕32号、沈阳8390/大连8956）"
+      },
+      "history": [],
+      "note": "大连企业单列（辽人社〔2025〕17号），+1.5%。"
+    },
+    {
+      "city": "长春",
+      "provinceId": "jilin",
+      "latest": {
+        "year": 2025,
+        "value": 7978.25,
+        "sourceUrl": "https://www.sohu.com/a/987867947_120130950",
+        "sourceTitle": "暖心人社人：31省份2025年养老金计发基数（搜狐，2026-02-16，自媒体汇总）"
+      },
+      "history": [],
+      "note": "长春企业退休（+1.6%）；吉林其他地区7322.08，农垦企业2223.42。"
+    },
+    {
+      "city": "武汉",
+      "provinceId": "hubei",
+      "latest": {
+        "year": 2025,
+        "value": 9112,
+        "sourceUrl": "https://www.sohu.com/a/987867947_120130950",
+        "sourceTitle": "暖心人社人：31省份2025年养老金计发基数（搜狐，2026-02-16，自媒体汇总）"
+      },
+      "history": [],
+      "note": "湖北未统一；武汉9112，其他多数地区7200-7400（无具体值）。"
+    },
+    {
+      "city": "青岛",
+      "provinceId": "shandong",
+      "latest": {
+        "year": 2025,
+        "value": 9010,
+        "sourceUrl": "https://news.qq.com/rain/a/20260604A06BB500",
+        "sourceTitle": "腾讯新闻：山东2025年计发基数7831（2024年7678；青岛9010、菏泽7506；2026-06-04，自媒体）"
+      },
+      "history": [],
+      "note": "仅一篇自媒体（qq 20260604A06BB500）提到青岛9010；confidence=low。"
+    },
+    {
+      "city": "菏泽",
+      "provinceId": "shandong",
+      "latest": {
+        "year": 2025,
+        "value": 7506,
+        "sourceUrl": "https://news.qq.com/rain/a/20260604A06BB500",
+        "sourceTitle": "腾讯新闻：山东2025年计发基数7831（2024年7678；青岛9010、菏泽7506；2026-06-04，自媒体）"
+      },
+      "history": [],
+      "note": "菏泽企业退休，按100%缴费档次（等于全口径社平7506）；山东其余14地市7831。"
+    }
+  ],
+  "annuityMonths": {
+    "40": 233,
+    "41": 230,
+    "42": 226,
+    "43": 223,
+    "44": 220,
+    "45": 216,
+    "46": 212,
+    "47": 208,
+    "48": 204,
+    "49": 199,
+    "50": 195,
+    "51": 190,
+    "52": 185,
+    "53": 180,
+    "54": 175,
+    "55": 170,
+    "56": 164,
+    "57": 158,
+    "58": 152,
+    "59": 145,
+    "60": 139,
+    "61": 132,
+    "62": 125,
+    "63": 117,
+    "64": 109,
+    "65": 101,
+    "66": 93,
+    "67": 84,
+    "68": 75,
+    "69": 65,
+    "70": 56
+  },
+  "annuityMonthsSource": {
+    "url": "https://www.shanghai.gov.cn/cmsres/ab/ab2f776a3e8b4005a62b29ee2b07567b/c48b7f53120c64aa212dd64e2c6d91a6.pdf",
+    "note": "国发〔2005〕38号附件全国统一表；此处取自上海市官方文件沪人社规〔2021〕32号附件2的原文逐行核对；国发38号正文说明该表为附件但维基文库正文未含表格。表覆盖40-70岁，故延迟退休后61/62/63岁直接查表，无单独规定。"
+  },
+  "accountInterestRates": {
+    "2016": 0.0831,
+    "2017": 0.0712,
+    "2018": 0.0829,
+    "2019": 0.0761,
+    "2020": 0.0604,
+    "2021": 0.0669,
+    "2022": 0.0612,
+    "2023": 0.0397,
+    "2024": 0.0262,
+    "2025": 0.015
+  },
+  "accountInterestRatesSources": [
+    {
+      "years": "2016-2018",
+      "url": "https://www.rmlt.com.cn/2019/0821/554989.shtml",
+      "title": "人民论坛网：个人账户记账利率（2016年8.31%、2017年7.12%、2018年8.29%，引人社部办公厅、财政部办公厅通知）"
+    },
+    {
+      "years": "2016-2025（完整序列）",
+      "url": "https://news.qq.com/rain/a/20260525A05UXE00",
+      "title": "腾讯新闻：2016-2025年城镇职工个人账户记账利率序列（2026-05-25，自媒体）"
+    },
+    {
+      "years": "2016,2024,2025",
+      "url": "https://finance.sina.com.cn/roll/2026-04-10/doc-inhtymqf5320347.shtml",
+      "title": "21世纪经济报道/新浪财经：多地公布这一数据！你的养老账户结算了多少利息（2026-04-10；2016年8.31%、2024年2.62%、2025年1.5%）"
+    },
+    {
+      "years": "制度依据",
+      "url": "https://www.rmzxw.com.cn/c/2017-04-24/1500923.shtml",
+      "title": "人民政协网/新华社：人社部、财政部印发统一和规范职工养老保险个人账户记账利率办法的通知（2017-04）"
+    }
+  ],
+  "accountInterestRatesNote": "2016年起全国统一（人社部发〔2017〕31号），每年6月由人社部、财政部公布上一年度利率；2019-2023年各值来自媒体序列（qqrate）且与记忆一致，未找到人社部原通知URL；2025=1.5%见2026年多地公告与21世纪经济报道，建议上线前再核人社部/财政部原文。",
+  "accountContributionRate": {
+    "value": 0.08,
+    "summary": "2006-01-01起个人账户规模统一为本人缴费工资的8%，全部由个人缴费形成，单位缴费不再划入个人账户（此前11%）；灵活就业人员缴费20%，其中8%记入个人账户。",
+    "sourceUrl": "https://zh.wikisource.org/wiki/%E5%9B%BD%E5%8A%A1%E9%99%A2%E5%85%B3%E4%BA%8E%E5%AE%8C%E5%96%84%E4%BC%81%E4%B8%9A%E8%81%8C%E5%B7%A5%E5%9F%BA%E6%9C%AC%E5%85%BB%E8%80%81%E4%BF%9D%E9%99%A9%E5%88%B6%E5%BA%A6%E7%9A%84%E5%86%B3%E5%AE%9A"
+  },
+  "retirementAge": {
+    "summary": "2025-01-01起：男职工和原55岁女职工每4个月延迟1个月，分别至63岁、58岁；原50岁女职工每2个月延迟1个月，至55岁；15年过渡。起始出生月：男1965-01，女55类1970-01，女50类1975-01；改革后退休年龄=原法定年龄+延迟月数，延迟月数=min(上限,floor(自起始月起的月数/步长)+1)。弹性：达到最低缴费年限可弹性提前最长3年，但不得低于原法定年龄（女50/55，男60）；单位与职工协商一致可弹性延迟最长3年。详见pension-notes.md。",
+    "sourceUrl": "https://www.gov.cn/yaowen/liebiao/202409/content_6974294.htm"
+  },
+  "minContribution": {
+    "summary": "2030-01-01起，按月领取基本养老金最低缴费年限由15年逐步提高至20年，每年提高6个月：2025-2029年15年；2030年15年6个月；2031年16年；2032年16年6个月；2033年17年；2034年17年6个月；2035年18年；2036年18年6个月；2037年19年；2038年19年6个月；2039年起20年。不满最低缴费年限的可延长缴费或一次性缴费补足。",
+    "sourceUrl": "https://www.gov.cn/yaowen/liebiao/202409/content_6974294.htm",
+    "table": {
+      "2025": 15,
+      "2026": 15,
+      "2027": 15,
+      "2028": 15,
+      "2029": 15,
+      "2030": 15.5,
+      "2031": 16,
+      "2032": 16.5,
+      "2033": 17,
+      "2034": 17.5,
+      "2035": 18,
+      "2036": 18.5,
+      "2037": 19,
+      "2038": 19.5,
+      "2039": 20
+    }
+  },
+  "growthObservations": {
+    "note": "计发基数同比增幅（用于外推）：2026年已公布5个地区：上海+1.15%、西藏+1.5%、黑龙江+1.78%、贵州+0.71%、内蒙古+3.07%；2025年绝大多数省份+0.7%~2%（\"2%\"基本是上限），黑龙江+7.99%、深圳+1%、北京+1.4%、上海+1.03%。建议默认年增长率取1.5%（区间1%~2%）；该建议为调研者判断，非官方口径。",
+    "sample2026": {
+      "shanghai": 0.0115,
+      "xizang": 0.015,
+      "heilongjiang": 0.0178,
+      "guizhou": 0.0071,
+      "neimenggu": 0.0307
+    }
+  },
+  "publicationTiming": "多数省份当年9-11月公布（福建/辽宁9月，广东10月底，北京10月底，天津11月中，深圳常到12月）；黑龙江上年12月公布并当年1月起执行；上海随缴费基数8月公布。公布前退休者先按上年值预发，公布后重算基础养老金和过渡性养老金并补差（个人账户部分不重算）。",
+  "contributionVsPaymentBase": "见pension-notes.md A3：2019年起缴费基数核定口径为全口径城镇单位就业人员平均工资（国办发〔2019〕13号），而计发基数多数省份高于该口径（按已查到的同年值：江西+8%，河南+5.5%，湖南+7%，山东+4%，广东+3.4%，江苏+8%）；网易号文章（163hlj）称黑龙江/上海/西藏/新疆/海南/浙江/内蒙古/贵州直接以人均工资作为计发基数（即与社平同口径），该说法未经官方原文核实。",
+  "sources": [
+    {
+      "title": "暖心人社人：31省份2025年养老金计发基数（搜狐，2026-02-16，自媒体汇总）",
+      "url": "https://www.sohu.com/a/987867947_120130950"
+    },
+    {
+      "title": "暖心人社：各省份2025年养老金计发基数陆续公布中（网易号，2025-11-09，自媒体汇总，含部分2024值）",
+      "url": "https://c.m.163.com/news/a/KDSNKHP705446M2K.html"
+    },
+    {
+      "title": "社保小达人：多省公布2025年养老金计发基数（腾讯新闻，2025-11-10，自媒体）",
+      "url": "https://view.inews.qq.com/a/20251107A021L500"
+    },
+    {
+      "title": "2025年城镇职工养老金计发基数全解析（网易号，自媒体）",
+      "url": "https://c.m.163.com/news/a/KNJGCNAV0552TUTA.html"
+    },
+    {
+      "title": "首个2025年养老金计发基数已诞生（网易号，2025-03-22，黑龙江7570/7010/涨幅）",
+      "url": "https://c.m.163.com/news/a/JR9FQ73O0539E5LQ.html"
+    },
+    {
+      "title": "北京市人社局等：关于2025年本市参保人员社会保险待遇有关问题的通告（2025-10-27，官方）",
+      "url": "https://www.beijing.gov.cn/zhengce/zhengcefagui/202511/t20251107_4265441.html"
+    },
+    {
+      "title": "北京商报：北京2022年养老、工伤保险待遇计发基数为11082元/月（引北京市人社局通告）",
+      "url": "https://www.bbtnews.com.cn/2022/0912/451605.shtml"
+    },
+    {
+      "title": "福建省人社厅等：关于调整2025年城镇职工基本养老保险缴费基数和计发基数的通知（闽人社文〔2025〕45号，官方PDF，已读原文）",
+      "url": "https://rst.fj.gov.cn/zw/zfxxgk/zfxxgkml/zyywgz/ldgx/202509/P020250922637617093307.pdf"
+    },
+    {
+      "title": "福建省人社厅等：关于明确2026年工伤保险相关待遇计发基数的通知（闽人社文〔2026〕12号，官方PDF，已读原文；仅工伤口径，非养老计发基数）",
+      "url": "https://rst.fj.gov.cn/zw/zfxxgk/zfxxgkml/zyywgz/ldgx/202608/P020260812579381204758.pdf"
+    },
+    {
+      "title": "成都商报：广东明确2025年职工基本养老保险缴费基数上下限和基本养老金计发基数（引粤人社发〔2025〕32号；广东9493/2024年9307）",
+      "url": "https://cbgc.scol.com.cn/news/6903360"
+    },
+    {
+      "title": "养老三支柱：2025年养老金计发基数排行榜（自媒体；列出辽人社〔2025〕17号、粤人社发〔2025〕32号、沈阳8390/大连8956）",
+      "url": "https://3zhizhu.cn/2025%E5%B9%B4%E5%85%BB%E8%80%81%E9%87%91%E8%AE%A1%E5%8F%91%E5%9F%BA%E6%95%B0%E6%8E%92%E8%A1%8C%E6%A6%9C%EF%BC%9A%E4%B8%8A%E6%B5%B712434%E3%80%81%E5%8C%97%E4%BA%AC12049%EF%BC%8C%E6%9C%80%E4%BD%8E/"
+    },
+    {
+      "title": "养老三支柱：2026年养老金计发基数6省落地（自媒体；上海/西藏/新疆/内蒙古/黑龙江/贵州）",
+      "url": "https://3zhizhu.cn/2026%E5%B9%B4%E5%85%BB%E8%80%81%E9%87%91%E8%AE%A1%E5%8F%91%E5%9F%BA%E6%95%B06%E7%9C%81%E8%90%BD%E5%9C%B0%EF%BC%9A%E4%B8%8A%E6%B5%B712577%E3%80%81%E9%BB%91%E9%BE%99%E6%B1%9F7705%EF%BC%8C%E4%BD%A0/"
+    },
+    {
+      "title": "腾讯新闻：2026年养老金计发基数陆续公布（2026-09-28，自媒体）",
+      "url": "https://news.qq.com/rain/a/20260928A05R1N00"
+    },
+    {
+      "title": "腾讯新闻：各省公布养老金基数（2026-09-19，自媒体；列文号 黑人社函〔2025〕611号、黔人社发〔2026〕7号）",
+      "url": "https://news.qq.com/rain/a/20260919A06W6A00"
+    },
+    {
+      "title": "腾讯新闻：2026年养老金计发基数已陆续公布（2026-08-06，自媒体；内蒙古/黑龙江/河北/贵州）",
+      "url": "https://news.qq.com/rain/a/20260806A08ZSL00"
+    },
+    {
+      "title": "养老百事通：2026年养老金计发基数高达9000元都是哪的（腾讯新闻，2026-07-04，自媒体；含深圳11293、上海较2024涨127元等）",
+      "url": "https://news.qq.com/rain/a/20260704A06NNZ00"
+    },
+    {
+      "title": "澎湃号·政务：社保缴费有变化，多地已调整（2026-08-24；上海2026缴费基数上/下限37731/7546，北京36348/7270）",
+      "url": "https://m.thepaper.cn/newsDetail_forward_33839702"
+    },
+    {
+      "title": "北京日报：北京发布2026年度各项社会保险缴费工资基数上下限的通告（2026-08-21）",
+      "url": "https://news.bjd.com.cn/2026/08/21/11925637.shtml"
+    },
+    {
+      "title": "凤凰网：山西2025年计发基数7253元（自媒体；另有山西缴费基数下限4244，对应全口径月均工资7073）",
+      "url": "https://i.ifeng.com/c/8wv6LXUbEe2"
+    },
+    {
+      "title": "腾讯新闻：云南2025年工资数据与计发基数（8265/2024年8183；2026-06-04）",
+      "url": "https://news.qq.com/rain/a/20260604A06GPJ00"
+    },
+    {
+      "title": "腾讯新闻：山东2025年计发基数7831（2024年7678；青岛9010、菏泽7506；2026-06-04，自媒体）",
+      "url": "https://news.qq.com/rain/a/20260604A06BB500"
+    },
+    {
+      "title": "腾讯新闻：山东2025社保参数（缴费基数下限4504/上限22518，缴费指数基数7506，计发基数7831；2026-07-22）",
+      "url": "https://news.qq.com/rain/a/20260722A0CLYP00"
+    },
+    {
+      "title": "腾讯新闻：江苏2025计发基数8785→8917（2026-05-30，自媒体）",
+      "url": "https://news.qq.com/rain/a/20260530A06YR500"
+    },
+    {
+      "title": "扬子晚报网：江苏2025年社保缴费基数上限24762/下限4952（苏人社发〔2025〕33号）",
+      "url": "https://www.yzwb.net/news/jiangsu/202509/t20250918_265779.html"
+    },
+    {
+      "title": "网易号：江西2025年计发基数7054元，全口径社平工资6525元",
+      "url": "https://c.m.163.com/news/a/L2OFEJF005446M2K.html"
+    },
+    {
+      "title": "头条：湖南2025年缴费基数基准值7180元/月（暂定）",
+      "url": "https://www.toutiao.com/zixun/7536379080427112457/"
+    },
+    {
+      "title": "澎湃：河南2025-07至2026-06缴费基数以6385元/月确定上下限",
+      "url": "https://www.thepaper.cn/newsDetail_forward_31994464"
+    },
+    {
+      "title": "光明网：天津发布2025年度基本养老金计发基数9417元（引天津人社局/财政局2025-11-17通知；正文未能读取，数值取自搜索摘要，并与sohu31交叉一致）",
+      "url": "https://m.gmw.cn/2025-11/17/content_1304228674.htm"
+    },
+    {
+      "title": "腾讯新闻：上海2026年计发基数12577元（上海市人社局2026-08-18公告，媒体转述）",
+      "url": "https://news.qq.com/rain/a/20260821A0AR6Z00"
+    },
+    {
+      "title": "国务院关于完善企业职工基本养老保险制度的决定（国发〔2005〕38号，维基文库官方文本）",
+      "url": "https://zh.wikisource.org/wiki/%E5%9B%BD%E5%8A%A1%E9%99%A2%E5%85%B3%E4%BA%8E%E5%AE%8C%E5%96%84%E4%BC%81%E4%B8%9A%E8%81%8C%E5%B7%A5%E5%9F%BA%E6%9C%AC%E5%85%BB%E8%80%81%E4%BF%9D%E9%99%A9%E5%88%B6%E5%BA%A6%E7%9A%84%E5%86%B3%E5%AE%9A"
+    },
+    {
+      "title": "国务院办公厅转发人社部财政部《城镇企业职工基本养老保险关系转移接续暂行办法》的通知（国办发〔2009〕66号，维基文库官方文本）",
+      "url": "https://zh.wikisource.org/wiki/%E5%9B%BD%E5%8A%A1%E9%99%A2%E5%8A%9E%E5%85%AC%E5%8E%85%E5%85%B3%E4%BA%8E%E8%BD%AC%E5%8F%91%E4%BA%BA%E5%8A%9B%E8%B5%84%E6%BA%90%E7%A4%BE%E4%BC%9A%E4%BF%9D%E9%9A%9C%E9%83%A8%E8%B4%A2%E6%94%BF%E9%83%A8%E5%9F%8E%E9%95%87%E4%BC%81%E4%B8%9A%E8%81%8C%E5%B7%A5%E5%9F%BA%E6%9C%AC%E5%85%BB%E8%80%81%E4%BF%9D%E9%99%A9%E5%85%B3%E7%B3%BB%E8%BD%AC%E7%A7%BB%E6%8E%A5%E7%BB%AD%E6%9A%82%E8%A1%8C%E5%8A%9E%E6%B3%95%E7%9A%84%E9%80%9A%E7%9F%A5"
+    },
+    {
+      "title": "国务院办公厅关于印发降低社会保险费率综合方案的通知（国办发〔2019〕13号，维基文库官方文本）",
+      "url": "https://zh.wikisource.org/wiki/%E5%9B%BD%E5%8A%A1%E9%99%A2%E5%8A%9E%E5%85%AC%E5%8E%85%E5%85%B3%E4%BA%8E%E5%8D%B0%E5%8F%91%E9%99%8D%E4%BD%8E%E7%A4%BE%E4%BC%9A%E4%BF%9D%E9%99%A9%E8%B4%B9%E7%8E%87%E7%BB%BC%E5%90%88%E6%96%B9%E6%A1%88%E7%9A%84%E9%80%9A%E7%9F%A5"
+    },
+    {
+      "title": "全国人大常委会关于实施渐进式延迟法定退休年龄的决定 及 国务院关于渐进式延迟法定退休年龄的办法（中国政府网，2024-09-13，含附件对照表）",
+      "url": "https://www.gov.cn/yaowen/liebiao/202409/content_6974294.htm"
+    },
+    {
+      "title": "上海市人社局：关于本市企业基本养老金计发办法的通知（沪人社规〔2021〕32号，官方PDF，含计发月数表）",
+      "url": "https://www.shanghai.gov.cn/cmsres/ab/ab2f776a3e8b4005a62b29ee2b07567b/c48b7f53120c64aa212dd64e2c6d91a6.pdf"
+    },
+    {
+      "title": "人民政协网/新华社：人社部、财政部印发统一和规范职工养老保险个人账户记账利率办法的通知（2017-04）",
+      "url": "https://www.rmzxw.com.cn/c/2017-04-24/1500923.shtml"
+    },
+    {
+      "title": "人民论坛网：个人账户记账利率（2016年8.31%、2017年7.12%、2018年8.29%，引人社部办公厅、财政部办公厅通知）",
+      "url": "https://www.rmlt.com.cn/2019/0821/554989.shtml"
+    },
+    {
+      "title": "腾讯新闻：2016-2025年城镇职工个人账户记账利率序列（2026-05-25，自媒体）",
+      "url": "https://news.qq.com/rain/a/20260525A05UXE00"
+    },
+    {
+      "title": "21世纪经济报道/新浪财经：多地公布这一数据！你的养老账户结算了多少利息（2026-04-10；2016年8.31%、2024年2.62%、2025年1.5%）",
+      "url": "https://finance.sina.com.cn/roll/2026-04-10/doc-inhtymqf5320347.shtml"
+    }
+  ]
+}

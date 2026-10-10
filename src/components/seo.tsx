@@ -8,6 +8,7 @@ const SITE_NAV = [
   { href: "/offer", label: "Offer 对比" },
   { href: "/settlement", label: "汇算退税" },
   { href: "/social-insurance", label: "税后工资" },
+  { href: "/pension", label: "养老金" },
 ];
 
 /** 全站导航：移动端换行展示全部入口，当前项用强调色下划线标出 */
@@ -91,6 +92,7 @@ const RELATED: { href: string; label: string; desc: string }[] = [
   { href: "/offer", label: "Offer 税后对比", desc: "两三份 offer 并排算全年到手和差额" },
   { href: "/settlement", label: "汇算清缴退税计算器", desc: "今年能退多少、为什么、在个税 App 怎么办" },
   { href: "/social-insurance", label: "税后工资计算器", desc: "月薪到手拆分，或从到手反推五险一金" },
+  { href: "/pension", label: "养老金计算器", desc: "延迟退休后每月能领多少，换个城市退休差多少" },
 ];
 
 /** 文章末尾的相关工具（内链 + 描述性锚文本） */

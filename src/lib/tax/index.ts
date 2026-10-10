@@ -93,6 +93,7 @@ export function computeAll(profile: Profile, currentMonth = 12): FullResult {
 
 export * from "./types";
 export * from "./constants";
+export { CITY_PRESETS, HOT_CITY_IDS } from "./cities";
 export { annualTax, bonusSeparateTax, marginalRate, findBracket, round2 } from "./brackets";
 export { bonusTrapZones } from "./bonus";
 export { sadMonthly, annualOnlyDeductions, computeSocialBreakdown, inferMonthlyDeduction } from "./social";

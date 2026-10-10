@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { PensionClient } from "@/components/PensionClient";
-import { Article, Hero, JsonLd, breadcrumbLd, faqLd } from "@/components/seo";
+import { Article, Hero, JsonLd, breadcrumbLd, faqLd, webAppLd } from "@/components/seo";
 import { PensionArticle, faq } from "@/content/pension";
 
-const TITLE = "养老金计算器：延迟退休后每月能领多少，换个城市差多少";
+const TITLE = "养老金计算器 2026：延迟退休后每月能领多少，换个城市差多少";
 const DESCRIPTION = "养老金计算器：填出生年月和缴费情况，估算延迟退休后每月能领多少，并对比换个城市领取差多少。";
 
 export const metadata: Metadata = {
@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <>
+      <JsonLd data={webAppLd({ name: "养老金计算器", path: "/pension", description: DESCRIPTION })} />
       <JsonLd data={faqLd(faq)} />
       <JsonLd data={breadcrumbLd([{ name: "个税规划器", path: "/" }, { name: TITLE, path: "/pension" }])} />
       <Hero current="/pension" title="养老金计算器" subtitle={DESCRIPTION} />

@@ -56,17 +56,17 @@ export function JsonLd({ data }: { data: object }) {
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
 }
 
-export function webAppLd() {
+export function webAppLd(opts?: { name?: string; path?: string; description?: string }) {
   return {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: SITE_NAME,
-    url: SITE_URL,
+    name: opts?.name ?? SITE_NAME,
+    url: `${SITE_URL}${opts?.path ?? ""}`,
     applicationCategory: "FinanceApplication",
     operatingSystem: "Any",
     inLanguage: "zh-CN",
     offers: { "@type": "Offer", price: "0", priceCurrency: "CNY" },
-    description: "2026 年个人所得税计算器：全年个税、汇算清缴退税、年终奖单独计税对比、期权 / RSU 兑现规划。",
+    description: opts?.description ?? "2026 年个人所得税计算器：全年个税、汇算清缴退税、年终奖单独计税对比、期权 / RSU 兑现规划。",
   };
 }
 
@@ -93,6 +93,8 @@ const RELATED: { href: string; label: string; desc: string }[] = [
   { href: "/settlement", label: "汇算清缴退税计算器", desc: "今年能退多少、为什么、在个税 App 怎么办" },
   { href: "/social-insurance", label: "税后工资计算器", desc: "月薪到手拆分，或从到手反推五险一金" },
   { href: "/pension", label: "养老金计算器", desc: "延迟退休后每月能领多少，换个城市退休差多少" },
+  { href: "/retirement-age", label: "延迟退休年龄计算器", desc: "输入出生年月，查几岁几月退休、能弹性提前多久，附完整对照表" },
+  { href: "/pension-base", label: "各省养老金计发基数", desc: "31 省及部分城市的最新计发基数一览，看同样缴费换个地方差多少" },
 ];
 
 /** 文章末尾的相关工具（内链 + 描述性锚文本） */

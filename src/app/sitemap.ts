@@ -10,5 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/settlement`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${SITE_URL}/social-insurance`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE_URL}/pension`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/retirement-age`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${SITE_URL}/pension-base`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
   ];
 }

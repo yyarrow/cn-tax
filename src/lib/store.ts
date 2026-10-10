@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import type { EquityEvent, EquityPlan, Profile, Segment, SpecialDeductions } from "@/lib/tax";
+import { getCity } from "@/lib/tax";
 import { uid } from "./format";
 import { consumeSharedProfile } from "./share";
 
@@ -146,6 +147,12 @@ export function useProfile() {
       }),
     [],
   );
+  /** 用户主动换城市：房租扣除档位跟着新城市走（不在加载时调用，不覆盖已存数据） */
+  const setCity = useCallback(
+    (cityId: string) =>
+      setProfile((prev) => ({ ...prev, cityId, deductions: { ...prev.deductions, rentTier: getCity(cityId).rentTier } })),
+    [],
+  );
   const patchDeductions = useCallback(
     (p: Partial<SpecialDeductions>) => setProfile((prev) => ({ ...prev, deductions: { ...prev.deductions, ...p } })),
     [],
@@ -156,8 +163,8 @@ export function useProfile() {
   }, []);
 
   return useMemo(
-    () => ({ profile, ready, preview, keepPreview, discardPreview, patch, patchSegment, removeSegment, addSegment, patchDeductions, reset, setProfile }),
-    [profile, ready, preview, keepPreview, discardPreview, patch, patchSegment, removeSegment, addSegment, patchDeductions, reset],
+    () => ({ profile, ready, preview, keepPreview, discardPreview, patch, setCity, patchSegment, removeSegment, addSegment, patchDeductions, reset, setProfile }),
+    [profile, ready, preview, keepPreview, discardPreview, patch, setCity, patchSegment, removeSegment, addSegment, patchDeductions, reset],
   );
 }
 

@@ -2,10 +2,11 @@
 
 import { ExampleHint } from "./ExampleHint";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CITY_PRESETS, computeAll, getCity } from "@/lib/tax";
+import { computeAll, getCity } from "@/lib/tax";
 import { currentMonthFor, useProfile } from "@/lib/store";
 import { fmtMoney } from "@/lib/format";
-import { Button, Card, Field, Hint, NumberInput, Select, Details } from "./ui";
+import { Button, Card, Field, Hint, NumberInput, Details } from "./ui";
+import { CityPicker } from "./CityPicker";
 import { Timeline } from "./Timeline";
 import { SegmentEditor } from "./SegmentEditor";
 import { DeductionsEditor } from "./DeductionsEditor";
@@ -18,7 +19,7 @@ import { AdviceList } from "./AdviceList";
 import { Report } from "./Report";
 
 export function App() {
-  const { profile, ready, preview, keepPreview, discardPreview, patch, patchSegment, removeSegment, addSegment, patchDeductions, reset } = useProfile();
+  const { profile, ready, preview, keepPreview, discardPreview, patch, setCity, patchSegment, removeSegment, addSegment, patchDeductions, reset } = useProfile();
   const currentMonth = currentMonthFor(profile.year);
   const result = useMemo(() => computeAll(profile, currentMonth), [profile, currentMonth]);
   const city = getCity(profile.cityId);
@@ -66,13 +67,7 @@ export function App() {
           <NumberInput value={profile.year} onChange={(year) => patch({ year: Math.round(year) })} className="w-24" min={2019} />
         </Field>
         <Field label="工作城市">
-          <Select value={profile.cityId} onChange={(e) => patch({ cityId: e.target.value })} className="w-32">
-            {CITY_PRESETS.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </Select>
+          <CityPicker value={profile.cityId} onChange={(id) => setCity(id)} className="w-36" />
         </Field>
         <Button variant="primary" onClick={() => setShowReport(true)} className="mt-5 h-9">
           分享报告

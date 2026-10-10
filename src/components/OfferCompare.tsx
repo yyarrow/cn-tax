@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { ExampleHint } from "./ExampleHint";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CITY_PRESETS, compareOffers, getCity, sadMonthly } from "@/lib/tax";
+import { compareOffers, getCity, sadMonthly } from "@/lib/tax";
 import type { OfferInput, OfferResult } from "@/lib/tax";
 import { fmtMoney, fmtPct } from "@/lib/format";
 import { SITE, buildOfferShareUrl, buildShareUrl } from "@/lib/share";
 import { MAX_OFFERS, offerLabel, useOffers, wasLoadedFromShare } from "@/lib/offerStore";
-import { Button, Card, Details, Field, Hint, NumberInput, Select, TextInput } from "./ui";
+import { Button, Card, Details, Field, Hint, NumberInput, TextInput } from "./ui";
+import { CityPicker } from "./CityPicker";
 import { ShareModal } from "./ShareModal";
 
 /** 每份 offer 的标识色（与首页序列色一致） */
@@ -265,13 +266,7 @@ export function OfferCompare() {
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-3">
                   <Field label="城市">
-                    <Select value={o.cityId} onChange={(e) => patchOffer(o.id, { cityId: e.target.value })}>
-                      {CITY_PRESETS.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </Select>
+                    <CityPicker value={o.cityId} onChange={(id) => patchOffer(o.id, { cityId: id })} />
                   </Field>
                   <Field label="税前月薪">
                     <NumberInput value={o.monthlySalary} onChange={(monthlySalary) => patchOffer(o.id, { monthlySalary })} prefix="¥" step={1000} />

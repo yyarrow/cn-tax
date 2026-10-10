@@ -263,3 +263,34 @@ describe("当前基数推算", () => {
     expect(r.base).toBe(baseFromGross(20000, getCity("beijing")));
   });
 });
+
+describe("领取地折算缴费指数（国办发〔2009〕66 号第七条）", () => {
+  const home: PensionRegion = { id: "high", name: "甲", provinceId: "high", base: { year: 2026, value: 12000 }, growth: 0 };
+  const low: PensionRegion = { id: "low", name: "乙", provinceId: "low", base: { year: 2026, value: 7000 }, growth: 0 };
+  const input = {
+    birthYear: 1990, birthMonth: 6, category: "male" as const,
+    city: { socialMin: 6000, socialMax: 30000 }, currentBase: 10000,
+    today: { year: 2026, month: 10 }, balance: 0, paidMonths: 0,
+    wageGrowth: 0, salaryGrowth: 0, accountRate: 0, inflation: 0,
+  };
+
+  it("在缴费地领时指数不变，去平均工资低的地方领按两地计发基数之比放大", () => {
+    const r = estimatePension({ ...input, homeRegion: home }, [home, low]);
+    const atHome = r.byRegion.find((x) => x.region.id === "high")!;
+    const atLow = r.byRegion.find((x) => x.region.id === "low")!;
+    expect(atHome.index).toBeCloseTo(r.avgIndex, 10);
+    expect(atLow.index).toBeCloseTo((r.avgIndex * 12000) / 7000, 10);
+    expect(atLow.basic).toBeCloseTo(((7000 * (1 + atLow.index)) / 2) * r.years * 0.01, 6);
+  });
+
+  it("折算后的指数封顶 3", () => {
+    const r = estimatePension({ ...input, currentBase: 30000, homeRegion: home }, [home, low]);
+    expect(r.avgIndex).toBeCloseTo(3, 6);
+    expect(r.byRegion.find((x) => x.region.id === "low")!.index).toBe(3);
+  });
+
+  it("不传 homeRegion 时各地都用原指数（兼容旧调用）", () => {
+    const r = estimatePension(input, [home, low]);
+    for (const row of r.byRegion) expect(row.index).toBeCloseTo(r.avgIndex, 10);
+  });
+});

@@ -151,6 +151,7 @@ export function PensionTool() {
       accountRate: input.accountRate,
       inflation: input.inflation,
       transitionCoef: input.transitionCoef,
+      homeRegion: insuredRegion ? regions.find((r) => r.id === insuredRegion.id) : undefined,
     },
     regions,
   );
@@ -216,12 +217,12 @@ export function PensionTool() {
   const summaryBody = (
     <div className="space-y-4">
       <div className="rounded-xl bg-ink px-5 py-4 text-white">
-        <div className="text-xs text-white/70">退休时每月约</div>
-        <div className="mt-1 text-4xl font-semibold tabular-nums">{refRow ? fmtMoney(refRow.total) : "—"}</div>
+        <div className="text-xs text-white/70">每月养老金，折合今天的钱约</div>
+        <div className="mt-1 text-4xl font-semibold tabular-nums">{refRow ? fmtMoney(refRow.totalToday) : "—"}</div>
         <div className="mt-2 space-y-1 text-xs leading-relaxed tabular-nums text-white/70">
           {refRow && (
             <p>
-              折合今天的钱约 {fmtMoney(refRow.totalToday)}（按年通胀 {pctText(input.inflation)}）
+              退休时实发约 {fmtMoney(refRow.total)}（按年通胀 {pctText(input.inflation)} 折回今天）
               {refRow.replacement > 0 && ` · 约为退休前缴费基数的 ${Math.round(refRow.replacement * 100)}%`}
             </p>
           )}
@@ -243,7 +244,7 @@ export function PensionTool() {
           </div>
           <div className="mt-3 grid grid-cols-2 rounded-xl border border-line sm:grid-cols-4 sm:divide-x sm:divide-line">
             <Fact label="缴费年限" value={fmtYM(result.years * 12)} />
-            <Fact label="平均缴费指数" value={result.avgIndex.toFixed(2)} />
+            <Fact label={refRow.index !== result.avgIndex ? "平均缴费指数（按领取地折算）" : "平均缴费指数"} value={refRow.index.toFixed(2)} />
             <Fact label="退休时账户余额" value={fmtMoney(result.accountAtRetirement)} />
             <Fact label="计发月数" value={`${result.annuityMonths} 个月`} />
           </div>
@@ -296,7 +297,9 @@ export function PensionTool() {
                     {isRef && !fallbackRegion && <span className="whitespace-nowrap rounded bg-accent/15 px-1.5 py-0.5 text-[11px] text-accent-text">领取地</span>}
                     {insured && <span className="whitespace-nowrap rounded bg-paper px-1.5 py-0.5 text-[11px] text-muted ring-1 ring-line">参保地</span>}
                   </div>
-                  <div className="mt-0.5 text-xs tabular-nums text-muted sm:hidden">计发基数 {fmtMoney(r.baseAtRetirement)}</div>
+                  <div className="mt-0.5 text-xs tabular-nums text-muted">
+                    <span className="sm:hidden">计发基数 {fmtMoney(r.baseAtRetirement)} · </span>指数 {r.index.toFixed(2)}
+                  </div>
                 </td>
                 <td className="hidden px-2 py-2.5 text-right align-top tabular-nums text-muted sm:table-cell">{fmtMoney(r.baseAtRetirement)}</td>
                 <td className={`px-2 py-2.5 text-right align-top font-semibold tabular-nums ${isRef ? "text-accent-text" : "text-ink"}`}>{fmtMoney(r.total)}</td>
@@ -351,7 +354,7 @@ export function PensionTool() {
         </Button>
       </div>
 
-      <ExampleHint storageKeys={["cn-tax-pension-v1", "cn-tax-profile-v1"]} enabled={!fromShare} />
+      <ExampleHint storageKeys={["cn-tax-pension-v1", "cn-tax-profile-v1"]} enabled={!fromShare} text="当前为示例数据。改成你的出生年月、工资，并填上社保 App 里查到的账户余额和缴费年限，结果才准。" />
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         {/* 输入 */}
@@ -538,11 +541,14 @@ export function PensionTool() {
             <div className="mt-4 space-y-3 border-t border-line pt-4">
               <Details summary="为什么不同地方差这么多">
                 <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-ink">
-                  <li>基础养老金用<b className="font-semibold">领取地</b>的计发基数算；个人账户养老金只看账户余额和计发月数，在哪领都一样。</li>
                   <li>
-                    缴费指数是相对<b className="font-semibold">缴费地</b>社平工资算的，会跟着人走：在高工资城市按高基数缴、回低计发基数的地方领，基础养老金按低基数打折；在低工资城市缴、到高计发基数的地方领则相反。
+                    基础养老金 =（<b className="font-semibold">领取地</b>计发基数 + 本人指数化月平均缴费工资）÷ 2 × 缴费年限 × 1%。前一半完全看领取地的平均工资水平；个人账户养老金只看账户余额和计发月数，在哪领都一样。
+                  </li>
+                  <li>
+                    在别处领时，按国办发〔2009〕66 号第七条，你各年度的缴费工资要按<b className="font-semibold">领取地</b>对应年度的平均工资重新折算指数：同样的工资，在平均工资低的地方折出的指数更高（这里封顶 3），在平均工资高的地方折出的指数更低。所以从高工资城市回低计发基数的地方领，少的主要是「计发基数」那一半；反过来去高计发基数的地方领，指数会被摊薄。
                   </li>
                   <li>计发基数每年随当地平均工资调整，所以越晚退休、地区间的差距越大（这里按假设的增长率外推）。</li>
+                  <li>表里的折算用两地计发基数之比近似；各地经办对外地缴费年份的折算口径不完全一样，以领取地社保经办机构核定为准。</li>
                 </ul>
               </Details>
               <Details summary="领取地能自己选吗">
@@ -569,9 +575,9 @@ export function PensionTool() {
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] lg:hidden">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
             <div className="min-w-0">
-              <div className="truncate text-xs text-muted">退休时每月约</div>
+              <div className="truncate text-xs text-muted">每月养老金（折合今天）</div>
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <span className="text-lg font-semibold tabular-nums text-ink">{refRow ? fmtMoney(refRow.total) : "—"}</span>
+                <span className="text-lg font-semibold tabular-nums text-ink">{refRow ? fmtMoney(refRow.totalToday) : "—"}</span>
                 <span className="text-xs tabular-nums text-muted">{alreadyRetired ? "已到退休年龄" : `${retireText}起领`}</span>
               </div>
             </div>

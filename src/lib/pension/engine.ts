@@ -31,11 +31,18 @@ export interface PensionInput {
   inflation: number;
   /** 过渡系数，默认 0.012 */
   transitionCoef?: number;
+  /**
+   * 缴费地所属地区（计发基数口径）。领取地不同时，按国办发〔2009〕66 号第七条，
+   * 各年度缴费工资要按领取地对应年度的平均工资重新折算指数，这里用两地计发基数之比近似。
+   */
+  homeRegion?: PensionRegion;
 }
 
 export interface RegionPension {
   region: PensionRegion;
   baseAtRetirement: number;
+  /** 按该领取地折算后的平均缴费指数 */
+  index: number;
   basic: number;
   transitional: number;
   personal: number;
@@ -69,6 +76,8 @@ export interface PensionResult {
 }
 
 const PERSONAL_RATE = 0.08;
+/** 折算到领取地后的平均缴费指数上限（同缴费基数 300% 封顶） */
+const MAX_INDEX = 3;
 
 function clamp(v: number, lo: number, hi: number) {
   return Math.min(hi, Math.max(lo, v));
@@ -121,15 +130,23 @@ export function estimatePension(input: PensionInput, regions: PensionRegion[] = 
   const personal = balance / annuity;
   const discount = Math.pow(1 + input.inflation, monthsToRetire / 12);
 
+  const projectBase = (region: PensionRegion) =>
+    region.base.value * Math.pow(1 + (region.growth ?? wageGrowth), retirement.year - region.base.year);
+  const home = input.homeRegion;
+  const homeBase = home ? projectBase(home) : 0;
+
   const byRegion: RegionPension[] = regions
     .map((region) => {
-      const baseAtRetirement = region.base.value * Math.pow(1 + (region.growth ?? wageGrowth), retirement.year - region.base.year);
-      const basic = ((baseAtRetirement * (1 + avgIndex)) / 2) * years * 0.01;
-      const transitional = baseAtRetirement * avgIndex * deemedYears * transitionCoef;
+      const baseAtRetirement = projectBase(region);
+      // 在别处领：同样的缴费工资，相对领取地平均工资折算出的指数不同
+      const index = home && region.id !== home.id && baseAtRetirement > 0 ? Math.min(MAX_INDEX, (avgIndex * homeBase) / baseAtRetirement) : avgIndex;
+      const basic = ((baseAtRetirement * (1 + index)) / 2) * years * 0.01;
+      const transitional = baseAtRetirement * index * deemedYears * transitionCoef;
       const total = basic + transitional + personal;
       return {
         region,
         baseAtRetirement,
+        index,
         basic,
         transitional,
         personal,

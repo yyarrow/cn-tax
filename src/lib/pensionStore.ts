@@ -46,7 +46,7 @@ export interface PensionInput {
   deemedYears: number;
   /** 缴到多少岁；缺省 = 缴到退休 */
   stopAge?: number;
-  /** 社平年增长；缺省 = 领取地 region.growth ?? 0.04 */
+  /** 社平年增长；缺省 = 领取地 region.growth ?? 0.03 */
   wageGrowth?: number;
   /** 本人工资年增长；缺省 = 社平年增长 */
   salaryGrowth?: number;
@@ -55,7 +55,7 @@ export interface PensionInput {
   transitionCoef: number;
 }
 
-export const DEFAULT_WAGE_GROWTH = 0.04;
+export const DEFAULT_WAGE_GROWTH = 0.03;
 
 /** 今天（年、月） */
 export function todayYM(): { year: number; month: number } {
@@ -113,8 +113,8 @@ export function normalize(raw: Partial<PensionInput>): PensionInput {
     stopAge: optionalInRange(raw.stopAge, 100),
     wageGrowth: optionalInRange(raw.wageGrowth, 0.2),
     salaryGrowth: optionalInRange(raw.salaryGrowth, 0.2),
-    accountRate: inRange(raw.accountRate, 0, 0.2, 0.03),
-    inflation: inRange(raw.inflation, 0, 0.2, 0.025),
+    accountRate: inRange(raw.accountRate, 0, 0.2, 0.02),
+    inflation: inRange(raw.inflation, 0, 0.2, 0.02),
     transitionCoef: inRange(raw.transitionCoef, 0, 0.05, 0.012),
   };
 }

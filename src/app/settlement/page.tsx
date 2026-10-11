@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   keywords: ["汇算清缴退税", "个税退税", "年度汇算", "个税退税怎么算", "换工作补税", "汇算清缴时间", "个税 App 退税"],
   alternates: { canonical: "/settlement" },
   openGraph: { title: "汇算清缴退税计算器：今年能退多少税，换工作要不要补", description: "个税年度汇算计算器：按工作经历和空档月份算出汇算清缴退税或补税金额，说明换工作、中间没工作、专项附加没申报时的退补规则。", images: [{ url: "/og.png", width: 1200, height: 630 }] },
+  twitter: { card: "summary_large_image", title: "汇算清缴退税计算器：今年能退多少税，换工作要不要补", description: "个税年度汇算计算器：按工作经历和空档月份算出汇算清缴退税或补税金额，说明换工作、中间没工作、专项附加没申报时的退补规则。", images: ["/og.png"] },
 };
 
 export default function Page() {

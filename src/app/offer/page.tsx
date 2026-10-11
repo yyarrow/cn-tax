@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   keywords: ["offer 对比", "offer 税后", "税后年包", "跳槽 offer 比较", "年薪 到手 计算器", "签字费 个税", "期权 个税"],
   alternates: { canonical: "/offer" },
   openGraph: { title: TITLE, description: DESCRIPTION, images: [{ url: "/og.png", width: 1200, height: 630 }] },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: ["/og.png"] },
 };
 
 export default function Page() {

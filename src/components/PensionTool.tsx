@@ -526,11 +526,11 @@ export function PensionTool() {
                       <Field label="个人账户金额">
                         <NumberInput value={r.amount} onChange={(amount) => patchRecord(r.id, { amount })} prefix="¥" step={10000} ariaLabel={`参保地 ${i + 1} 个人账户金额`} />
                       </Field>
-                      <Field label="最后缴费年月（可选）" className="col-span-2">
+                      <Field label="最后缴费年月（可选，空 = 一直缴到现在）" className="col-span-2">
                         <div className="grid grid-cols-2 gap-2">
                           <NumberInput
                             value={r.lastYear}
-                            placeholder="年，空 = 截至现在"
+                            placeholder="如 2024"
                             suffix="年"
                             min={1980}
                             max={2100}

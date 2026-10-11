@@ -58,14 +58,15 @@ export function ScenarioChart({
   const padR = 8;
   const colW = (W - padL - padR) / n;
   const barW = Math.min(colW * 0.62, 72);
-  // 列太窄、相邻的金额标注会互相盖住时，隔一个抬高一行
-  const stagger = colW < fs * 4.2;
+  // 相邻的金额标注放不下时，隔一个抬高一行
+  const labelW = Math.max(...points.map((p) => fmtMoney(p.total).length)) * fs * 0.62 + 6 * k;
+  const stagger = colW < labelW;
   const padT = fs + 12 * k + (stagger ? fs + 2 * k : 0);
   const padB = fs * 2 + 14 * k;
   const plotH = 150 * Math.max(1, 0.9 * k);
   const H = padT + plotH + padB;
   const base = padT + plotH;
-  const axisMax = Math.max(1, ...points.map((p) => p.totalToday)) * 1.04;
+  const axisMax = Math.max(1, ...points.map((p) => p.total)) * 1.04;
 
   const currentIdx = points.findIndex((p) => p.isCurrent);
   const current = currentIdx >= 0 ? points[currentIdx] : undefined;
@@ -80,20 +81,23 @@ export function ScenarioChart({
   // ---- 结论 ----
   const lines: string[] = [];
   if (focus && current) {
-    const diff = current.totalToday - focus.totalToday;
+    const diff = current.total - focus.total;
     const money = fmtMoney(Math.abs(diff));
     if (focus === current) {
-      lines.push(`${mode === "flex" ? "法定退休" : "缴到退休"}，每月约 ${fmtMoney(current.totalToday)}（折合今天）。`);
+      lines.push(`${mode === "flex" ? "法定退休" : "缴到退休"}，退休时每月实发约 ${fmtMoney(current.total)}。`);
     } else if (mode === "flex") {
       const gap = Math.abs((focus.ageMonths ?? 0) - (current.ageMonths ?? 0));
       const early = (focus.ageMonths ?? 0) < (current.ageMonths ?? 0);
       lines.push(
-        `比法定${early ? "提前" : "推迟"} ${fmtYearsMonths(gap)}退休（${focus.label}，${retireText(focus)}），每月${diff > 0 ? "少" : "多"}约 ${money}（折合今天）。` +
+        `比法定${early ? "提前" : "推迟"} ${fmtYearsMonths(gap)}退休（${focus.label}，${retireText(focus)}），退休时每月实发${diff > 0 ? "少" : "多"}约 ${money}。` +
           (focus.meetsMinimum ? "" : "但这样缴费年限不够，按月领不了。"),
       );
+      // 退休年份不同，实发数字里含了这几年计发基数的上涨；按今天的购买力再给一个对比
+      const todayDiff = Math.abs(current.totalToday - focus.totalToday);
+      lines.push(`其中一部分是${early ? "早退休时计发基数还没涨上去" : "晚退休时计发基数又涨了几年"}；按今天的购买力比，每月差约 ${fmtMoney(todayDiff)}。`);
     } else {
       lines.push(
-        `${focus.label}、到 ${statutoryAge}再领，每月约 ${fmtMoney(focus.totalToday)}，比缴到退休${diff > 0 ? "少" : "多"} ${money}（折合今天）。` +
+        `${focus.label}、到 ${statutoryAge}再领，退休时每月实发约 ${fmtMoney(focus.total)}，比缴到退休${diff > 0 ? "少" : "多"} ${money}。` +
           (focus.meetsMinimum ? "" : "但这样缴费年限不够，按月领不了。"),
       );
     }
@@ -124,14 +128,13 @@ export function ScenarioChart({
         </span>
       </div>
 
-      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} className="w-full select-none" role="group" aria-label={mode === "flex" ? "不同退休年龄下每月养老金（折合今天）" : "不同停缴年龄下每月养老金（折合今天）"}>
+      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} className="w-full select-none" role="group" aria-label={mode === "flex" ? "不同退休年龄下退休时每月实发养老金" : "不同停缴年龄下退休时每月实发养老金"}>
         <line x1={padL} x2={W - padR} y1={base} y2={base} stroke="var(--line)" />
         {points.map((p, i) => {
           const cx = padL + colW * (i + 0.5);
           const x = cx - barW / 2;
-          const f = p.total > 0 ? p.totalToday / p.total : 0;
-          const hPersonal = Math.max(0, (p.personal * f) / axisMax) * plotH;
-          const hTop = Math.max(0, ((p.basic + p.transitional) * f) / axisMax) * plotH;
+          const hPersonal = Math.max(0, p.personal / axisMax) * plotH;
+          const hTop = Math.max(0, (p.basic + p.transitional) / axisMax) * plotH;
           const hAll = hPersonal + hTop;
           const gray = !p.meetsMinimum;
           const isCur = !!p.isCurrent;
@@ -139,7 +142,7 @@ export function ScenarioChart({
           const lift = stagger && i % 2 === 1 ? fs + 2 * k : 0;
           const [l1, l2] = axisLines(p);
           // 金额标注贴着画布边缘时改成靠边对齐，免得被裁掉
-          const valueText = fmtMoney(p.totalToday);
+          const valueText = fmtMoney(p.total);
           const halfW = (valueText.length * fs * 0.6) / 2;
           const vAnchor = cx - halfW < 0 ? "start" : cx + halfW > W ? "end" : "middle";
           const vX = vAnchor === "start" ? padL : vAnchor === "end" ? W - padR : cx;
@@ -150,7 +153,7 @@ export function ScenarioChart({
               opacity={isCur || isFocus ? 1 : 0.62}
               tabIndex={staticMode ? undefined : 0}
               role={staticMode ? undefined : "button"}
-              aria-label={staticMode ? undefined : `${p.label}，每月约 ${fmtMoney(p.totalToday)}${gray ? "，缴费年限不够" : ""}`}
+              aria-label={staticMode ? undefined : `${p.label}，退休时每月实发约 ${fmtMoney(p.total)}${gray ? "，缴费年限不够" : ""}`}
               style={{ cursor: staticMode ? undefined : "pointer", outline: "none" }}
               onMouseEnter={select}
               onFocus={select}
@@ -198,7 +201,7 @@ export function ScenarioChart({
         ))}
         {!staticMode && focus && focus !== current && (
           <p className="text-xs tabular-nums text-muted">
-            {focus.label}：{retireText(focus)}起领，基础 + 过渡性 {fmtMoney(focus.basic + focus.transitional)} + 个人账户 {fmtMoney(focus.personal)}（退休时实发 {fmtMoney(focus.total)}）。点柱子可以看其他情景。
+            {focus.label}：{retireText(focus)}起领，基础 + 过渡性 {fmtMoney(focus.basic + focus.transitional)} + 个人账户 {fmtMoney(focus.personal)} = {fmtMoney(focus.total)}（相当于今天的 {fmtMoney(focus.totalToday)}）。点柱子可以看其他情景。
           </p>
         )}
         <p className="text-xs leading-relaxed text-muted">{note}</p>

@@ -371,7 +371,7 @@ export function PensionTool() {
           <section className="report-section rounded-2xl border border-line bg-white p-5">{summaryBody}</section>
           <section className="report-section rounded-2xl border border-line bg-white p-5">
             <h2 className="text-base font-semibold text-ink">哪年退休，每月领多少</h2>
-            <p className="mb-3 mt-0.5 text-xs text-muted">{scenarioMode === "flex" ? "法定退休年龄前后各 3 年，折合今天的钱" : "不同年龄停缴、按法定年龄退休，折合今天的钱"}</p>
+            <p className="mb-3 mt-0.5 text-xs text-muted">{scenarioMode === "flex" ? "法定退休年龄前后各 3 年，退休时每月实发" : "不同年龄停缴、按法定年龄退休，退休时每月实发"}</p>
             {scenarioBody(true)}
           </section>
           <section className="report-section rounded-2xl border border-line bg-white p-5">
@@ -604,7 +604,7 @@ export function PensionTool() {
                 <Field label="缴到多少岁" hint="留空 = 缴到法定退休">
                   <NumberInput value={input.stopAge} placeholder="缴到退休" suffix="岁" max={70} step={1} onChange={(v) => patch({ stopAge: v > 0 ? v : undefined })} />
                 </Field>
-                <Field label="社平工资年增长" hint="计发基数也按它外推；留空用默认">
+                <Field label="社平工资年增长" hint="默认 3%：各省计发基数近两年每年涨 1%–3%。计发基数也按它外推">
                   <NumberInput
                     value={input.wageGrowth === undefined ? undefined : toPct(input.wageGrowth)}
                     placeholder={`默认 ${toPct(receiveRegion?.growth ?? DEFAULT_WAGE_GROWTH)}`}
@@ -624,10 +624,10 @@ export function PensionTool() {
                     onChange={(v) => patch({ salaryGrowth: v > 0 ? v / 100 : undefined })}
                   />
                 </Field>
-                <Field label="个人账户记账利率" hint="近年各地在 2%–3% 左右">
+                <Field label="个人账户记账利率" hint="全国统一公布：2023 年 3.97%、2024 年 2.62%、2025 年 1.5%，默认按 2%">
                   <NumberInput value={toPct(input.accountRate)} suffix="%" max={20} step={0.5} onChange={(v) => patch({ accountRate: v / 100 })} />
                 </Field>
-                <Field label="物价年涨幅（通胀）" hint="只用于换算「相当于今天的」，不影响实际发多少">
+                <Field label="物价年涨幅（通胀）" hint="默认 2%：近 20 年 CPI 平均约 2%。只用于换算「相当于今天的」，不影响实际发多少">
                   <NumberInput value={toPct(input.inflation)} suffix="%" max={20} step={0.5} onChange={(v) => patch({ inflation: v / 100 })} />
                 </Field>
               </div>
@@ -644,7 +644,8 @@ export function PensionTool() {
                 <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-ink">
                   <li>退休那个月，社保按当时的计发基数、你的缴费年限和指数、个人账户余额，算出第一个月发多少——上面的大数字就是这个，是真正打到卡上的钱。</li>
                   <li>之后每年国家统一上调一次基本养老金（近几年在 2%–3% 左右），这里没算退休后的上调，所以越往后实际领到的会比首月更多。</li>
-                  <li>「相当于今天的」只是把 {ret.year} 年的钱按每年物价上涨 {pctText(input.inflation)} 换算成现在的购买力，方便和你现在的工资比，不影响实际发多少。物价假设可以在左边「假设」里改。</li>
+                  <li>「相当于今天的」只是把 {ret.year} 年的钱按每年物价上涨 {pctText(input.inflation)} 换算成现在的购买力，方便和你现在的工资比，不影响实际发多少。比如今天 100 元的东西，按每年涨 {pctText(input.inflation)}，{ret.year - today.year} 年后要 {Math.round(100 * Math.pow(1 + input.inflation, ret.year - today.year))} 元左右。</li>
+                  <li>为什么默认 2%：国家统计局的居民消费价格指数（CPI）近 20 年平均每年涨 2% 左右。你觉得会更高或更低，可以在左边「假设」里改；其他默认值（社平工资每年涨 3%、个人账户记账利率 2%）的来源也写在那里。</li>
                 </ul>
               </Details>
             </div>
@@ -652,7 +653,7 @@ export function PensionTool() {
 
           <Card
             title="哪年退休，每月领多少"
-            subtitle="同一份缴费记录，换个退休年龄或停缴年龄每月差多少。退休年份不同，所以统一换算成今天的钱来比"
+            subtitle="同一份缴费记录，换个退休年龄或停缴年龄，退休时每月实发差多少"
             action={
               <Segmented
                 label="情景类型"

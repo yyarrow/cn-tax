@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PensionClient } from "@/components/PensionClient";
+import { PensionExplainer } from "@/components/PensionExplainer";
 import { Article, Hero, JsonLd, breadcrumbLd, faqLd, webAppLd } from "@/components/seo";
 import { PensionArticle, faq } from "@/content/pension";
 
@@ -22,6 +23,7 @@ export default function Page() {
       <JsonLd data={faqLd(faq)} />
       <JsonLd data={breadcrumbLd([{ name: "个税规划器", path: "/" }, { name: TITLE, path: "/pension" }])} />
       <Hero current="/pension" title="养老金计算器" subtitle={DESCRIPTION} />
+      <PensionExplainer />
       <PensionClient />
       <Article title="养老金怎么算、延迟退休几岁、换个城市退休差多少" current="/pension">
         <PensionArticle />

@@ -249,12 +249,12 @@ export function PensionTool() {
   const summaryBody = (
     <div className="space-y-4">
       <div className="rounded-xl bg-ink px-5 py-4 text-white">
-        <div className="text-xs text-white/70">每月养老金，折合今天的钱约</div>
-        <div className="mt-1 text-4xl font-semibold tabular-nums">{refRow ? fmtMoney(refRow.totalToday) : "—"}</div>
+        <div className="text-xs text-white/70">退休第一个月，每月实发约</div>
+        <div className="mt-1 text-4xl font-semibold tabular-nums">{refRow ? fmtMoney(refRow.total) : "—"}</div>
         <div className="mt-2 space-y-1 text-xs leading-relaxed tabular-nums text-white/70">
           {refRow && (
             <p>
-              退休时实发约 {fmtMoney(refRow.total)}（按年通胀 {pctText(input.inflation)} 折回今天）
+              购买力相当于今天的 {fmtMoney(refRow.totalToday)}（按每年物价涨 {pctText(input.inflation)} 换算）
               {refRow.replacement > 0 && ` · 约为退休前缴费基数的 ${Math.round(refRow.replacement * 100)}%`}
             </p>
           )}
@@ -627,7 +627,7 @@ export function PensionTool() {
                 <Field label="个人账户记账利率" hint="近年各地在 2%–3% 左右">
                   <NumberInput value={toPct(input.accountRate)} suffix="%" max={20} step={0.5} onChange={(v) => patch({ accountRate: v / 100 })} />
                 </Field>
-                <Field label="通胀" hint="只用于「折合今天的钱」">
+                <Field label="物价年涨幅（通胀）" hint="只用于换算「相当于今天的」，不影响实际发多少">
                   <NumberInput value={toPct(input.inflation)} suffix="%" max={20} step={0.5} onChange={(v) => patch({ inflation: v / 100 })} />
                 </Field>
               </div>
@@ -639,11 +639,20 @@ export function PensionTool() {
         <div className="min-w-0 space-y-4" id="results" ref={resultsRef}>
           <Card title="养老金预估" action={<span className="text-xs text-muted">生成于 {dateText}</span>}>
             {summaryBody}
+            <div className="mt-3">
+              <Details summary="养老金是怎么发的？「相当于今天的」是什么意思">
+                <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-ink">
+                  <li>退休那个月，社保按当时的计发基数、你的缴费年限和指数、个人账户余额，算出第一个月发多少——上面的大数字就是这个，是真正打到卡上的钱。</li>
+                  <li>之后每年国家统一上调一次基本养老金（近几年在 2%–3% 左右），这里没算退休后的上调，所以越往后实际领到的会比首月更多。</li>
+                  <li>「相当于今天的」只是把 {ret.year} 年的钱按每年物价上涨 {pctText(input.inflation)} 换算成现在的购买力，方便和你现在的工资比，不影响实际发多少。物价假设可以在左边「假设」里改。</li>
+                </ul>
+              </Details>
+            </div>
           </Card>
 
           <Card
             title="哪年退休，每月领多少"
-            subtitle="同一份缴费记录，换个退休年龄或停缴年龄，折合今天的钱每月差多少"
+            subtitle="同一份缴费记录，换个退休年龄或停缴年龄每月差多少。退休年份不同，所以统一换算成今天的钱来比"
             action={
               <Segmented
                 label="情景类型"
@@ -700,9 +709,9 @@ export function PensionTool() {
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] lg:hidden">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
             <div className="min-w-0">
-              <div className="truncate text-xs text-muted">每月养老金（折合今天）</div>
+              <div className="truncate text-xs text-muted">退休时每月实发约</div>
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <span className="text-lg font-semibold tabular-nums text-ink">{refRow ? fmtMoney(refRow.totalToday) : "—"}</span>
+                <span className="text-lg font-semibold tabular-nums text-ink">{refRow ? fmtMoney(refRow.total) : "—"}</span>
                 <span className="text-xs tabular-nums text-muted">{alreadyRetired ? "已到退休年龄" : `${retireText}起领`}</span>
               </div>
             </div>

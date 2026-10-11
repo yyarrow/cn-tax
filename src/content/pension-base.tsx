@@ -54,7 +54,7 @@ export function PensionBaseTable() {
           <tr>
             <th>地区</th>
             <th>计发基数（元/月）</th>
-            <th>适用年度</th>
+            <th className="whitespace-nowrap">适用年度</th>
             <th>备注</th>
           </tr>
         </thead>
@@ -62,9 +62,9 @@ export function PensionBaseTable() {
           {REGIONS_DESC.map((r) => (
             <tr key={r.id}>
               <td>{r.name}</td>
-              <td>{fmt(r.base.value)}</td>
-              <td>{`${r.base.year} 年`}</td>
-              <td>{r.note ?? ""}</td>
+              <td className="whitespace-nowrap tabular-nums">{fmt(r.base.value)}</td>
+              <td className="whitespace-nowrap tabular-nums">{r.base.year}</td>
+              <td className="min-w-[8rem] text-xs">{r.note ?? ""}</td>
             </tr>
           ))}
         </tbody>

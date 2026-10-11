@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   keywords: ["年终奖计算器", "年终奖个税", "年终奖单独计税", "年终奖并入综合所得", "年终奖 36000 陷阱", "年终奖陷阱区间", "年终奖税率表"],
   alternates: { canonical: "/bonus" },
   openGraph: { title: "年终奖计算器：单独计税还是并入，陷阱区间一查就知道", description: "2026 年终奖个税计算器：自动对比单独计税与并入综合所得，标出 36000 / 144000 等陷阱区间，算出最省税的工资与年终奖拆分。", images: [{ url: "/og.png", width: 1200, height: 630 }] },
+  twitter: { card: "summary_large_image", title: "年终奖计算器：单独计税还是并入，陷阱区间一查就知道", description: "2026 年终奖个税计算器：自动对比单独计税与并入综合所得，标出 36000 / 144000 等陷阱区间，算出最省税的工资与年终奖拆分。", images: ["/og.png"] },
 };
 
 export default function Page() {

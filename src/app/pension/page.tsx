@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   keywords: ["养老金计算器", "退休金计算器", "延迟退休年龄计算", "养老金计发基数", "个人账户养老金", "异地退休养老金"],
   alternates: { canonical: "/pension" },
   openGraph: { title: TITLE, description: DESCRIPTION, images: [{ url: "/og.png", width: 1200, height: 630 }] },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: ["/og.png"] },
 };
 
 export default function Page() {

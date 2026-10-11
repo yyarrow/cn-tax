@@ -16,13 +16,29 @@ const HASH_KEY = "p";
 /** gross: 按税前工资；net: 税前 + 到手反推；pension: 按工资条养老扣款 */
 export type PensionMode = "gross" | "net" | "pension";
 
+/** 过去在某个参保地的缴费记录（每个省 / 市一条） */
+export interface PensionRecordInput {
+  id: string;
+  /** 参保地 */
+  cityId: string;
+  /** 该地累计缴费月数 */
+  months: number;
+  /** 该地个人账户金额 */
+  amount: number;
+  /** 最后缴费年月（可选；空 = 截至现在） */
+  lastYear?: number;
+  lastMonth?: number;
+}
+
+export const MAX_RECORDS = 8;
+
 export interface PensionInput {
   birthYear: number;
   birthMonth: number;
   category: PensionCategory;
-  /** 参保城市 */
+  /** 工作城市（现在缴社保的城市；字段名沿用 cityId 以兼容旧数据） */
   cityId: string;
-  /** 打算在哪领；默认 = 参保城市 */
+  /** 退休城市（领养老金的地方）；默认 = 工作城市 */
   receiveCityId: string;
   mode: PensionMode;
   /** 税前月薪 */
@@ -35,13 +51,8 @@ export interface PensionInput {
   pensionDeduction?: number;
   /** net 模式：公积金个人比例，0–0.2 */
   housingRate: number;
-  /** 个人账户累计储存额 */
-  balance: number;
-  /** 已缴费 X 年 + Y 月 */
-  paidYears: number;
-  paidMonthsExtra: number;
-  /** 过去平均缴费指数；缺省 = 当前指数 */
-  pastIndex?: number;
+  /** 过去的参保记录，至少一条（可以是空记录） */
+  records: PensionRecordInput[];
   /** 视同缴费年限 */
   deemedYears: number;
   /** 缴到多少岁；缺省 = 缴到退休 */
@@ -90,9 +101,60 @@ function intInRange(v: unknown, lo: number, hi: number, fallback: number): numbe
 const CATEGORIES: PensionCategory[] = ["male", "female55", "female50"];
 const MODES: PensionMode[] = ["gross", "net", "pension"];
 
-export function normalize(raw: Partial<PensionInput>): PensionInput {
+/** 旧版（单一余额 + 缴费年限）字段，只在读取时迁移用 */
+type LegacyFields = { balance?: unknown; paidYears?: unknown; paidMonthsExtra?: unknown };
+
+let recordSeq = 0;
+export function newRecordId(): string {
+  recordSeq += 1;
+  return `r${Date.now().toString(36)}${recordSeq}${Math.random().toString(36).slice(2, 6)}`;
+}
+
+export function emptyRecord(cityId: string): PensionRecordInput {
+  return { id: newRecordId(), cityId, months: 0, amount: 0 };
+}
+
+function normalizeRecord(raw: unknown, fallbackCityId: string, index: number): PensionRecordInput {
+  const r = (raw && typeof raw === "object" ? raw : {}) as Partial<PensionRecordInput>;
+  const lastYear = optionalInRange(r.lastYear, 2100);
+  const lastMonth = optionalInRange(r.lastMonth, 12);
+  return {
+    id: typeof r.id === "string" && r.id ? r.id : `r${index}`,
+    cityId: typeof r.cityId === "string" && r.cityId ? getCity(r.cityId).id : fallbackCityId,
+    months: intInRange(r.months, 0, 720, 0),
+    amount: inRange(r.amount, 0, 1e8, 0),
+    lastYear: lastYear === undefined || lastYear <= 0 ? undefined : Math.round(lastYear),
+    lastMonth: lastMonth === undefined || lastMonth < 1 ? undefined : Math.round(lastMonth),
+  };
+}
+
+/** 保证 id 唯一（分享链接 / 手改存档可能带重复 id） */
+function uniqueIds(list: PensionRecordInput[]): PensionRecordInput[] {
+  const seen = new Set<string>();
+  return list.map((r) => {
+    let id = r.id;
+    while (seen.has(id)) id = newRecordId();
+    seen.add(id);
+    return id === r.id ? r : { ...r, id };
+  });
+}
+
+export function normalize(raw: Partial<PensionInput> & LegacyFields): PensionInput {
   const city = getCity(typeof raw.cityId === "string" ? raw.cityId : "");
   const receive = getCity(typeof raw.receiveCityId === "string" && raw.receiveCityId ? raw.receiveCityId : city.id);
+
+  let records: PensionRecordInput[];
+  if (Array.isArray(raw.records)) {
+    records = raw.records.slice(0, MAX_RECORDS).map((r, i) => normalizeRecord(r, city.id, i));
+  } else {
+    // 迁移：旧数据的 余额 + 缴费年数 + 月数 → 一条记录（过去平均指数 pastIndex 丢弃）
+    const legacyMonths = intInRange(raw.paidYears, 0, 60, 0) * 12 + intInRange(raw.paidMonthsExtra, 0, 11, 0);
+    const legacyAmount = inRange(raw.balance, 0, 1e8, 0);
+    records = legacyMonths > 0 || legacyAmount > 0 ? [{ id: "r0", cityId: city.id, months: legacyMonths, amount: legacyAmount }] : [];
+  }
+  if (records.length === 0) records = [emptyRecord(city.id)];
+  records = uniqueIds(records);
+
   return {
     birthYear: intInRange(raw.birthYear, 1950, 2010, 1990),
     birthMonth: intInRange(raw.birthMonth, 1, 12, 6),
@@ -105,10 +167,7 @@ export function normalize(raw: Partial<PensionInput>): PensionInput {
     netMonth: intInRange(raw.netMonth, 1, 12, new Date().getMonth() + 1),
     pensionDeduction: optionalInRange(raw.pensionDeduction, 1e6),
     housingRate: inRange(raw.housingRate, 0, 0.2, city.housingRateDefault),
-    balance: inRange(raw.balance, 0, 1e8, 0),
-    paidYears: intInRange(raw.paidYears, 0, 60, 0),
-    paidMonthsExtra: intInRange(raw.paidMonthsExtra, 0, 11, 0),
-    pastIndex: optionalInRange(raw.pastIndex, 5),
+    records,
     deemedYears: inRange(raw.deemedYears, 0, 40, 0),
     stopAge: optionalInRange(raw.stopAge, 100),
     wageGrowth: optionalInRange(raw.wageGrowth, 0.2),
@@ -146,9 +205,7 @@ function defaultInput(p: Profile | null): PensionInput {
     gross: seg && seg.monthlySalary > 0 ? seg.monthlySalary : 25000,
     netMonth: new Date().getMonth() + 1,
     housingRate: seg?.social?.housingRate ?? getCity(cityId).housingRateDefault,
-    balance: 0,
-    paidYears: 0,
-    paidMonthsExtra: 0,
+    records: [],
     deemedYears: 0,
   });
 }
@@ -168,7 +225,7 @@ export function consumeSharedPension(): PensionInput | null {
   try {
     const json = decompressFromEncodedURIComponent(m[1]);
     if (!json) return null;
-    const raw = JSON.parse(json) as Partial<PensionInput>;
+    const raw = JSON.parse(json) as Partial<PensionInput> & LegacyFields;
     if (!raw || typeof raw !== "object" || typeof raw.birthYear !== "number") return null;
     const url = new URL(window.location.href);
     url.hash = "";
@@ -186,7 +243,7 @@ function load(): { input: PensionInput; fromShare: boolean } {
   try {
     const raw = localStorage.getItem(PENSION_KEY);
     if (raw) {
-      const saved = JSON.parse(raw) as Partial<PensionInput>;
+      const saved = JSON.parse(raw) as Partial<PensionInput> & LegacyFields;
       if (saved && typeof saved === "object" && typeof saved.birthYear === "number") {
         return { input: normalize(saved), fromShare: false };
       }
@@ -221,8 +278,12 @@ export function usePension() {
       setInput((prev) => {
         const next = { ...prev, ...p };
         if (p.cityId && p.cityId !== prev.cityId) {
-          // 领取地原本跟参保地一致的，换参保城市时跟着走（除非这次同时指定了领取地）
+          // 退休城市原本跟工作城市一致的，换工作城市时跟着走（除非这次同时指定了退休城市）
           if (p.receiveCityId === undefined && prev.receiveCityId === prev.cityId) next.receiveCityId = p.cityId;
+          // 还没填数字、且参保地是原工作城市的空记录，也跟着走
+          if (p.records === undefined) {
+            next.records = prev.records.map((r) => (r.cityId === prev.cityId && r.months === 0 && r.amount === 0 ? { ...r, cityId: p.cityId! } : r));
+          }
           // 公积金比例跟着换默认值（除非这次就在改比例）
           if (p.housingRate === undefined) next.housingRate = getCity(p.cityId).housingRateDefault;
         }
@@ -230,10 +291,26 @@ export function usePension() {
       }),
     [],
   );
+  const patchRecord = useCallback(
+    (id: string, p: Partial<Omit<PensionRecordInput, "id">>) =>
+      setInput((prev) => normalize({ ...prev, records: prev.records.map((r) => (r.id === id ? { ...r, ...p } : r)) })),
+    [],
+  );
+  const addRecord = useCallback(
+    () =>
+      setInput((prev) =>
+        prev.records.length >= MAX_RECORDS ? prev : normalize({ ...prev, records: [...prev.records, emptyRecord(prev.cityId)] }),
+      ),
+    [],
+  );
+  const removeRecord = useCallback(
+    (id: string) => setInput((prev) => normalize({ ...prev, records: prev.records.filter((r) => r.id !== id) })),
+    [],
+  );
   const reset = useCallback(() => setInput(defaultInput(readProfile())), []);
 
   return useMemo(
-    () => ({ input, patch, reset, deductions: base.deductions, fromShare: initial.fromShare }),
-    [input, patch, reset, base, initial.fromShare],
+    () => ({ input, patch, patchRecord, addRecord, removeRecord, reset, deductions: base.deductions, fromShare: initial.fromShare }),
+    [input, patch, patchRecord, addRecord, removeRecord, reset, base, initial.fromShare],
   );
 }

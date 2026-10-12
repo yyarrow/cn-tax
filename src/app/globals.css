@@ -16,6 +16,9 @@
   --series-net: #2a78d6;
   --series-tax: #eb6834;
   --series-social: #1baf7a;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* <details> 的高度过渡需要 auto 也能插值（不支持的浏览器直接切换） */
+  interpolate-size: allow-keywords;
 }
 
 @theme inline {
@@ -130,7 +133,116 @@ input[type="number"] {
   display: none;
 }
 
+/* ---- 动效：只用来回应操作、说明「什么变了」 ---- */
+
+/* 数字变化：短暂的底色提示「这里变了」；.money 自带的负 margin 抵消 padding，不影响排版 */
+.money {
+  margin-inline: -0.25rem;
+  padding-inline: 0.25rem;
+  border-radius: 0.375rem;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  --flash-color: color-mix(in oklab, var(--accent) 18%, transparent);
+}
+.money-on-dark {
+  --flash-color: rgb(255 255 255 / 0.22);
+}
+.money-flash {
+  animation: money-flash 600ms var(--ease-out);
+}
+@keyframes money-flash {
+  from {
+    background-color: var(--flash-color);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+
+/* <details>：旋转箭头 + 展开收起的高度过渡 */
+.ui-details > summary {
+  list-style: none;
+}
+.ui-details > summary::-webkit-details-marker {
+  display: none;
+}
+.ui-details-chev {
+  transition: transform 200ms var(--ease-out);
+}
+.ui-details[open] > summary .ui-details-chev {
+  transform: rotate(90deg);
+}
+@supports selector(::details-content) {
+  .ui-details::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition:
+      block-size 240ms var(--ease-out),
+      content-visibility 240ms allow-discrete;
+  }
+  .ui-details[open]::details-content {
+    block-size: auto;
+    /* 内容里输入框的焦点环会超出盒子 2px，别被 clip 吃掉 */
+    overflow-clip-margin: 6px;
+  }
+}
+
+/* 浮层 */
+.pop-in {
+  animation: pop-in 120ms var(--ease-out);
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+.report-modal[open] {
+  animation: modal-backdrop-in 180ms var(--ease-out);
+}
+.report-modal[open] > div {
+  animation: modal-in 180ms var(--ease-out);
+}
+@keyframes modal-backdrop-in {
+  from {
+    background-color: transparent;
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
+  }
+}
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+/* 图表：数据变了才动。.chart-armed 在挂载稳定后才加上，首屏不做生长动画 */
+.chart-armed .chart-rect {
+  transition:
+    y 300ms var(--ease-out),
+    height 300ms var(--ease-out);
+}
+.chart-armed .chart-move {
+  transition: transform 300ms var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
 @media print {
+  .report-modal[open],
+  .report-modal[open] > div {
+    animation: none !important;
+  }
   @page {
     size: A4;
     margin: 12mm;

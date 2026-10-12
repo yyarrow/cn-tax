@@ -7,7 +7,8 @@ import type { Profile } from "@/lib/tax";
 import { currentMonthFor, useProfile } from "@/lib/store";
 import { fmtMoney } from "@/lib/format";
 import { SITE, buildShareUrl } from "@/lib/share";
-import { Button, Card, Field, NumberInput } from "./ui";
+import { Button, Card, CopyButton, Field, MobileBar, NumberInput } from "./ui";
+import { AnimatedMoney } from "./AnimatedMoney";
 import { CityPicker } from "./CityPicker";
 import { ShareModal } from "./ShareModal";
 import { Timeline } from "./Timeline";
@@ -99,7 +100,8 @@ export function SettlementTool() {
   const isRefund = hasIncome && a.settlement < -0.5;
   const isPay = hasIncome && a.settlement > 0.5;
   const heroLabel = !hasIncome ? "预计退税 / 补税" : isRefund ? "预计退税" : isPay ? "预计补税" : "不退不补";
-  const heroValue = !hasIncome ? "—" : isRefund ? `+${fmtMoney(-a.settlement)}` : isPay ? fmtMoney(a.settlement) : fmtMoney(0);
+  const fmtHero = (v: number) => (v < -0.5 ? `+${fmtMoney(-v)}` : v > 0.5 ? fmtMoney(v) : fmtMoney(0));
+  const heroValue = hasIncome ? <AnimatedMoney value={a.settlement} format={fmtHero} /> : "—";
   const heroDot = isRefund ? "bg-good" : isPay ? "bg-danger" : "bg-white/40";
 
   const reasons = useMemo(() => buildReasons(profile, result), [profile, result]);
@@ -119,7 +121,6 @@ export function SettlementTool() {
   const resultsRef = useRef<HTMLDivElement>(null);
   const [resultsVisible, setResultsVisible] = useState(false);
   const [showShare, setShowShare] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const el = resultsRef.current;
@@ -140,17 +141,6 @@ export function SettlementTool() {
     .map((s) => `${MONTH_NAMES[s.startMonth - 1]}–${MONTH_NAMES[s.endMonth - 1]} ${s.name ? `${s.name} ` : ""}${fmtMoney(s.monthlySalary)}/月${s.bonus ? `，年终奖 ${fmtMoney(s.bonus)}` : ""}`)
     .join("；")}${sadMonthly(profile.deductions) > 0 ? ` · 专项附加 ${fmtMoney(sadMonthly(profile.deductions))}/月` : ""}`;
 
-  const copyLink = async () => {
-    const url = buildShareUrl(profile, "settlement");
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      window.prompt("复制这个链接：", url);
-    }
-  };
-
   const showBar = !showShare;
 
   /** 测算结果正文：页面和分享弹层用同一份（内部没有可点的操作按钮） */
@@ -163,7 +153,7 @@ export function SettlementTool() {
             <span className={`h-1.5 w-1.5 rounded-full ${heroDot}`} aria-hidden="true" />
             {heroLabel}
           </div>
-          <div className="mt-1 text-4xl font-semibold tabular-nums">{heroValue}</div>
+          <div className="mt-1 text-4xl font-semibold tabular-nums">{hasIncome ? <AnimatedMoney value={a.settlement} format={fmtHero} onDark /> : "—"}</div>
           <div className="mt-2 text-xs tabular-nums text-white/70">
             {hasIncome ? `预扣估算 ${fmtMoney(a.withheld)} · 全年应纳 ${fmtMoney(a.totalTax)}` : "预扣估算 — · 全年应纳 —"}
           </div>
@@ -269,9 +259,7 @@ export function SettlementTool() {
         <Field label="工作城市">
           <CityPicker value={profile.cityId} onChange={(id) => setCity(id)} className="w-36" />
         </Field>
-        <Button variant="secondary" onClick={copyLink} className="mt-5 h-9">
-          {copied ? "已复制" : "复制链接"}
-        </Button>
+        <CopyButton text={() => buildShareUrl(profile, "settlement")} className="mt-5 h-9" />
         <Button variant="primary" onClick={() => setShowShare(true)} className="mt-5 h-9">
           分享报告
         </Button>
@@ -294,7 +282,7 @@ export function SettlementTool() {
       <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         {/* 输入列 */}
         <div className="min-w-0 space-y-5" ref={inputsRef}>
-          <Card title="今年的工作经历" subtitle="哪几个月有工资、换过几家，决定退还是补。" action={<Button onClick={addSegment}>＋ 加一段</Button>}>
+          <Card tone="input" title="今年的工作经历" subtitle="哪几个月有工资、换过几家，决定退还是补。" action={<Button onClick={addSegment}>＋ 加一段</Button>}>
             <Timeline segments={profile.segments} currentMonth={currentMonth} />
             <div className="mt-4 space-y-3">
               {profile.segments.map((s, i) => (
@@ -313,7 +301,7 @@ export function SettlementTool() {
             {city.note && <p className="mt-3 text-xs text-muted">{city.note}</p>}
           </Card>
 
-          <Card title="专项附加扣除" subtitle="填写符合条件的项目，估算全年应纳税额。">
+          <Card tone="input" title="专项附加扣除" subtitle="填写符合条件的项目，估算全年应纳税额。">
             <DeductionsEditor d={profile.deductions} onChange={patchDeductions} />
           </Card>
         </div>
@@ -326,22 +314,18 @@ export function SettlementTool() {
         </div>
       </div>
 
-      {showBar && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] lg:hidden">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 text-xs text-muted">
-                <span className={`h-1.5 w-1.5 rounded-full ${isRefund ? "bg-good" : isPay ? "bg-danger" : "bg-line"}`} aria-hidden="true" />
-                {heroLabel}
-              </div>
-              <div className="text-lg font-semibold tabular-nums text-ink">{heroValue}</div>
-            </div>
-            <Button variant="primary" onClick={resultsVisible ? scrollToInputs : scrollToResults} className="h-9 shrink-0">
-              {resultsVisible ? "改输入" : "看结果"}
-            </Button>
+      <MobileBar show={showBar}>
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5 text-xs text-muted">
+            <span className={`h-1.5 w-1.5 rounded-full ${isRefund ? "bg-good" : isPay ? "bg-danger" : "bg-line"}`} aria-hidden="true" />
+            {heroLabel}
           </div>
+          <div className="text-lg font-semibold tabular-nums text-ink">{heroValue}</div>
         </div>
-      )}
+        <Button variant="primary" onClick={resultsVisible ? scrollToInputs : scrollToResults} className="h-9 shrink-0">
+          {resultsVisible ? "改输入" : "看结果"}
+        </Button>
+      </MobileBar>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import QRCode from "qrcode";
 import { SITE } from "@/lib/share";
 import { exportNodeAsPng, savePng } from "@/lib/exportImage";
-import { Button } from "./ui";
+import { Button, CopyButton } from "./ui";
 
 /**
  * 各页通用的「报告预览」弹层：工具条（复制链接 / 保存 PDF / 导出图片 / 关闭）＋ 报告正文 ＋ 二维码页脚。
@@ -39,7 +39,6 @@ export function ShareModal({
   const [busy, setBusy] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [qr, setQr] = useState<string>("");
-  const [copied, setCopied] = useState(false);
 
   const displayUrl = typeof window !== "undefined" ? window.location.host : new URL(SITE).host;
   const ua = typeof navigator === "undefined" ? "" : navigator.userAgent;
@@ -70,16 +69,6 @@ export function ShareModal({
       trigger?.focus();
     };
   }, []);
-
-  const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      window.prompt("复制这个链接：", shareUrl);
-    }
-  };
 
   const exportPng = async () => {
     if (!rootRef.current || busy) return;
@@ -118,12 +107,10 @@ export function ShareModal({
                 </Button>
               )}
             </div>
-            <Button variant="primary" onClick={exportPng} className="h-9">
+            <Button variant="primary" onClick={exportPng} disabled={busy} className="h-9">
               {busy ? "导出中…" : "导出图片"}
             </Button>
-            <Button variant="secondary" onClick={copyLink} className="h-9">
-              {copied ? "已复制" : "复制链接"}
-            </Button>
+            <CopyButton text={shareUrl} className="h-9" />
             <Button variant="ghost" onClick={onClose} className="h-9">
               关闭
             </Button>

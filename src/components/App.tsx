@@ -5,7 +5,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { computeAll, getCity } from "@/lib/tax";
 import { currentMonthFor, useProfile } from "@/lib/store";
 import { fmtMoney } from "@/lib/format";
-import { Button, Card, Field, Hint, NumberInput, Details } from "./ui";
+import { Button, Card, Field, Hint, NumberInput, Details, MobileBar } from "./ui";
+import { AnimatedMoney } from "./AnimatedMoney";
 import { CityPicker } from "./CityPicker";
 import { Timeline } from "./Timeline";
 import { SegmentEditor } from "./SegmentEditor";
@@ -82,7 +83,7 @@ export function App() {
       <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         {/* 输入列 */}
         <div className="min-w-0 space-y-5" ref={inputsRef}>
-          <Card title="1 · 工作经历" subtitle="按段填税前月薪，没覆盖的月份即空档。" action={<Button onClick={addSegment}>＋ 加一段</Button>}>
+          <Card tone="input" title="1 · 工作经历" subtitle="按段填税前月薪，没覆盖的月份即空档。" action={<Button onClick={addSegment}>＋ 加一段</Button>}>
             <Timeline segments={profile.segments} currentMonth={currentMonth} />
             <div className="mt-4 space-y-3">
               {profile.segments.map((s, i) => (
@@ -101,11 +102,11 @@ export function App() {
             {city.note && <p className="mt-3 text-xs text-muted">{city.note}</p>}
           </Card>
 
-          <Card id="deductions" className="scroll-mt-6" title="2 · 专项附加扣除" subtitle="填写符合条件的扣除项目。">
+          <Card tone="input" id="deductions" className="scroll-mt-6" title="2 · 专项附加扣除" subtitle="填写符合条件的扣除项目。">
             <DeductionsEditor d={profile.deductions} onChange={patchDeductions} />
           </Card>
 
-          <Card title="3 · 期权 / RSU（可选）" subtitle="选计税方式，填今年已兑现金额。">
+          <Card tone="input" title="3 · 期权 / RSU（可选）" subtitle="选计税方式，填今年已兑现金额。">
             <Details summary="填写股权激励收入" open={hasEquityActivity}>
               <EquityEditor plan={profile.equity} onChange={(equity) => patch({ equity })} />
             </Details>
@@ -166,25 +167,23 @@ export function App() {
         </div>
       </div>
 
-      {showBar && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] lg:hidden">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="text-xs text-muted">全年到手</div>
-              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <span className="text-lg font-semibold tabular-nums text-ink">{fmtMoney(result.annual.netTotal)}</span>
-                <span className="inline-flex items-center gap-1 text-xs text-muted">
-                  <span className={`h-1.5 w-1.5 rounded-full ${settlementDot}`} />
-                  {settlementText}
-                </span>
-              </div>
-            </div>
-            <Button variant="primary" onClick={resultsVisible ? scrollToInputs : scrollToResults} className="h-9 shrink-0">
-              {resultsVisible ? "改输入" : "看结果"}
-            </Button>
+      <MobileBar show={showBar}>
+        <div className="min-w-0">
+          <div className="text-xs text-muted">全年到手</div>
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className="text-lg font-semibold tabular-nums text-ink">
+              <AnimatedMoney value={result.annual.netTotal} />
+            </span>
+            <span className="inline-flex items-center gap-1 text-xs text-muted">
+              <span className={`h-1.5 w-1.5 rounded-full ${settlementDot}`} />
+              {settlementText}
+            </span>
           </div>
         </div>
-      )}
+        <Button variant="primary" onClick={resultsVisible ? scrollToInputs : scrollToResults} className="h-9 shrink-0">
+          {resultsVisible ? "改输入" : "看结果"}
+        </Button>
+      </MobileBar>
     </div>
   );
 }

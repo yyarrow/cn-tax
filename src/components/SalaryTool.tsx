@@ -7,7 +7,9 @@ import { MONTH_NAMES, computeAll, getCity, sadMonthly } from "@/lib/tax";
 import { fmtMoney } from "@/lib/format";
 import { SITE, buildShareUrl } from "@/lib/share";
 import { SALARY_SEGMENT_ID, buildSalaryShareUrl, salaryProfile, useSalary, type SalaryMode } from "@/lib/salaryStore";
-import { Button, Card, Details, Field, Hint, MonthSelect, NumberInput, Segmented } from "./ui";
+import { Button, Card, CopyButton, Details, Field, Hint, MobileBar, MonthSelect, NumberInput, Segmented } from "./ui";
+import { AnimatedMoney } from "./AnimatedMoney";
+import { SplitBar } from "./SplitBar";
 import { CityPicker } from "./CityPicker";
 import { ShareModal } from "./ShareModal";
 
@@ -64,7 +66,6 @@ export function SalaryTool() {
   const resultsRef = useRef<HTMLDivElement>(null);
   const [resultsVisible, setResultsVisible] = useState(false);
   const [showShare, setShowShare] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const el = resultsRef.current;
@@ -79,17 +80,6 @@ export function SalaryTool() {
   const host = typeof window !== "undefined" ? window.location.host : new URL(SITE).host;
   const monthName = MONTH_NAMES[input.month - 1];
 
-  const copyLink = async () => {
-    const url = buildSalaryShareUrl(input);
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      window.prompt("复制这个链接：", url);
-    }
-  };
-
   const scrollToResults = () => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   const scrollToInputs = () => inputsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -103,12 +93,21 @@ export function SalaryTool() {
       <section className="pb-4">
         <div className="rounded-xl bg-ink px-5 py-4 text-white">
           <div className="text-xs text-white/70">{monthName}到手</div>
-          <div className="mt-1 text-4xl font-semibold tabular-nums">{ready ? fmtMoney(row.net) : "—"}</div>
-          <div className="mt-2 text-xs leading-relaxed tabular-nums text-white/70">
-            {ready
-              ? `税前 ${fmtMoney(row.gross)} → 五险一金 −${fmtMoney(row.social)} → 个税 −${fmtMoney(row.tax + row.bonusTax)}`
-              : "税前 — → 五险一金 — → 个税 —"}
-          </div>
+          <div className="mt-1 text-4xl font-semibold tabular-nums">{ready ? <AnimatedMoney value={row.net} onDark /> : "—"}</div>
+          {ready ? (
+            <SplitBar
+              className="mt-3"
+              onDark
+              lead={`税前 ${fmtMoney(row.gross)}：`}
+              segments={[
+                { key: "net", label: "到手", value: row.net, color: "var(--series-net)" },
+                { key: "social", label: "五险一金", value: row.social, color: "var(--series-social)" },
+                { key: "tax", label: "个税", value: row.tax + row.bonusTax, color: "var(--series-tax)" },
+              ]}
+            />
+          ) : (
+            <div className="mt-2 text-xs leading-relaxed tabular-nums text-white/70">税前 — → 五险一金 — → 个税 —</div>
+          )}
         </div>
         {!ready && (
           <p className="mt-3 text-sm leading-relaxed text-muted">
@@ -273,9 +272,7 @@ export function SalaryTool() {
       )}
 
       <div className="mb-5 flex flex-wrap items-center justify-end gap-2">
-        <Button variant="secondary" className="h-9" onClick={copyLink}>
-          {copied ? "已复制" : "复制链接"}
-        </Button>
+        <CopyButton text={() => buildSalaryShareUrl(input)} className="h-9" />
         <Button variant="primary" className="h-9" onClick={() => setShowShare(true)}>
           分享报告
         </Button>
@@ -295,7 +292,7 @@ export function SalaryTool() {
       <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         {/* 输入 */}
         <div className="min-w-0 space-y-3 lg:col-start-1 lg:row-start-1" ref={inputsRef}>
-          <div className="rounded-2xl border border-line bg-white p-4">
+          <Card tone="input" className="p-4!">
             <Segmented label="测算方式" value={input.mode} options={MODES} onChange={(mode) => patch({ mode })} />
 
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -333,7 +330,7 @@ export function SalaryTool() {
                 </div>
               </Details>
             </div>
-          </div>
+          </Card>
 
           <p className="text-xs leading-relaxed text-muted">
             {year} 年口径 · 专项附加扣除沿用首页设置（每月 {fmtMoney(sad)}）。{" "}
@@ -360,22 +357,18 @@ export function SalaryTool() {
         </div>
       </div>
 
-      {showBar && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] lg:hidden">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="truncate text-xs text-muted">{monthName}到手</div>
-              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <span className="text-lg font-semibold tabular-nums text-ink">{ready ? fmtMoney(row.net) : "—"}</span>
-                <span className="text-xs tabular-nums text-muted">五险一金 {ready ? fmtMoney(row.social) : "—"}</span>
-              </div>
-            </div>
-            <Button variant="primary" className="h-9 shrink-0" onClick={resultsVisible ? scrollToInputs : scrollToResults}>
-              {resultsVisible ? "改输入" : "看结果"}
-            </Button>
+      <MobileBar show={showBar}>
+        <div className="min-w-0">
+          <div className="truncate text-xs text-muted">{monthName}到手</div>
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className="text-lg font-semibold tabular-nums text-ink">{ready ? <AnimatedMoney value={row.net} /> : "—"}</span>
+            <span className="text-xs tabular-nums text-muted">五险一金 {ready ? fmtMoney(row.social) : "—"}</span>
           </div>
         </div>
-      )}
+        <Button variant="primary" className="h-9 shrink-0" onClick={resultsVisible ? scrollToInputs : scrollToResults}>
+          {resultsVisible ? "改输入" : "看结果"}
+        </Button>
+      </MobileBar>
     </div>
   );
 }

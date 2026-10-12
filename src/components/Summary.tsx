@@ -3,6 +3,11 @@
 import { ANNUAL_BRACKETS, type AnnualResult } from "@/lib/tax";
 import { fmtMoney, fmtPct } from "@/lib/format";
 import { Details, Stat, Hint } from "./ui";
+import { AnimatedMoney } from "./AnimatedMoney";
+import { SplitBar } from "./SplitBar";
+
+/** 汇算结果：退税带 + 号，补税 / 无退补直接显示金额 */
+const fmtSettlement = (v: number) => (v < -0.5 ? `+${fmtMoney(-v)}` : fmtMoney(v));
 
 export function Summary({ a }: { a: AnnualResult }) {
   const settlementLabel = a.settlement < -0.5 ? "汇算清缴预计退税" : a.settlement > 0.5 ? "汇算清缴预计补税" : "汇算清缴";
@@ -34,14 +39,23 @@ export function Summary({ a }: { a: AnnualResult }) {
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2 rounded-xl bg-ink px-5 py-4 text-white">
           <div className="text-xs text-white/70">全年到手（含年终奖、期权 / RSU）</div>
-          <div className="mt-1 text-4xl font-semibold tabular-nums">{fmtMoney(a.netTotal)}</div>
-          <div className="mt-2 text-xs text-white/70">
-            税前 {fmtMoney(a.grossTotal)} → 五险一金 −{fmtMoney(a.totalSocial)} → 个税 −{fmtMoney(a.totalTax)}
+          <div className="mt-1 text-4xl font-semibold tabular-nums">
+            <AnimatedMoney value={a.netTotal} onDark />
           </div>
+          <SplitBar
+            className="mt-3"
+            onDark
+            lead={`税前 ${fmtMoney(a.grossTotal)}：`}
+            segments={[
+              { key: "net", label: "到手", value: a.netTotal, color: "var(--series-net)" },
+              { key: "social", label: "五险一金", value: a.totalSocial, color: "var(--series-social)" },
+              { key: "tax", label: "个税", value: a.totalTax, color: "var(--series-tax)" },
+            ]}
+          />
         </div>
         <div className="col-span-2 grid grid-cols-2 divide-x divide-line rounded-xl border border-line">
-          <Stat label="全年个税" value={fmtMoney(a.totalTax)} sub={`综合税负 ${fmtPct(a.effectiveRate)}${a.bonusTax > 0 ? ` · 含年终奖 ${fmtMoney(a.bonusTax)}` : ""}`} />
-          <Stat label={settlementLabel} value={a.settlement < -0.5 ? `+${fmtMoney(-a.settlement)}` : fmtMoney(a.settlement)} tone={settlementTone} sub={`预扣合计 ${fmtMoney(a.withheld)}，应纳 ${fmtMoney(a.totalTax)}`} />
+          <Stat label="全年个税" value={<AnimatedMoney value={a.totalTax} />} sub={`综合税负 ${fmtPct(a.effectiveRate)}${a.bonusTax > 0 ? ` · 含年终奖 ${fmtMoney(a.bonusTax)}` : ""}`} />
+          <Stat label={settlementLabel} value={<AnimatedMoney value={a.settlement} format={fmtSettlement} />} tone={settlementTone} sub={`预扣合计 ${fmtMoney(a.withheld)}，应纳 ${fmtMoney(a.totalTax)}`} />
         </div>
       </div>
       {settlementNote && (

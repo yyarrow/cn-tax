@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { fmtYearsMonths, type ScenarioPoint } from "@/lib/pension";
 import { fmtMoney } from "@/lib/format";
+import { useArmed } from "@/lib/useArmed";
 
 export type ScenarioMode = "flex" | "stop";
 
@@ -48,6 +49,8 @@ export function ScenarioChart({
   // 容器宽度：SSR / 首帧是 null，按宽屏渲染；挂载后量一次并跟随变化
   const [boxW, setBoxW] = useState<number | null>(null);
   const [active, setActive] = useState<number | null>(null);
+  // 挂载稳定后数据再变才做过渡，首屏不做生长动画
+  const armed = useArmed();
 
   useEffect(() => {
     const el = boxRef.current;
@@ -172,8 +175,8 @@ export function ScenarioChart({
             <>
               <span className={`text-[13px] leading-tight ${isCur ? "font-semibold text-ink" : "text-muted"}`}>{p.label}</span>
               <span className="flex h-4 min-w-0 overflow-hidden" style={{ opacity: isCur || isFocus ? 1 : 0.72 }}>
-                <i className="block h-full rounded-l-[3px]" style={{ width: `${wPersonal}%`, background: gray ? GRAY_BOTTOM : "var(--series-social)" }} />
-                <i className="block h-full rounded-r-[3px]" style={{ width: `${wTop}%`, background: gray ? GRAY_TOP : "var(--accent)", marginLeft: wPersonal > 0 && wTop > 0 ? 1 : 0 }} />
+                <i className={`block h-full rounded-l-[3px] ${armed ? "transition-[width,margin] duration-300 ease-[cubic-bezier(.2,.7,.2,1)]" : ""}`} style={{ width: `${wPersonal}%`, background: gray ? GRAY_BOTTOM : "var(--series-social)" }} />
+                <i className={`block h-full rounded-r-[3px] ${armed ? "transition-[width,margin] duration-300 ease-[cubic-bezier(.2,.7,.2,1)]" : ""}`} style={{ width: `${wTop}%`, background: gray ? GRAY_TOP : "var(--accent)", marginLeft: wPersonal > 0 && wTop > 0 ? 1 : 0 }} />
               </span>
               <span className={`whitespace-nowrap text-right text-sm tabular-nums ${gray ? "text-muted" : "text-ink"} ${isCur ? "font-semibold" : ""}`}>{fmtMoney(p.total)}</span>
             </>
@@ -190,7 +193,7 @@ export function ScenarioChart({
         })}
       </div>
       ) : (
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full select-none" role="group" aria-label={mode === "flex" ? "不同退休年龄下退休时每月实发养老金" : "不同停缴年龄下退休时每月实发养老金"}>
+      <svg viewBox={`0 0 ${W} ${H}`} className={`w-full select-none ${armed ? "chart-armed" : ""}`} role="group" aria-label={mode === "flex" ? "不同退休年龄下退休时每月实发养老金" : "不同停缴年龄下退休时每月实发养老金"}>
         <line x1={padL} x2={W - padR} y1={base} y2={base} stroke="var(--line)" />
         {points.map((p, i) => {
           const cx = padL + colW * (i + 0.5);
@@ -221,18 +224,19 @@ export function ScenarioChart({
               onClick={select}
             >
               <rect x={padL + colW * i} y={0} width={colW} height={H} fill={isFocus ? "#00000008" : "transparent"} />
-              {hPersonal > 0 && <rect x={x} y={base - hPersonal} width={barW} height={hPersonal} fill={gray ? GRAY_BOTTOM : "var(--series-social)"} rx={3} />}
-              {hTop > 0 && <rect x={x} y={base - hAll} width={barW} height={Math.max(0, hTop - 1.5)} fill={gray ? GRAY_TOP : "var(--accent)"} rx={3} />}
-              {isCur && <rect x={x - 2} y={base - hAll - 2} width={barW + 4} height={hAll + 2} fill="none" stroke="var(--ink)" strokeWidth={1.5} rx={4} />}
+              {hPersonal > 0 && <rect className="chart-rect" x={x} y={base - hPersonal} width={barW} height={hPersonal} style={{ y: base - hPersonal, height: hPersonal }} fill={gray ? GRAY_BOTTOM : "var(--series-social)"} rx={3} />}
+              {hTop > 0 && <rect className="chart-rect" x={x} y={base - hAll} width={barW} height={Math.max(0, hTop - 1.5)} style={{ y: base - hAll, height: Math.max(0, hTop - 1.5) }} fill={gray ? GRAY_TOP : "var(--accent)"} rx={3} />}
+              {isCur && <rect className="chart-rect" x={x - 2} y={base - hAll - 2} width={barW + 4} height={hAll + 2} style={{ y: base - hAll - 2, height: hAll + 2 }} fill="none" stroke="var(--ink)" strokeWidth={1.5} rx={4} />}
               {showLabel(i) && (
                 <text
+                  className="chart-move"
                   x={vX}
-                  y={base - hAll - 6 * k}
+                  y={0}
                   textAnchor={vAnchor}
                   fontSize={fs}
                   fill={gray ? "var(--muted)" : "var(--ink)"}
                   fontWeight={isCur ? 600 : 400}
-                  style={{ fontVariantNumeric: "tabular-nums" }}
+                  style={{ fontVariantNumeric: "tabular-nums", transform: `translateY(${base - hAll - 6 * k}px)` }}
                 >
                   {valueText}
                 </text>

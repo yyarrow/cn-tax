@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useSvgScale } from "@/lib/useSvgScale";
 import { ANNUAL_BRACKETS, MONTH_NAMES, type MonthRow } from "@/lib/tax";
 import { fmtMoney, fmtPct } from "@/lib/format";
+import { useArmed } from "@/lib/useArmed";
 import { Segmented } from "./ui";
 
 const RATE_STEPS = ["#dbe8f9", "#b5cff2", "#8db4ea", "#6398e0", "#3f7dd3", "#2a5fae", "#1c4280"];
@@ -29,6 +30,8 @@ const LABEL_GAP = 4; // label 基线与截断标记段顶部的间距
 export function MonthlyChart({ rows, currentMonth, staticMode = false }: { rows: MonthRow[]; currentMonth: number; staticMode?: boolean }) {
   const [view, setView] = useState<"chart" | "table">("chart");
   const [hover, setHover] = useState<number | null>(null);
+  // 挂载稳定（量完容器宽度）后数据再变才做过渡，首屏不做生长动画
+  const armed = useArmed();
   // 用"常规收入"（税前 − 年终奖 − 期权）定比例尺，避免单月大额奖金/期权把其余 11 根柱子压扁
   const regularMax = Math.max(1, ...rows.map((r) => r.gross - bonusOfRow(r) - r.equity));
   const axisMax = regularMax * 1.08; // ~8% headroom
@@ -63,7 +66,7 @@ export function MonthlyChart({ rows, currentMonth, staticMode = false }: { rows:
 
       {view === "chart" ? (
         <div className="relative">
-          <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="逐月税前收入拆分为到手、个税、五险一金">
+          <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} className={`w-full ${armed ? "chart-armed" : ""}`} role="img" aria-label="逐月税前收入拆分为到手、个税、五险一金">
             <defs>
               <pattern id="chart-cap-hatch" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
                 <rect width="6" height="6" fill="#eeede9" />
@@ -100,7 +103,6 @@ export function MonthlyChart({ rows, currentMonth, staticMode = false }: { rows:
                 taxClamped = true;
               }
               const stackTop = hSoc > 0 ? base - hNet - hTax - gap * 2 - hSoc : hTax > 0 ? base - hNet - gap - hTax : base - hNet;
-              const capY = stackTop - CAP_GAP - CAP_H;
 
               const isFirstHalf = r.month <= 6;
               const labelAnchor = isFirstHalf ? "start" : "end";
@@ -117,19 +119,20 @@ export function MonthlyChart({ rows, currentMonth, staticMode = false }: { rows:
                     <rect x={x} y={base - 40} width={barW} height={40} fill="none" stroke="#d9d7d0" strokeDasharray="3 3" rx={4} />
                   ) : (
                     <>
-                      <rect x={x} y={base - hNet} width={barW} height={hNet} fill="var(--series-net)" rx={hTax + hSoc > 0 ? 0 : 4} />
+                      <rect className="chart-rect" x={x} y={base - hNet} width={barW} height={hNet} style={{ y: base - hNet, height: hNet }} fill="var(--series-net)" rx={hTax + hSoc > 0 ? 0 : 4} />
                       {hTax > 0 && (
-                        <rect x={x} y={base - hNet - gap - hTax} width={barW} height={hTax} fill={taxClamped ? "url(#chart-cap-hatch)" : "var(--series-tax)"} />
+                        <rect className="chart-rect" x={x} y={base - hNet - gap - hTax} width={barW} height={hTax} style={{ y: base - hNet - gap - hTax, height: hTax }} fill={taxClamped ? "url(#chart-cap-hatch)" : "var(--series-tax)"} />
                       )}
-                      {hSoc > 0 && <rect x={x} y={base - hNet - hTax - gap * 2 - hSoc} width={barW} height={hSoc} fill="var(--series-social)" rx={4} />}
+                      {hSoc > 0 && <rect className="chart-rect" x={x} y={base - hNet - hTax - gap * 2 - hSoc} width={barW} height={hSoc} style={{ y: base - hNet - hTax - gap * 2 - hSoc, height: hSoc }} fill="var(--series-social)" rx={4} />}
                       {isCapped && capLabel && (
-                        <>
-                          <line x1={x + barW * 0.3} y1={stackTop + 3} x2={x + barW * 0.42} y2={stackTop - 3} stroke="#fff" strokeWidth={2} strokeLinecap="round" />
-                          <line x1={x + barW * 0.58} y1={stackTop + 3} x2={x + barW * 0.7} y2={stackTop - 3} stroke="#fff" strokeWidth={2} strokeLinecap="round" />
-                          <rect x={x} y={capY} width={barW} height={CAP_H} fill="url(#chart-cap-hatch)" rx={2} />
+                        // 截断段整体跟着柱顶走：内部坐标以 stackTop 为原点，位移走 transform 才有过渡
+                        <g className="chart-move" style={{ transform: `translateY(${stackTop}px)` }}>
+                          <line x1={x + barW * 0.3} y1={3} x2={x + barW * 0.42} y2={-3} stroke="#fff" strokeWidth={2} strokeLinecap="round" />
+                          <line x1={x + barW * 0.58} y1={3} x2={x + barW * 0.7} y2={-3} stroke="#fff" strokeWidth={2} strokeLinecap="round" />
+                          <rect x={x} y={-(CAP_GAP + CAP_H)} width={barW} height={CAP_H} fill="url(#chart-cap-hatch)" rx={2} />
                           <text
                             x={labelX}
-                            y={capY - LABEL_GAP * k - labelLift}
+                            y={-(CAP_GAP + CAP_H) - LABEL_GAP * k - labelLift}
                             textAnchor={labelAnchor}
                             fontSize={fs}
                             fill="var(--ink)"
@@ -137,7 +140,7 @@ export function MonthlyChart({ rows, currentMonth, staticMode = false }: { rows:
                           >
                             {capLabel}
                           </text>
-                        </>
+                        </g>
                       )}
                     </>
                   )}

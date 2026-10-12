@@ -8,7 +8,9 @@ import { findTrap } from "@/lib/tax/bonus";
 import { fmtMoney } from "@/lib/format";
 import { SITE, buildShareUrl } from "@/lib/share";
 import { bonusToProfile, buildBonusShareUrl, useBonusInput, wasBonusLoadedFromShare } from "@/lib/bonusStore";
-import { Button, Card, Details, Field, Hint, NumberInput } from "./ui";
+import { Button, Card, CopyButton, Details, Field, Hint, MobileBar, NumberInput } from "./ui";
+import { AnimatedMoney } from "./AnimatedMoney";
+import { SplitBar } from "./SplitBar";
 import { CityPicker } from "./CityPicker";
 import { ShareModal } from "./ShareModal";
 
@@ -35,8 +37,6 @@ export function BonusTool() {
   const resultsRef = useRef<HTMLDivElement>(null);
   const [resultsVisible, setResultsVisible] = useState(false);
   const [showShare, setShowShare] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [scriptCopied, setScriptCopied] = useState(false);
   /** 填齐了年终奖和月薪、且算出了结果，才有数字可显示；否则同样的版面用「—」占位 */
   const analysis = input.bonus > 0 && input.monthlySalary > 0 ? b : null;
   /** 只填了年终奖：单独计税不依赖月薪，可以先算；并入和拆分要等月薪 */
@@ -80,16 +80,6 @@ export function BonusTool() {
         .join("\n")
     : "";
 
-  const copyText = async (text: string, done: (v: boolean) => void) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      done(true);
-      setTimeout(() => done(false), 1500);
-    } catch {
-      window.prompt("复制这段文字：", text);
-    }
-  };
-
   const scrollToResults = () => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   const scrollToInputs = () => inputsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -105,11 +95,12 @@ export function BonusTool() {
             const isBest = analysis?.recommended === k;
             const net = k === "separate" ? sepNet : comNet;
             const total = k === "separate" ? analysis?.separate.total : analysis?.combined.total;
+            const shownNet = analysis ? net : sepOnlyNet;
             return (
               <div key={k} className={`p-3 sm:p-4 ${isBest ? "bg-good/5" : ""}`}>
                 <div className="text-xs text-muted">{k === "separate" ? "单独计税" : "并入综合所得"}</div>
                 <div className="mt-1 text-3xl font-semibold tabular-nums text-ink">
-                  {analysis ? fmtMoney(net) : sepOnly && k === "separate" ? fmtMoney(sepOnlyNet) : "—"}
+                  {analysis ? <AnimatedMoney value={net} /> : sepOnly && k === "separate" ? <AnimatedMoney value={sepOnlyNet} /> : "—"}
                 </div>
                 <div className="mt-0.5 text-xs text-muted">奖金到手</div>
                 <div className="mt-1.5">
@@ -124,6 +115,15 @@ export function BonusTool() {
                   )}
                 </div>
                 <div className="mt-1 text-xs tabular-nums text-muted">全年个税 {total === undefined ? "—" : fmtMoney(total)}</div>
+                {input.bonus > 0 && (analysis || (sepOnly && k === "separate")) && (
+                  <SplitBar
+                    className="mt-2"
+                    segments={[
+                      { key: "net", label: "到手", value: shownNet, color: "var(--series-net)" },
+                      { key: "tax", label: "个税", value: input.bonus - shownNet, color: "var(--series-tax)" },
+                    ]}
+                  />
+                )}
               </div>
             );
           })}
@@ -248,9 +248,7 @@ export function BonusTool() {
       )}
 
       <div className="mb-5 flex flex-wrap items-center justify-end gap-2">
-        <Button variant="secondary" className="h-9" onClick={() => copyText(buildBonusShareUrl(input), setCopied)}>
-          {copied ? "已复制" : "复制链接"}
-        </Button>
+        <CopyButton text={() => buildBonusShareUrl(input)} className="h-9" />
         <Button variant="primary" className="h-9" onClick={() => setShowShare(true)}>
           分享报告
         </Button>
@@ -270,7 +268,7 @@ export function BonusTool() {
       <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         {/* 输入 */}
         <div className="min-w-0 space-y-3 lg:col-start-1 lg:row-start-1" ref={inputsRef}>
-          <div className="rounded-2xl border border-line bg-white p-4">
+          <Card tone="input" className="p-4!">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <Field label="城市">
                 <CityPicker value={input.cityId} onChange={(id) => patch({ cityId: id })} />
@@ -307,7 +305,7 @@ export function BonusTool() {
                 </div>
               </Details>
             </div>
-          </div>
+          </Card>
           <p className="text-xs leading-relaxed text-muted">
             {year} 年口径 · 专项附加扣除沿用首页设置（每月 {fmtMoney(sad)}）。{" "}
             <Link href="/#deductions" className="text-accent-text underline underline-offset-2">修改扣除</Link>
@@ -341,33 +339,27 @@ export function BonusTool() {
                     {line}
                   </p>
                 ))}
-                <Button variant="secondary" className="h-9" onClick={() => copyText(scriptText, setScriptCopied)}>
-                  {scriptCopied ? "已复制" : "复制话术"}
-                </Button>
+                <CopyButton text={scriptText} label="复制话术" promptLabel="复制这段文字：" className="h-9" />
               </div>
             )}
           </Card>
         </div>
       </div>
 
-      {showBar && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] lg:hidden">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="truncate text-xs text-muted">{analysis ? `推荐：${bestName}` : "单独计税到手"}</div>
-              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <span className="text-lg font-semibold tabular-nums text-ink">
-                  {analysis ? fmtMoney(bestNet) : sepOnly ? fmtMoney(sepOnlyNet) : "—"}
-                </span>
-                {analysis && analysis.saving > 1 && <span className="text-xs tabular-nums text-good-text">少交 {fmtMoney(analysis.saving)}</span>}
-              </div>
-            </div>
-            <Button variant="primary" className="h-9 shrink-0" onClick={resultsVisible ? scrollToInputs : scrollToResults}>
-              {resultsVisible ? "改输入" : "看结果"}
-            </Button>
+      <MobileBar show={showBar}>
+        <div className="min-w-0">
+          <div className="truncate text-xs text-muted">{analysis ? `推荐：${bestName}` : "单独计税到手"}</div>
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className="text-lg font-semibold tabular-nums text-ink">
+              {analysis ? <AnimatedMoney value={bestNet} /> : sepOnly ? <AnimatedMoney value={sepOnlyNet} /> : "—"}
+            </span>
+            {analysis && analysis.saving > 1 && <span className="text-xs tabular-nums text-good-text">少交 {fmtMoney(analysis.saving)}</span>}
           </div>
         </div>
-      )}
+        <Button variant="primary" className="h-9 shrink-0" onClick={resultsVisible ? scrollToInputs : scrollToResults}>
+          {resultsVisible ? "改输入" : "看结果"}
+        </Button>
+      </MobileBar>
     </div>
   );
 }

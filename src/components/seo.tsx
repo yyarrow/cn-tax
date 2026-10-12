@@ -25,7 +25,7 @@ function SiteNav({ current }: { current?: string }) {
             key={n.href}
             href={n.href}
             aria-current={active ? "page" : undefined}
-            className={`inline-flex min-h-11 items-center justify-center border-b-2 py-2 sm:mr-6 sm:inline-block sm:min-h-0 sm:last:mr-0 ${active ? "border-accent font-semibold text-ink" : "border-transparent text-muted hover:text-ink"}`}
+            className={`inline-flex min-h-11 items-center justify-center border-b-2 py-2 transition-colors duration-150 sm:mr-6 sm:inline-block sm:min-h-0 sm:last:mr-0 ${active ? "border-accent font-semibold text-ink" : "border-transparent text-muted hover:text-ink"}`}
           >
             {n.label}
           </Link>

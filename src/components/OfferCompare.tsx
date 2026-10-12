@@ -8,7 +8,8 @@ import type { OfferInput, OfferResult } from "@/lib/tax";
 import { fmtMoney, fmtPct } from "@/lib/format";
 import { SITE, buildOfferShareUrl, buildShareUrl } from "@/lib/share";
 import { MAX_OFFERS, offerLabel, useOffers, wasLoadedFromShare } from "@/lib/offerStore";
-import { Button, Card, Details, Field, Hint, NumberInput, TextInput } from "./ui";
+import { Button, Card, CopyButton, Details, Field, Hint, MobileBar, NumberInput, TextInput } from "./ui";
+import { AnimatedMoney } from "./AnimatedMoney";
 import { CityPicker } from "./CityPicker";
 import { ShareModal } from "./ShareModal";
 
@@ -67,7 +68,6 @@ export function OfferCompare() {
   const resultsRef = useRef<HTMLDivElement>(null);
   const [resultsVisible, setResultsVisible] = useState(false);
   const [showShare, setShowShare] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const el = resultsRef.current;
@@ -80,17 +80,6 @@ export function OfferCompare() {
   const today = new Date();
   const dateText = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
   const host = typeof window !== "undefined" ? window.location.host : new URL(SITE).host;
-
-  const copyLink = async () => {
-    const url = buildOfferShareUrl(offers);
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      window.prompt("复制这个链接：", url);
-    }
-  };
 
   const scrollToResults = () => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   const scrollToInputs = () => inputsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -112,7 +101,7 @@ export function OfferCompare() {
                   <Dot color={color} />
                   <span className="truncate">{name}</span>
                 </div>
-                <div className="mt-1 break-words text-2xl font-semibold sm:text-3xl tabular-nums text-ink">{hasIncome ? fmtMoney(r.netTotal) : "—"}</div>
+                <div className="mt-1 break-words text-2xl font-semibold sm:text-3xl tabular-nums text-ink">{hasIncome ? <AnimatedMoney value={r.netTotal} /> : "—"}</div>
                 <div className="mt-1.5">
                   {!hasIncome ? (
                     <span className="text-xs text-muted">—</span>
@@ -231,9 +220,7 @@ export function OfferCompare() {
       )}
 
       <div className="mb-5 flex flex-wrap items-center justify-end gap-2">
-        <Button variant="secondary" className="h-9" onClick={copyLink}>
-          {copied ? "已复制" : "复制链接"}
-        </Button>
+        <CopyButton text={() => buildOfferShareUrl(offers)} className="h-9" />
         <Button variant="primary" className="h-9" onClick={() => setShowShare(true)}>
           分享报告
         </Button>
@@ -248,7 +235,7 @@ export function OfferCompare() {
             const city = getCity(o.cityId);
             const ratePct = Math.round((o.housingRate ?? city.housingRateDefault) * 1000) / 10;
             return (
-              <div key={o.id} className="rounded-2xl border border-line bg-white p-4">
+              <Card key={o.id} tone="input" className="p-4!">
                 <div className="flex items-center gap-2">
                   <Dot color={color} />
                   <TextInput
@@ -295,7 +282,7 @@ export function OfferCompare() {
                     </Field>
                   </Details>
                 </div>
-              </div>
+              </Card>
             );
           })}
 
@@ -331,22 +318,18 @@ export function OfferCompare() {
         </div>
       </div>
 
-      {showBar && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] lg:hidden">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="truncate text-xs text-muted">{tiedAtTop ? "最高全年到手（并列）" : `${winner.name} 全年到手`}</div>
-              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <span className="text-lg font-semibold tabular-nums text-ink">{hasIncome ? fmtMoney(winner.r.netTotal) : "—"}</span>
-                {runnerUp && gap > 1 && <span className="text-xs tabular-nums text-good-text">比另一份多 {fmtMoney(gap)}</span>}
-              </div>
-            </div>
-            <Button variant="primary" className="h-9 shrink-0" onClick={resultsVisible ? scrollToInputs : scrollToResults}>
-              {resultsVisible ? "改输入" : "看结果"}
-            </Button>
+      <MobileBar show={showBar}>
+        <div className="min-w-0">
+          <div className="truncate text-xs text-muted">{tiedAtTop ? "最高全年到手（并列）" : `${winner.name} 全年到手`}</div>
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className="text-lg font-semibold tabular-nums text-ink">{hasIncome ? <AnimatedMoney value={winner.r.netTotal} /> : "—"}</span>
+            {runnerUp && gap > 1 && <span className="text-xs tabular-nums text-good-text">比另一份多 {fmtMoney(gap)}</span>}
           </div>
         </div>
-      )}
+        <Button variant="primary" className="h-9 shrink-0" onClick={resultsVisible ? scrollToInputs : scrollToResults}>
+          {resultsVisible ? "改输入" : "看结果"}
+        </Button>
+      </MobileBar>
     </div>
   );
 }

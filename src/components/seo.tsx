@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { FeedbackButton } from "./FeedbackButton";
 
 const SITE_NAV = [
   { href: "/", label: "个税计算器" },
@@ -42,10 +43,11 @@ export function Hero({ title, subtitle, current }: { title: string; subtitle: st
       <div className="flex items-center gap-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.png" alt={SITE_NAME} width={40} height={40} className="h-10 w-10 rounded-xl" />
-        <div>
+        <div className="min-w-0 flex-1">
           <h1 className="text-[1.75rem] font-semibold tracking-[-0.01em] text-ink">{title}</h1>
           <p className="mt-0.5 text-sm text-muted">{subtitle}</p>
         </div>
+        <FeedbackButton />
       </div>
       <SiteNav current={current} />
     </div>
@@ -129,10 +131,12 @@ export function Article({ title, children, current }: { title: string; children:
         <p>口径：累计预扣法预扣，汇算按全年 6 万减除 + 全年专项附加；年终奖、上市公司股权激励单独计税政策至 2027 年底。社保 / 公积金基数为各城市 2026 年度参考值（更新于 2026-09）。仅供测算，不构成税务建议。</p>
         <p>
           数据只存在你的浏览器里，不上传。有算错或城市数据过期？
+          <FeedbackButton variant="link" label="意见反馈" />
+          ，或到{" "}
           <a href="https://github.com/yyarrow/cn-tax/issues" className="text-accent-text hover:underline" target="_blank" rel="noreferrer">
-            提个反馈
-          </a>
-          。
+            GitHub
+          </a>{" "}
+          提 issue。
         </p>
       </footer>
     </div>

@@ -172,3 +172,24 @@ input[type="number"] {
     break-inside: avoid;
   }
 }
+
+/* 反馈弹窗：轻微淡入；减少动画偏好下不做过渡 */
+@media (prefers-reduced-motion: no-preference) {
+  .feedback-dialog[open] {
+    animation: feedback-in 160ms ease-out;
+  }
+  .feedback-dialog[open]::backdrop {
+    animation: feedback-fade 160ms ease-out;
+  }
+}
+@keyframes feedback-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+}
+@keyframes feedback-fade {
+  from {
+    opacity: 0;
+  }
+}

@@ -18,7 +18,7 @@ function Cell({ label, value, sub }: { label: string; value: ReactNode; sub?: Re
     <div className="min-w-0 bg-white px-3 py-2.5">
       <div className="text-xs text-muted">{label}</div>
       <div className="mt-1 whitespace-nowrap text-xl font-semibold tabular-nums text-ink @max-[20rem]:text-lg">{value}</div>
-      {sub && <div className="mt-0.5 text-xs text-muted">{sub}</div>}
+      {sub && <div className="mt-0.5 text-xs leading-relaxed text-muted">{sub}</div>}
     </div>
   );
 }

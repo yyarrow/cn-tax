@@ -26,7 +26,7 @@ export function ExampleHint({ storageKeys, enabled = true, text = "当前为示�
   }, []);
   if (!visible || !enabled) return null;
   return (
-    <p ref={ref} role="note" className="mb-5 rounded-xl border border-accent/20 bg-accent/5 px-4 py-3 text-sm text-accent-text">
+    <p ref={ref} role="note" className="mb-5 rounded-xl border border-accent/20 bg-accent/5 px-4 py-2.5 text-sm leading-relaxed text-accent-text">
       {text}
     </p>
   );

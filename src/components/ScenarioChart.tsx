@@ -214,6 +214,7 @@ export function ScenarioChart({
           return (
             <g
               key={p.key}
+              className="chart-col"
               opacity={isCur || isFocus ? 1 : 0.62}
               tabIndex={0}
               role="button"

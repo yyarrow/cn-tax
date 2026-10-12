@@ -246,7 +246,7 @@ export function SalaryTool() {
   return (
     <div className={`app-root mx-auto max-w-6xl px-4 pt-4 sm:px-6 ${showBar ? "pb-24 lg:pb-10" : "pb-10"}`}>
       {fromShare && (
-        <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm text-ink">
+        <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm leading-relaxed text-ink">
           已按分享的数字预填，改成你自己的即可。
         </p>
       )}
@@ -265,7 +265,7 @@ export function SalaryTool() {
             <h2 className="text-base font-semibold text-ink">
               {city.name} {year} 年参考值
             </h2>
-            <p className="mt-0.5 text-xs text-muted">社保 / 公积金基数每年 7 月前后调整，实际以工资条为准</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-muted">社保 / 公积金基数每年 7 月前后调整，实际以工资条为准</p>
             <div className="mt-4">{referenceBody}</div>
           </section>
         </ShareModal>

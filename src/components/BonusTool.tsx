@@ -99,10 +99,10 @@ export function BonusTool() {
             return (
               <div key={k} className={`p-3 sm:p-4 ${isBest ? "bg-good/5" : ""}`}>
                 <div className="text-xs text-muted">{k === "separate" ? "单独计税" : "并入综合所得"}</div>
-                <div className="mt-1 text-3xl font-semibold tabular-nums text-ink">
+                <div className="mt-1 text-2xl font-semibold tabular-nums text-ink sm:text-3xl">
                   {analysis ? <AnimatedMoney value={net} /> : sepOnly && k === "separate" ? <AnimatedMoney value={sepOnlyNet} /> : "—"}
                 </div>
-                <div className="mt-0.5 text-xs text-muted">奖金到手</div>
+                <div className="mt-0.5 text-xs leading-relaxed text-muted">奖金到手</div>
                 <div className="mt-1.5">
                   {!analysis ? (
                     <span className="text-xs text-muted">{sepOnly ? (k === "separate" ? `奖金税 ${fmtMoney(sepOnlyTax)}` : "填月薪后可比较") : "—"}</span>
@@ -224,7 +224,7 @@ export function BonusTool() {
   return (
     <div className={`app-root mx-auto max-w-6xl px-4 pt-4 sm:px-6 ${showBar ? "pb-24 lg:pb-10" : "pb-10"}`}>
       {wasBonusLoadedFromShare() && (
-        <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm text-ink">
+        <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm leading-relaxed text-ink">
           已按分享的数字预填，改成你自己的即可。
         </p>
       )}
@@ -241,7 +241,7 @@ export function BonusTool() {
           <section className="report-section rounded-2xl border border-line bg-white p-5">{resultsBody(true)}</section>
           <section className="report-section rounded-2xl border border-line bg-white p-5">
             <h2 className="text-base font-semibold text-ink">陷阱区间</h2>
-            <p className="mt-0.5 text-xs text-muted">单独计税跨档时多发反而少拿；表中行随你的年终奖高亮</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-muted">单独计税跨档时多发反而少拿；表中行随你的年终奖高亮</p>
             <div className="mt-4">{trapTable}</div>
           </section>
         </ShareModal>

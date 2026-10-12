@@ -165,12 +165,12 @@ export function SettlementTool() {
             <div className="mt-1 text-sm font-semibold tabular-nums text-ink">
               {profile.year + 1} 年 3 月 1 日–6 月 30 日
             </div>
-            <div className="mt-0.5 text-xs text-muted">个税 App 上自己办，不用去大厅。</div>
+            <div className="mt-0.5 text-xs leading-relaxed text-muted">个税 App 上自己办，不用去大厅。</div>
           </div>
           <div className="px-3 py-2.5">
             <div className="text-xs text-muted">免申报</div>
             <div className="mt-1 text-sm font-semibold text-ink">{!hasIncome ? "—" : a.settlementExempt ? "是" : "否"}</div>
-            <div className="mt-0.5 text-xs text-muted">{exemptMeaning}</div>
+            <div className="mt-0.5 text-xs leading-relaxed text-muted">{exemptMeaning}</div>
           </div>
         </div>
       </section>
@@ -229,7 +229,7 @@ export function SettlementTool() {
   return (
     <div className={`app-root mx-auto max-w-6xl px-4 pt-4 transition-opacity sm:px-6 ${showBar ? "pb-24 lg:pb-10" : "pb-10"} ${ready ? "opacity-100" : "opacity-0"}`}>
       {preview && (
-        <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm text-ink">
+        <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm leading-relaxed text-ink">
           <span className="flex-1">这是链接带来的数据，只是预览，不会覆盖你自己填过的内容。可以直接改着看。</span>
           <Button variant="primary" onClick={keepPreview} className="h-8">
             保留为我的数据

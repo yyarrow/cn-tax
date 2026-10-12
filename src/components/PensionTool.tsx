@@ -92,7 +92,7 @@ function Row({ label, value, sub }: { label: ReactNode; value: ReactNode; sub?: 
     <div className="flex items-baseline justify-between gap-3 py-2">
       <div className="min-w-0">
         <div className="text-sm text-ink">{label}</div>
-        {sub && <div className="mt-0.5 text-xs text-muted">{sub}</div>}
+        {sub && <div className="mt-0.5 text-xs leading-relaxed text-muted">{sub}</div>}
       </div>
       <div className="shrink-0 text-sm font-semibold tabular-nums text-ink">{value}</div>
     </div>
@@ -310,7 +310,7 @@ export function PensionTool() {
       )}
 
       {!result.meetsMinimum ? (
-        <div className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm leading-relaxed text-danger-text">
+        <div className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-2.5 text-sm leading-relaxed text-danger-text">
           <b className="font-semibold">缴费年限不够：</b>按现在的计划只缴 {fmtYM(effectiveMonths)}，{ret.year} 年退休最低要 {fmtYM(result.minMonths)}，差{" "}
           {fmtYM(result.shortfallMonths)}——不补足就领不了按月发放的基本养老金。可以延长缴费，或咨询当地能否补缴。
         </div>
@@ -437,7 +437,7 @@ export function PensionTool() {
   return (
     <div className={`app-root mx-auto max-w-6xl px-4 pt-4 sm:px-6 ${showBar ? "pb-24 lg:pb-10" : "pb-10"}`}>
       {fromShare && (
-        <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm text-ink">已按分享的数字预填，改成你自己的即可。</p>
+        <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm leading-relaxed text-ink">已按分享的数字预填，改成你自己的即可。</p>
       )}
 
       {showShare && (
@@ -452,12 +452,12 @@ export function PensionTool() {
           <section className="report-section rounded-2xl border border-line bg-white p-5">{summaryBody}</section>
           <section className="report-section rounded-2xl border border-line bg-white p-5">
             <h2 className="text-base font-semibold text-ink">哪年退休，每月领多少</h2>
-            <p className="mb-3 mt-0.5 text-xs text-muted">{scenarioMode === "flex" ? "法定退休年龄前后各 3 年，退休时每月实发" : "不同年龄停缴、按法定年龄退休，退休时每月实发"}</p>
+            <p className="mb-3 mt-0.5 text-xs leading-relaxed text-muted">{scenarioMode === "flex" ? "法定退休年龄前后各 3 年，退休时每月实发" : "不同年龄停缴、按法定年龄退休，退休时每月实发"}</p>
             {scenarioBody(true)}
           </section>
           <section className="report-section rounded-2xl border border-line bg-white p-5">
             <h2 className="text-base font-semibold text-ink">换个地方退休，每月差多少</h2>
-            <p className="mb-3 mt-0.5 text-xs text-muted">缴费记录不变，只换待遇领取地</p>
+            <p className="mb-3 mt-0.5 text-xs leading-relaxed text-muted">缴费记录不变，只换待遇领取地</p>
             {tableBody(true)}
           </section>
         </ShareModal>

@@ -18,7 +18,7 @@ function Cell({ label, value, sub }: { label: string; value: ReactNode; sub?: Re
     <div className="min-w-0 bg-white px-3 py-2.5">
       <div className="text-xs text-muted">{label}</div>
       <div className="mt-1 whitespace-nowrap text-xl font-semibold tabular-nums text-ink @max-[20rem]:text-lg">{value}</div>
-      {sub && <div className="mt-0.5 text-xs text-muted">{sub}</div>}
+      {sub && <div className="mt-0.5 text-xs leading-relaxed text-muted">{sub}</div>}
     </div>
   );
 }
@@ -71,7 +71,7 @@ export function RetirementAgeTool() {
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <Link
             href="/pension"
-            className="inline-flex min-h-11 items-center rounded-lg bg-accent-text px-4 text-sm font-medium text-white transition hover:bg-accent-text/90 sm:min-h-9"
+            className="inline-flex min-h-11 items-center rounded-lg bg-accent-text px-4 text-sm font-medium text-white transition-colors duration-(--dur-fast) hover:bg-[color-mix(in_oklab,var(--accent-text),black_14%)] sm:min-h-9"
           >
             算算到时候每月能领多少
           </Link>

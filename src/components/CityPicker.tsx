@@ -159,12 +159,19 @@ export function CityPicker({
           inputRef.current?.blur();
         }}
         onMouseMove={() => i !== active && setActive(i)}
-        className={`flex cursor-pointer items-baseline justify-between gap-2 px-3 py-2.5 text-base sm:py-1.5 sm:text-sm ${
+        className={`flex cursor-pointer items-baseline justify-between gap-2 active:bg-accent/20 px-3 py-2.5 text-base sm:py-1.5 sm:text-sm ${
           i === active ? "bg-accent/10" : ""
         } ${selected ? "font-semibold text-accent-text" : "text-ink"}`}
       >
         <span>{c.name}</span>
-        {withProvince && c.province && c.province !== c.name && <span className="text-xs font-normal text-muted">{c.province}</span>}
+        <span className="flex items-center gap-1.5">
+          {withProvince && c.province && c.province !== c.name && <span className="text-xs font-normal text-muted">{c.province}</span>}
+          {selected && (
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5 shrink-0 self-center text-accent-text" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12.5l4.5 4.5L19 7.5" />
+            </svg>
+          )}
+        </span>
       </div>
     );
   };
@@ -205,7 +212,7 @@ export function CityPicker({
         onClick={openList}
         onKeyDown={onKeyDown}
       />
-      <svg aria-hidden="true" viewBox="0 0 24 24" className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted" fill="none" stroke="currentColor" strokeWidth="2">
+      <svg aria-hidden="true" viewBox="0 0 24 24" className={`pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted transition-transform duration-(--dur-base) ease-(--ease-out) ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M6 9l6 6 6-6" />
       </svg>
       <div
@@ -215,7 +222,7 @@ export function CityPicker({
         hidden={!open}
         // 阻止 mousedown 抢走输入框焦点（否则点选项/拖滚动条会先触发 blur 关闭）
         onMouseDown={(e) => e.preventDefault()}
-        className={`absolute ${alignRight ? "right-0" : "left-0"} top-full z-30 mt-1 max-h-[60vh] w-full min-w-[12rem] overflow-y-auto overscroll-contain rounded-lg border border-line bg-white py-1 shadow-lg`}
+        className={`pop-in absolute ${alignRight ? "right-0" : "left-0"} top-full z-30 mt-1 max-h-[60vh] w-full min-w-[12rem] overflow-y-auto overscroll-contain rounded-lg border border-line bg-white py-1 shadow-lg`}
       >
         {open &&
           (searching ? (

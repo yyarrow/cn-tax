@@ -4,7 +4,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import QRCode from "qrcode";
 import { SITE } from "@/lib/share";
 import { exportNodeAsPng, savePng } from "@/lib/exportImage";
-import { Button } from "./ui";
+import { useDialogExit } from "@/lib/dialogMotion";
+import { Button, CopyButton } from "./ui";
 
 /**
  * 各页通用的「报告预览」弹层：工具条（复制链接 / 保存 PDF / 导出图片 / 关闭）＋ 报告正文 ＋ 二维码页脚。
@@ -39,7 +40,6 @@ export function ShareModal({
   const [busy, setBusy] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [qr, setQr] = useState<string>("");
-  const [copied, setCopied] = useState(false);
 
   const displayUrl = typeof window !== "undefined" ? window.location.host : new URL(SITE).host;
   const ua = typeof navigator === "undefined" ? "" : navigator.userAgent;
@@ -71,15 +71,8 @@ export function ShareModal({
     };
   }, []);
 
-  const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      window.prompt("复制这个链接：", shareUrl);
-    }
-  };
+  /** Esc / 点背景 / 关闭按钮都走这里：先淡出再通知父组件卸载 */
+  const requestClose = useDialogExit(() => dialogRef.current, onClose);
 
   const exportPng = async () => {
     if (!rootRef.current || busy) return;
@@ -101,12 +94,12 @@ export function ShareModal({
   };
 
   return (
-    <dialog ref={dialogRef} aria-label={title} className="report-modal fixed inset-0 z-50 m-0 h-full max-h-none w-full max-w-none overflow-y-auto border-0 bg-ink/60 p-0 text-ink backdrop-blur-sm" onClick={onClose} onCancel={(e) => {
+    <dialog ref={dialogRef} aria-label={title} className="report-modal dlg-scrim fixed inset-0 z-50 m-0 h-full max-h-none w-full max-w-none overflow-y-auto border-0 bg-ink/60 p-0 text-ink backdrop-blur-sm" onClick={requestClose} onCancel={(e) => {
       e.preventDefault();
       if (imageUrl) setImageUrl(null);
-      else onClose();
+      else requestClose();
     }}>
-      <div className="mx-auto my-6 w-full max-w-3xl px-4" onClick={(e) => e.stopPropagation()}>
+      <div className="dlg-panel mx-auto my-6 w-full max-w-3xl px-4" onClick={(e) => e.stopPropagation()}>
         <div className="report-toolbar mb-2 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/95 px-4 py-2.5 shadow-md">
           <span className="text-sm font-medium text-ink">报告预览</span>
           <div className="flex flex-wrap items-center gap-2">
@@ -118,13 +111,11 @@ export function ShareModal({
                 </Button>
               )}
             </div>
-            <Button variant="primary" onClick={exportPng} className="h-9">
+            <Button variant="primary" onClick={exportPng} disabled={busy} className="h-9">
               {busy ? "导出中…" : "导出图片"}
             </Button>
-            <Button variant="secondary" onClick={copyLink} className="h-9">
-              {copied ? "已复制" : "复制链接"}
-            </Button>
-            <Button variant="ghost" onClick={onClose} className="h-9">
+            <CopyButton text={shareUrl} className="h-9" />
+            <Button variant="ghost" onClick={requestClose} className="h-9">
               关闭
             </Button>
           </div>

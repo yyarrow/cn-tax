@@ -16,6 +16,16 @@
   --series-net: #2a78d6;
   --series-tax: #eb6834;
   --series-social: #1baf7a;
+  /* 动效参数：JS 侧对应 src/lib/motion.ts（tests/motion.test.ts 校验一致） */
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-exit: 140ms;
+  --dur-panel: 240ms;
+  --dur-slow: 300ms;
+  --dur-flash: 600ms;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* <details> 的高度过渡需要 auto 也能插值（不支持的浏览器直接切换） */
+  interpolate-size: allow-keywords;
 }
 
 @theme inline {
@@ -34,6 +44,8 @@
 }
 
 html {
+  /* 触屏点按不要 iOS / Android 默认的灰色高亮；按下反馈由各控件自己的 :active 样式给 */
+  -webkit-tap-highlight-color: transparent;
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-sans-stack);
@@ -47,7 +59,22 @@ html {
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
-  border-radius: 6px;
+}
+a:focus-visible {
+  border-radius: 4px;
+}
+/* 数字不抖：计算器区域内统一等宽数字 */
+.app-root {
+  font-variant-numeric: tabular-nums;
+}
+/* 图表柱子是 <g tabindex=0>，自己没有焦点环，给命中区画一圈 */
+.chart-col:active > rect:first-child {
+  fill: rgb(0 0 0 / 0.1);
+}
+.chart-col:focus-visible > rect:first-child {
+  stroke: var(--accent);
+  stroke-width: 2px;
+  rx: 4px;
 }
 
 /* inputs already show focus:border-accent + focus:ring-2 from ui.tsx; drop the
@@ -130,7 +157,176 @@ input[type="number"] {
   display: none;
 }
 
+/* ---- 动效：只用来回应操作、说明「什么变了」 ---- */
+
+/* 数字变化：短暂的底色提示「这里变了」；.money 自带的负 margin 抵消 padding，不影响排版 */
+.money {
+  margin-inline: -0.25rem;
+  padding-inline: 0.25rem;
+  border-radius: 0.375rem;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  --flash-color: color-mix(in oklab, var(--accent) 18%, transparent);
+}
+.money-on-dark {
+  --flash-color: rgb(255 255 255 / 0.22);
+}
+.money-flash {
+  animation: money-flash var(--dur-flash) var(--ease-out);
+}
+@keyframes money-flash {
+  from {
+    background-color: var(--flash-color);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+
+/* <details>：旋转箭头 + 展开收起的高度过渡 */
+.ui-details > summary {
+  list-style: none;
+}
+.ui-details > summary::-webkit-details-marker {
+  display: none;
+}
+.ui-details-chev {
+  transition: transform var(--dur-base) var(--ease-out);
+}
+.ui-details[open] > summary .ui-details-chev {
+  transform: rotate(90deg);
+}
+@supports selector(::details-content) {
+  .ui-details::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition:
+      block-size var(--dur-panel) var(--ease-out),
+      content-visibility var(--dur-panel) allow-discrete;
+  }
+  .ui-details[open]::details-content {
+    block-size: auto;
+    /* 内容里输入框的焦点环会超出盒子 2px，别被 clip 吃掉 */
+    overflow-clip-margin: 6px;
+  }
+}
+
+/* 浮层 */
+.pop-in {
+  animation: pop-in var(--dur-fast) var(--ease-out);
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+/* 弹窗（ShareModal / 意见反馈共用）：
+   .dlg-scrim 是铺满屏的遮罩本体（ShareModal 的 dialog 自己），.dlg-backdrop 让 ::backdrop 做同样的事；
+   .dlg-panel 是内容面板。关闭时给 dialog 打上 data-closing，播 --dur-exit 淡出后再真正 close()。 */
+.dlg-scrim,
+.dlg-backdrop::backdrop {
+  animation: dlg-scrim-in var(--dur-base) var(--ease-out);
+}
+.dlg-panel {
+  animation: dlg-in var(--dur-base) var(--ease-out);
+}
+dialog[data-closing].dlg-scrim,
+dialog[data-closing].dlg-backdrop::backdrop {
+  animation: dlg-scrim-out var(--dur-exit) var(--ease-out) forwards;
+}
+dialog[data-closing] .dlg-panel,
+dialog[data-closing].dlg-panel {
+  animation: dlg-out var(--dur-exit) var(--ease-out) forwards;
+}
+@keyframes dlg-scrim-in {
+  from {
+    background-color: transparent;
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
+  }
+}
+@keyframes dlg-scrim-out {
+  to {
+    background-color: transparent;
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
+  }
+}
+@keyframes dlg-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+@keyframes dlg-out {
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+/* 提交成功的对勾：圆底轻弹出，勾线画出来 */
+.check-pop {
+  animation: check-pop var(--dur-base) var(--ease-out);
+}
+.check-draw {
+  stroke-dasharray: 24;
+  animation: check-draw var(--dur-panel) var(--ease-out) 80ms backwards;
+}
+@keyframes check-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+@keyframes check-draw {
+  from {
+    stroke-dashoffset: 24;
+  }
+}
+
+/* 一次性提示收起：高度折叠，不让整页突然跳一下 */
+.collapse-grid {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows var(--dur-panel) var(--ease-out), opacity var(--dur-base) var(--ease-out);
+}
+.collapse-grid[data-collapsed="true"] {
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+.collapse-grid > * {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 图表：数据变了才动。.chart-armed 在挂载稳定后才加上，首屏不做生长动画 */
+.chart-armed .chart-rect {
+  transition:
+    y var(--dur-slow) var(--ease-out),
+    height var(--dur-slow) var(--ease-out);
+}
+.chart-armed .chart-move {
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
 @media print {
+  .dlg-scrim,
+  .dlg-panel {
+    animation: none !important;
+  }
   @page {
     size: A4;
     margin: 12mm;

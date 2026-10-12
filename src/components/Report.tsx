@@ -16,7 +16,7 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
   return (
     <section className="report-section rounded-2xl border border-line bg-white p-5">
       <h2 className="text-base font-semibold text-ink">{title}</h2>
-      {subtitle && <p className="mt-0.5 text-xs text-muted">{subtitle}</p>}
+      {subtitle && <p className="mt-0.5 text-xs leading-relaxed text-muted">{subtitle}</p>}
       <div className="mt-4">{children}</div>
     </section>
   );

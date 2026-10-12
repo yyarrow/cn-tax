@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 
 function Step({ title, children, color }: { title: ReactNode; children: ReactNode; color: string }) {
   return (
-    <div className="min-w-0 rounded-xl border border-line bg-white px-3 py-2.5" style={{ borderLeft: `4px solid ${color}` }}>
+    <div className="min-w-0 rounded-xl border border-transparent bg-white px-3 py-2.5" style={{ borderLeft: `4px solid ${color}` }}>
       <div className="text-sm font-semibold text-ink">{title}</div>
       <div className="mt-0.5 text-xs leading-relaxed text-muted">{children}</div>
     </div>
@@ -23,7 +23,7 @@ function Flow({ color, pay, store, get }: { color: string; pay: [ReactNode, Reac
   return (
     <>
       {/* 手机：一路一张卡，标题串成一行，只留存在哪和怎么发的说明 */}
-      <div className="rounded-xl border border-line bg-white px-3 py-2.5 sm:hidden" style={{ borderLeft: `4px solid ${color}` }}>
+      <div className="rounded-xl border border-transparent bg-white px-3 py-2.5 sm:hidden" style={{ borderLeft: `4px solid ${color}` }}>
         <div className="text-sm font-semibold leading-relaxed text-ink">
           {pay[0]} <span className="font-normal text-muted">→</span> {store[0]} <span className="font-normal text-muted">→</span> {get[0]}
         </div>

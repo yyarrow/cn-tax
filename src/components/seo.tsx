@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { FeedbackButton } from "./FeedbackButton";
 
 const SITE_NAV = [
   { href: "/", label: "个税计算器" },
@@ -25,7 +26,7 @@ function SiteNav({ current }: { current?: string }) {
             key={n.href}
             href={n.href}
             aria-current={active ? "page" : undefined}
-            className={`inline-flex min-h-11 items-center justify-center border-b-2 py-2 sm:mr-6 sm:inline-block sm:min-h-0 sm:last:mr-0 ${active ? "border-accent font-semibold text-ink" : "border-transparent text-muted hover:text-ink"}`}
+            className={`inline-flex min-h-11 items-center justify-center border-b-2 py-2 transition-colors duration-(--dur-fast) active:bg-ink/5 sm:mr-6 sm:inline-block sm:min-h-0 sm:last:mr-0 ${active ? "border-accent font-semibold text-ink" : "border-transparent text-muted hover:text-ink"}`}
           >
             {n.label}
           </Link>
@@ -42,10 +43,11 @@ export function Hero({ title, subtitle, current }: { title: string; subtitle: st
       <div className="flex items-center gap-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.png" alt={SITE_NAME} width={40} height={40} className="h-10 w-10 rounded-xl" />
-        <div>
-          <h1 className="text-[1.75rem] font-semibold tracking-[-0.01em] text-ink">{title}</h1>
+        <div className="min-w-0 flex-1">
+          <h1 className="text-balance text-2xl font-semibold tracking-[-0.01em] text-ink sm:text-[1.75rem]">{title}</h1>
           <p className="mt-0.5 text-sm text-muted">{subtitle}</p>
         </div>
+        <FeedbackButton />
       </div>
       <SiteNav current={current} />
     </div>
@@ -127,13 +129,16 @@ export function Article({ title, children, current }: { title: string; children:
       <RelatedTools current={current} />
       <footer className="mt-8 space-y-1 text-xs leading-relaxed text-muted">
         <p>口径：累计预扣法预扣，汇算按全年 6 万减除 + 全年专项附加；年终奖、上市公司股权激励单独计税政策至 2027 年底。社保 / 公积金基数为各城市 2026 年度参考值（更新于 2026-09）。仅供测算，不构成税务建议。</p>
-        <p>
+        {/* 不能用 <p>：反馈按钮里带 <dialog>，放进 <p> 会被解析器截断，造成水合错误 */}
+        <div>
           数据只存在你的浏览器里，不上传。有算错或城市数据过期？
+          <FeedbackButton variant="link" label="意见反馈" />
+          ，或到{" "}
           <a href="https://github.com/yyarrow/cn-tax/issues" className="text-accent-text hover:underline" target="_blank" rel="noreferrer">
-            提个反馈
-          </a>
-          。
-        </p>
+            GitHub
+          </a>{" "}
+          提 issue。
+        </div>
       </footer>
     </div>
   );

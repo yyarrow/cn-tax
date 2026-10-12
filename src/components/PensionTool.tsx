@@ -15,10 +15,13 @@ import {
   type PensionCategory,
   type RegionPension,
 } from "@/lib/pension";
+import { scrollToEl } from "@/lib/scroll";
 import { fmtMoney } from "@/lib/format";
 import { SITE } from "@/lib/share";
 import { DEFAULT_WAGE_GROWTH, MAX_RECORDS, buildPensionShareUrl, todayYM, usePension, type PensionMode } from "@/lib/pensionStore";
-import { Button, Card, Details, Field, Hint, MonthSelect, NumberInput, Segmented, Select, Stat } from "./ui";
+import { Button, Card, CopyButton, Details, Field, Hint, MobileBar, MonthSelect, NumberInput, Segmented, Select, Stat } from "./ui";
+import { AnimatedMoney } from "./AnimatedMoney";
+import { SplitBar } from "./SplitBar";
 import { CityPicker } from "./CityPicker";
 import { ExampleHint } from "./ExampleHint";
 import { ScenarioChart, type ScenarioMode } from "./ScenarioChart";
@@ -90,7 +93,7 @@ function Row({ label, value, sub }: { label: ReactNode; value: ReactNode; sub?: 
     <div className="flex items-baseline justify-between gap-3 py-2">
       <div className="min-w-0">
         <div className="text-sm text-ink">{label}</div>
-        {sub && <div className="mt-0.5 text-xs text-muted">{sub}</div>}
+        {sub && <div className="mt-0.5 text-xs leading-relaxed text-muted">{sub}</div>}
       </div>
       <div className="shrink-0 text-sm font-semibold tabular-nums text-ink">{value}</div>
     </div>
@@ -199,7 +202,6 @@ export function PensionTool() {
   const resultsRef = useRef<HTMLDivElement>(null);
   const [resultsVisible, setResultsVisible] = useState(false);
   const [showShare, setShowShare] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const el = resultsRef.current;
@@ -231,19 +233,8 @@ export function PensionTool() {
   const dateText = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const host = typeof window !== "undefined" ? window.location.host : new URL(SITE).host;
 
-  const copyLink = async () => {
-    const url = buildPensionShareUrl(input);
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      window.prompt("复制这个链接：", url);
-    }
-  };
-
-  const scrollToResults = () => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  const scrollToInputs = () => inputsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollToResults = () => scrollToEl(resultsRef.current);
+  const scrollToInputs = () => scrollToEl(inputsRef.current);
   const showBar = !showShare;
 
   const retireText = `${ret.year} 年 ${ret.month} 月`;
@@ -253,7 +244,9 @@ export function PensionTool() {
     const box = document.getElementById("receive-rules");
     const el = box?.querySelector("details");
     if (el) el.open = true;
-    box?.scrollIntoView({ behavior: "smooth", block: "center" });
+    scrollToEl(box, "center");
+    // 键盘用户：焦点跟过去，免得留在页头小链接上
+    el?.querySelector("summary")?.focus({ preventScroll: true });
   };
 
   /** 「哪年退休，每月领多少」的图 + 结论：页面和分享弹层用同一份 */
@@ -272,7 +265,17 @@ export function PensionTool() {
     <div className="space-y-4">
       <div className="rounded-xl bg-ink px-5 py-4 text-white">
         <div className="text-xs text-white/70">退休第一个月，每月实发约</div>
-        <div className="mt-1 text-4xl font-semibold tabular-nums">{refRow ? fmtMoney(refRow.total) : "—"}</div>
+        <div className="mt-1 text-4xl font-semibold tabular-nums">{refRow ? <AnimatedMoney value={refRow.total} onDark /> : "—"}</div>
+        {refRow && (
+          <SplitBar
+            className="mt-3"
+            onDark
+            segments={[
+              { key: "basic", label: refRow.transitional > 0 ? "基础+过渡性" : "基础养老金", value: refRow.basic + refRow.transitional, color: "var(--accent)" },
+              { key: "personal", label: "个人账户", value: refRow.personal, color: "var(--series-social)" },
+            ]}
+          />
+        )}
         <div className="mt-2 space-y-1 text-xs leading-relaxed tabular-nums text-white/70">
           {refRow && (
             <p>
@@ -292,9 +295,9 @@ export function PensionTool() {
           <div
             className={`grid divide-y divide-line rounded-xl border border-line sm:divide-x sm:divide-y-0 ${refRow.transitional > 0 ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}
           >
-            <Stat label="基础养老金" value={fmtMoney(refRow.basic)} sub={`计发基数 ${fmtMoney(refRow.baseAtRetirement)}（退休时）`} />
-            <Stat label="个人账户养老金" value={fmtMoney(refRow.personal)} sub={`余额 ÷ ${result.annuityMonths} 个月`} />
-            {refRow.transitional > 0 && <Stat label="过渡性养老金" value={fmtMoney(refRow.transitional)} sub={`视同缴费 ${input.deemedYears} 年`} />}
+            <Stat label="基础养老金" value={<AnimatedMoney value={refRow.basic} />} sub={`计发基数 ${fmtMoney(refRow.baseAtRetirement)}（退休时）`} />
+            <Stat label="个人账户养老金" value={<AnimatedMoney value={refRow.personal} />} sub={`余额 ÷ ${result.annuityMonths} 个月`} />
+            {refRow.transitional > 0 && <Stat label="过渡性养老金" value={<AnimatedMoney value={refRow.transitional} />} sub={`视同缴费 ${input.deemedYears} 年`} />}
           </div>
           <div className="mt-3 grid grid-cols-2 rounded-xl border border-line sm:grid-cols-4 sm:divide-x sm:divide-line">
             <Fact label="缴费年限" value={fmtYM(result.years * 12)} />
@@ -310,7 +313,7 @@ export function PensionTool() {
       )}
 
       {!result.meetsMinimum ? (
-        <div className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm leading-relaxed text-danger-text">
+        <div className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-2.5 text-sm leading-relaxed text-danger-text">
           <b className="font-semibold">缴费年限不够：</b>按现在的计划只缴 {fmtYM(effectiveMonths)}，{ret.year} 年退休最低要 {fmtYM(result.minMonths)}，差{" "}
           {fmtYM(result.shortfallMonths)}——不补足就领不了按月发放的基本养老金。可以延长缴费，或咨询当地能否补缴。
         </div>
@@ -437,7 +440,7 @@ export function PensionTool() {
   return (
     <div className={`app-root mx-auto max-w-6xl px-4 pt-4 sm:px-6 ${showBar ? "pb-24 lg:pb-10" : "pb-10"}`}>
       {fromShare && (
-        <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm text-ink">已按分享的数字预填，改成你自己的即可。</p>
+        <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm leading-relaxed text-ink">已按分享的数字预填，改成你自己的即可。</p>
       )}
 
       {showShare && (
@@ -452,12 +455,12 @@ export function PensionTool() {
           <section className="report-section rounded-2xl border border-line bg-white p-5">{summaryBody}</section>
           <section className="report-section rounded-2xl border border-line bg-white p-5">
             <h2 className="text-base font-semibold text-ink">哪年退休，每月领多少</h2>
-            <p className="mb-3 mt-0.5 text-xs text-muted">{scenarioMode === "flex" ? "法定退休年龄前后各 3 年，退休时每月实发" : "不同年龄停缴、按法定年龄退休，退休时每月实发"}</p>
+            <p className="mb-3 mt-0.5 text-xs leading-relaxed text-muted">{scenarioMode === "flex" ? "法定退休年龄前后各 3 年，退休时每月实发" : "不同年龄停缴、按法定年龄退休，退休时每月实发"}</p>
             {scenarioBody(true)}
           </section>
           <section className="report-section rounded-2xl border border-line bg-white p-5">
             <h2 className="text-base font-semibold text-ink">换个地方退休，每月差多少</h2>
-            <p className="mb-3 mt-0.5 text-xs text-muted">缴费记录不变，只换待遇领取地</p>
+            <p className="mb-3 mt-0.5 text-xs leading-relaxed text-muted">缴费记录不变，只换待遇领取地</p>
             {tableBody(true)}
           </section>
         </ShareModal>
@@ -471,9 +474,7 @@ export function PensionTool() {
           <CityPicker value={input.receiveCityId} onChange={(id) => patch({ receiveCityId: id })} className="w-full sm:w-36" ariaLabel="退休城市" />
         </Field>
         <div className="col-span-2 grid grid-cols-2 gap-2 sm:contents">
-          <Button variant="secondary" className="h-9 w-full justify-center sm:w-auto" onClick={copyLink}>
-            {copied ? "已复制" : "复制链接"}
-          </Button>
+          <CopyButton text={() => buildPensionShareUrl(input)} className="h-9 w-full sm:w-auto" />
           <Button variant="primary" className="h-9 w-full justify-center sm:w-auto" onClick={() => setShowShare(true)}>
             分享报告
           </Button>
@@ -491,7 +492,7 @@ export function PensionTool() {
       <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
         {/* 输入 */}
         <div className="min-w-0 space-y-3 lg:self-start" ref={inputsRef}>
-          <Card title="你" subtitle="决定几岁、哪年退休">
+          <Card tone="input" title="你" subtitle="决定几岁、哪年退休">
             <div className="grid grid-cols-2 gap-3">
               <Field label="出生年">
                 <Select value={input.birthYear} onChange={(e) => patch({ birthYear: Number(e.target.value) })}>
@@ -519,7 +520,7 @@ export function PensionTool() {
             </p>
           </Card>
 
-          <Card title="现在怎么缴" subtitle="用来推算你现在的缴费基数">
+          <Card tone="input" title="现在怎么缴" subtitle="用来推算你现在的缴费基数">
             <Segmented label="缴费基数的来源" value={input.mode} options={MODES} onChange={(mode) => patch({ mode })} />
             <p className="mt-2 text-xs text-muted">
               按{city.name}的基数上下限 {fmtMoney(city.socialMin)}–{fmtMoney(city.socialMax)}（工作城市在页面右上角改）
@@ -583,14 +584,14 @@ export function PensionTool() {
             )}
           </Card>
 
-          <Card title="过去怎么缴" subtitle="每个交过社保的省 / 市各填一条，数字在社保 App 或支付宝、微信「社保查询」里能查到">
+          <Card tone="input" title="过去怎么缴" subtitle="每个交过社保的省 / 市各填一条，数字在社保 App 或支付宝、微信「社保查询」里能查到">
             <div className="space-y-3">
               {input.records.map((r, i) => {
                 const res = result.records[i];
                 const rc = getCity(r.cityId);
                 const filled = r.months > 0 && r.amount > 0;
                 return (
-                  <div key={r.id} className="rounded-xl border border-line p-3">
+                  <div key={r.id} className="rounded-xl bg-paper/70 p-3">
                     <div className="mb-2 flex items-center justify-between gap-2">
                       <span className="text-xs font-medium text-muted">参保地 {i + 1}</span>
                       {input.records.length > 1 && (
@@ -681,7 +682,7 @@ export function PensionTool() {
             </div>
           </Card>
 
-          <div className="rounded-2xl border border-line bg-white p-5 shadow-sm">
+          <Card tone="input">
             <Details summary="假设（缴到几岁、工资增长、记账利率、通胀）">
               <div className="grid grid-cols-2 gap-3">
                 <Field label="缴到多少岁" hint="留空 = 缴到法定退休">
@@ -715,7 +716,7 @@ export function PensionTool() {
                 </Field>
               </div>
             </Details>
-          </div>
+          </Card>
         </div>
 
         {/* 结果 */}
@@ -790,22 +791,24 @@ export function PensionTool() {
         数据：计发基数为各省最新公布值（{yearText} 年度）。{city.name}工作 · {CATEGORY_NAME[input.category]} · {input.birthYear} 年 {input.birthMonth} 月出生 · 算你自己的：{host}
       </p>
 
-      {showBar && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] lg:hidden">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="truncate text-xs text-muted">退休时每月实发约</div>
-              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <span className="text-lg font-semibold tabular-nums text-ink">{refRow ? fmtMoney(refRow.total) : "—"}</span>
+      <MobileBar show={showBar}>
+        <div className="min-w-0">
+          <div className="truncate text-xs text-muted">退休时每月实发约</div>
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            {refRow ? (
+              <>
+                <span className="text-lg font-semibold tabular-nums text-ink"><AnimatedMoney value={refRow.total} /></span>
                 <span className="text-xs tabular-nums text-muted">{alreadyRetired ? "已到退休年龄" : `${retireText}起领`}</span>
-              </div>
-            </div>
-            <Button variant="primary" className="h-9 shrink-0" onClick={resultsVisible ? scrollToInputs : scrollToResults}>
-              {resultsVisible ? "改输入" : "看结果"}
-            </Button>
+              </>
+            ) : (
+              <span className="text-sm leading-relaxed text-muted">填上缴费记录就能估算</span>
+            )}
           </div>
         </div>
-      )}
+        <Button variant="primary" className="h-9 shrink-0" onClick={resultsVisible ? scrollToInputs : scrollToResults}>
+          {resultsVisible ? "改输入" : "看结果"}
+        </Button>
+      </MobileBar>
     </div>
   );
 }

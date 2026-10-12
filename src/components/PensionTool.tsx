@@ -97,12 +97,16 @@ function Row({ label, value, sub }: { label: ReactNode; value: ReactNode; sub?: 
   );
 }
 
+/** 地区表一行的列：手机 = 名字 | 合计（两行），sm 起 = 名字 | 计发基数 | 指数 | 合计 | 差额 */
+const REGION_GRID = "grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 sm:gap-x-2 sm:grid-cols-[minmax(0,1fr)_5rem_3.25rem_5.25rem_5rem]";
+
 const CATEGORY_NAME: Record<PensionCategory, string> = { male: "男", female55: "女（原 55 岁退休）", female50: "女（原 50 岁退休）" };
 
 export function PensionTool() {
   const { input, patch, patchRecord, addRecord, removeRecord, deductions, fromShare } = usePension();
   const [today] = useState(todayYM);
   const [scenarioMode, setScenarioMode] = useState<ScenarioMode>("flex");
+  const [showAllRegions, setShowAllRegions] = useState(false);
   // city = 工作城市（现在缴社保的地方），receiveCity = 退休城市
   const city = getCity(input.cityId);
   const receiveCity = getCity(input.receiveCityId);
@@ -205,6 +209,24 @@ export function PensionTool() {
     return () => obs.disconnect();
   }, []);
 
+  // 右栏 lg 起 sticky：比视口矮就贴顶；比视口高就让它的底边贴视口底，滚动时先看完底部再固定，不会有一截永远够不着
+  useEffect(() => {
+    const el = resultsRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const update = () => {
+      const h = el.getBoundingClientRect().height;
+      el.style.top = `${Math.min(24, window.innerHeight - h - 24)}px`;
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener("resize", update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+
   const now = new Date();
   const dateText = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const host = typeof window !== "undefined" ? window.location.host : new URL(SITE).host;
@@ -298,60 +320,119 @@ export function PensionTool() {
     </div>
   );
 
-  /** 地区对比表 */
-  const tableBody = (
-    <div>
-      {top && bottom && top !== bottom && (
-        <p className="mb-3 text-sm leading-relaxed text-ink">
-          同样的缴费记录，在 <b className="font-semibold">{top.region.name}</b> 领比在 <b className="font-semibold">{bottom.region.name}</b> 每月多{" "}
-          <b className="font-semibold tabular-nums">{fmtMoney(top.total - bottom.total)}</b>。
-        </p>
-      )}
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-line text-xs text-muted">
-            <th className="py-2 pr-2 text-left font-medium">退休城市</th>
-            <th className="hidden px-2 py-2 text-right font-medium sm:table-cell">退休时计发基数</th>
-            <th className="px-2 py-2 text-right font-medium">每月合计</th>
-            <th className="py-2 pl-2 text-right font-medium">差额<span className="hidden sm:inline">（相比{fallbackRegion ? "中位数" : "你的退休城市"}）</span></th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-line">
-          {rows.map((r) => {
-            const isRef = r.region.id === refRow?.region.id;
-            const insured = r.region.id === insuredRegion?.id;
-            const diff = refRow ? r.total - refRow.total : 0;
-            return (
-              <tr key={r.region.id} className={isRef ? "bg-accent/10" : ""}>
-                <td className="py-2.5 pl-1 pr-2 align-top">
-                  <div className="flex flex-wrap items-center gap-1">
-                    <span className={isRef ? "font-semibold text-accent-text" : "text-ink"}>{r.region.name}</span>
-                    {isRef && !fallbackRegion && <span className="whitespace-nowrap rounded bg-accent/15 px-1.5 py-0.5 text-[11px] text-accent-text">退休城市</span>}
-                    {insured && <span className="whitespace-nowrap rounded bg-paper px-1.5 py-0.5 text-[11px] text-muted ring-1 ring-line">工作城市</span>}
-                  </div>
-                  <div className="mt-0.5 text-xs tabular-nums text-muted">
-                    <span className="sm:hidden">计发基数 {fmtMoney(r.baseAtRetirement)} · </span>指数 {r.index.toFixed(2)}
-                  </div>
-                </td>
-                <td className="hidden px-2 py-2.5 text-right align-top tabular-nums text-muted sm:table-cell">{fmtMoney(r.baseAtRetirement)}</td>
-                <td className={`px-2 py-2.5 text-right align-top font-semibold tabular-nums ${isRef ? "text-accent-text" : "text-ink"}`}>{fmtMoney(r.total)}</td>
-                <td
-                  className={`py-2.5 pl-2 pr-1 text-right align-top tabular-nums ${isRef ? "text-muted" : diff > 0.5 ? "text-good-text" : diff < -0.5 ? "text-danger-text" : "text-muted"}`}
-                >
-                  {isRef && !fallbackRegion ? "—" : signed(diff)}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-      <p className="mt-2 text-xs text-muted sm:hidden">差额 = 相比{fallbackRegion ? "中位数" : "你的退休城市"}每月多（少）多少。</p>
-      <p className="mt-3 text-xs leading-relaxed text-muted">
-        假设：社平 / 计发基数年增长 {pctText(wageGrowth)}，本人工资年增长 {pctText(salaryGrowth)}，个人账户记账利率 {pctText(input.accountRate)}，通胀{" "}
-        {pctText(input.inflation)}。计发基数取各省最新公布值（{yearText} 年度），退休时的值按增长率外推；过渡性养老金系数 {pctText(input.transitionCoef)}。估算仅供参考，以社保经办机构核定为准。
-      </p>
+  /** 地区对比表：收起 = 前 5 + 你的退休城市 + 你的工作城市 + 最后 3；展开 = 全部（lg 起分两列） */
+  const refId = refRow?.region.id;
+  const pick = new Set<number>();
+  rows.forEach((r, i) => {
+    if (i < 5 || i >= rows.length - 3 || r.region.id === refId || r.region.id === insuredRegion?.id) pick.add(i);
+  });
+  const collapsedAvailable = pick.size < rows.length;
+  type TableItem = { kind: "row"; row: RegionPension } | { kind: "gap"; n: number };
+  const collapsedItems: TableItem[] = [];
+  {
+    let prev = -1;
+    [...pick].sort((x, y) => x - y).forEach((i) => {
+      if (i - prev > 1) collapsedItems.push({ kind: "gap", n: i - prev - 1 });
+      collapsedItems.push({ kind: "row", row: rows[i] });
+      prev = i;
+    });
+  }
+  const diffLabel = fallbackRegion ? "中位数" : "你的退休城市";
+
+  const regionHeader = (hiddenBelowLg = false) => (
+    <div role="row" className={`${REGION_GRID} border-b border-line py-2 text-xs text-muted ${hiddenBelowLg ? "max-lg:hidden" : ""}`}>
+      <div role="columnheader" className="min-w-0 font-medium">
+        退休城市<span className="sm:hidden">（计发基数 · 折算指数）</span>
+      </div>
+      <div role="columnheader" className="hidden text-right font-medium sm:block">计发基数</div>
+      <div role="columnheader" className="hidden text-right font-medium sm:block">折算指数</div>
+      <div role="columnheader" className="text-right font-medium">
+        每月合计<span className="sm:hidden"> / 差额</span>
+      </div>
+      <div role="columnheader" className="hidden text-right font-medium sm:block">
+        差额
+      </div>
     </div>
   );
+
+  const regionRow = (r: RegionPension) => {
+    const isRef = r.region.id === refId;
+    const insured = r.region.id === insuredRegion?.id;
+    const diff = refRow ? r.total - refRow.total : 0;
+    return (
+      <div key={r.region.id} role="row" className={`${REGION_GRID} items-baseline py-2 ${isRef ? "bg-accent/10" : ""}`}>
+        <div role="cell" className="flex min-w-0 items-center gap-1 pl-1 max-sm:col-start-1 max-sm:row-start-1 sm:flex-wrap">
+          <span className={`truncate sm:whitespace-normal ${isRef ? "font-semibold text-accent-text" : "text-ink"}`}>{r.region.name}</span>
+          {isRef && !fallbackRegion && <span className="shrink-0 whitespace-nowrap rounded bg-accent/15 px-1.5 py-0.5 text-[11px] leading-none text-accent-text">退休城市</span>}
+          {insured && <span className="shrink-0 whitespace-nowrap rounded bg-paper px-1.5 py-0.5 text-[11px] leading-none text-muted ring-1 ring-line">工作城市</span>}
+        </div>
+        <div role="cell" className="whitespace-nowrap pl-1 text-xs tabular-nums text-muted max-sm:col-start-1 max-sm:row-start-2 sm:hidden">
+          {fmtMoney(r.baseAtRetirement)} · 指数 {r.index.toFixed(2)}
+        </div>
+        <div role="cell" className="hidden whitespace-nowrap text-right tabular-nums text-muted sm:block">{fmtMoney(r.baseAtRetirement)}</div>
+        <div role="cell" className="hidden whitespace-nowrap text-right tabular-nums text-muted sm:block">{r.index.toFixed(2)}</div>
+        <div role="cell" className={`whitespace-nowrap text-right font-semibold tabular-nums max-sm:col-start-2 max-sm:row-start-1 ${isRef ? "text-accent-text" : "text-ink"}`}>{fmtMoney(r.total)}</div>
+        <div
+          role="cell"
+          className={`whitespace-nowrap pr-1 text-right text-xs tabular-nums max-sm:col-start-2 max-sm:row-start-2 sm:text-sm ${isRef ? "text-muted" : diff > 0.5 ? "text-good-text" : diff < -0.5 ? "text-danger-text" : "text-muted"}`}
+        >
+          {isRef && !fallbackRegion ? "—" : signed(diff)}
+        </div>
+      </div>
+    );
+  };
+
+  const regionList = (items: TableItem[], hideHeaderBelowLg = false) => (
+    <div role="table" aria-label="各地区退休后每月合计" className="min-w-0">
+      {regionHeader(hideHeaderBelowLg)}
+      <div role="rowgroup" className="divide-y divide-line">
+        {items.map((it, i) =>
+          it.kind === "row" ? (
+            regionRow(it.row)
+          ) : (
+            <div key={`gap-${i}`} role="row" className="py-1.5 text-center text-xs text-muted">
+              … 中间 {it.n} 个地区
+            </div>
+          ),
+        )}
+      </div>
+    </div>
+  );
+
+  const tableBody = (staticMode: boolean) => {
+    const expanded = showAllRegions && !staticMode;
+    const allItems: TableItem[] = rows.map((row) => ({ kind: "row", row }));
+    const half = Math.ceil(allItems.length / 2);
+    return (
+      <div>
+        {top && bottom && top !== bottom && (
+          <p className="mb-3 text-sm leading-relaxed text-ink">
+            同样的缴费记录，在 <b className="font-semibold">{top.region.name}</b> 领比在 <b className="font-semibold">{bottom.region.name}</b> 每月多{" "}
+            <b className="font-semibold tabular-nums">{fmtMoney(top.total - bottom.total)}</b>。
+          </p>
+        )}
+        {expanded ? (
+          <div className="grid gap-x-10 lg:grid-cols-2">
+            {regionList(allItems.slice(0, half))}
+            <div className="max-lg:border-t max-lg:border-line">{regionList(allItems.slice(half), true)}</div>
+          </div>
+        ) : (
+          regionList(collapsedAvailable ? collapsedItems : allItems)
+        )}
+        {staticMode && collapsedAvailable && <p className="mt-2 text-xs text-muted">仅列出部分地区，完整列表见网页：{host}</p>}
+        {!staticMode && collapsedAvailable && (
+          <div className="mt-3">
+            <Button onClick={() => setShowAllRegions((v) => !v)}>{showAllRegions ? "收起" : `展开全部 ${rows.length} 个地区`}</Button>
+          </div>
+        )}
+        <p className="mt-2 text-xs text-muted">差额 = 相比{diffLabel}每月多（少）多少。</p>
+        <p className="mt-3 text-xs leading-relaxed text-muted">
+          假设：社平 / 计发基数年增长 {pctText(wageGrowth)}，本人工资年增长 {pctText(salaryGrowth)}，个人账户记账利率 {pctText(input.accountRate)}，通胀{" "}
+          {pctText(input.inflation)}。计发基数取各省最新公布值（{yearText} 年度），退休时的值按增长率外推；过渡性养老金系数 {pctText(input.transitionCoef)}。估算仅供参考，以社保经办机构核定为准。
+        </p>
+      </div>
+    );
+  };
 
   return (
     <div className={`app-root mx-auto max-w-6xl px-4 pt-4 sm:px-6 ${showBar ? "pb-24 lg:pb-10" : "pb-10"}`}>
@@ -377,26 +458,28 @@ export function PensionTool() {
           <section className="report-section rounded-2xl border border-line bg-white p-5">
             <h2 className="text-base font-semibold text-ink">换个地方退休，每月差多少</h2>
             <p className="mb-3 mt-0.5 text-xs text-muted">缴费记录不变，只换待遇领取地</p>
-            {tableBody}
+            {tableBody(true)}
           </section>
         </ShareModal>
       )}
 
-      <div className="mb-2 flex flex-wrap items-end justify-end gap-2">
-        <Field label="工作城市">
-          <CityPicker value={input.cityId} onChange={(id) => patch({ cityId: id })} className="w-36" ariaLabel="工作城市" />
+      <div className="mb-2 grid grid-cols-2 items-end gap-2 sm:flex sm:flex-wrap sm:justify-end">
+        <Field label="工作城市" className="min-w-0">
+          <CityPicker value={input.cityId} onChange={(id) => patch({ cityId: id })} className="w-full sm:w-36" ariaLabel="工作城市" />
         </Field>
-        <Field label="退休城市">
-          <CityPicker value={input.receiveCityId} onChange={(id) => patch({ receiveCityId: id })} className="w-36" ariaLabel="退休城市" />
+        <Field label="退休城市" className="min-w-0">
+          <CityPicker value={input.receiveCityId} onChange={(id) => patch({ receiveCityId: id })} className="w-full sm:w-36" ariaLabel="退休城市" />
         </Field>
-        <Button variant="secondary" className="h-9" onClick={copyLink}>
-          {copied ? "已复制" : "复制链接"}
-        </Button>
-        <Button variant="primary" className="h-9" onClick={() => setShowShare(true)}>
-          分享报告
-        </Button>
+        <div className="col-span-2 grid grid-cols-2 gap-2 sm:contents">
+          <Button variant="secondary" className="h-9 w-full justify-center sm:w-auto" onClick={copyLink}>
+            {copied ? "已复制" : "复制链接"}
+          </Button>
+          <Button variant="primary" className="h-9 w-full justify-center sm:w-auto" onClick={() => setShowShare(true)}>
+            分享报告
+          </Button>
+        </div>
       </div>
-      <p className="mb-5 text-right text-xs text-muted">
+      <p className="mb-5 text-xs text-muted sm:text-right">
         {fallbackRegion && <span className="mr-2">暂无{receiveCity.name}的计发基数，结果按全国平均估算。</span>}
         <button type="button" className="text-accent-text hover:underline" onClick={openReceiveRules}>
           在哪领由户籍和缴费年限决定 ›
@@ -405,9 +488,9 @@ export function PensionTool() {
 
       <ExampleHint storageKeys={["cn-tax-pension-v1", "cn-tax-profile-v1"]} enabled={!fromShare} text="当前为示例数据。改成你的出生年月、工资，并按参保地填上社保 App 里查到的缴费月数和账户金额，结果才准。" />
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
         {/* 输入 */}
-        <div className="min-w-0 space-y-3" ref={inputsRef}>
+        <div className="min-w-0 space-y-3 lg:self-start" ref={inputsRef}>
           <Card title="你" subtitle="决定几岁、哪年退休">
             <div className="grid grid-cols-2 gap-3">
               <Field label="出生年">
@@ -636,7 +719,7 @@ export function PensionTool() {
         </div>
 
         {/* 结果 */}
-        <div className="min-w-0 space-y-4" id="results" ref={resultsRef}>
+        <div className="min-w-0 space-y-4 lg:sticky lg:top-6 lg:self-start" id="results" ref={resultsRef}>
           <Card title="养老金预估" action={<span className="text-xs text-muted">生成于 {dateText}</span>}>
             {summaryBody}
             <div className="mt-3">
@@ -669,42 +752,43 @@ export function PensionTool() {
             {scenarioBody(false)}
           </Card>
 
-          <Card title="换个地方退休，每月差多少" subtitle="缴费记录不变，只换退休城市（按每月合计从高到低）">
-            {tableBody}
-            <div className="mt-4 space-y-3 border-t border-line pt-4">
-              <Details summary="为什么不同地方差这么多">
-                <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-ink">
-                  <li>
-                    基础养老金 =（<b className="font-semibold">领取地</b>计发基数 + 本人指数化月平均缴费工资）÷ 2 × 缴费年限 × 1%。前一半完全看领取地的平均工资水平；个人账户养老金只看账户余额和计发月数，在哪领都一样。
-                  </li>
-                  <li>
-                    在别处领时，按国办发〔2009〕66 号第七条，你各年度的缴费工资要按<b className="font-semibold">领取地</b>对应年度的平均工资重新折算指数：同样的工资，在平均工资低的地方折出的指数更高（这里封顶 3），在平均工资高的地方折出的指数更低。所以从高工资城市回低计发基数的地方领，少的主要是「计发基数」那一半；反过来去高计发基数的地方领，指数会被摊薄。
-                  </li>
-                  <li>计发基数每年随当地平均工资调整，所以越晚退休、地区间的差距越大（这里按假设的增长率外推）。</li>
-                  <li>表里的折算用两地计发基数之比近似；各地经办对外地缴费年份的折算口径不完全一样，以领取地社保经办机构核定为准。</li>
-                </ul>
-              </Details>
-              <div id="receive-rules" className="scroll-mt-24">
-              <Details summary="领取地能自己选吗">
-                <div className="space-y-2 text-sm leading-relaxed text-ink">
-                  <p>按《城镇企业职工基本养老保险关系转移接续暂行办法》（国办发〔2009〕66 号），退休时在哪领取待遇，大致这样定：</p>
-                  <ol className="list-decimal space-y-1.5 pl-5">
-                    <li>养老保险关系在户籍所在地的，在户籍地领取；</li>
-                    <li>不在户籍地、但在最后参保地累计缴费满 10 年的，在最后参保地领取；</li>
-                    <li>不在户籍地、最后参保地不满 10 年的，转回上一个缴费满 10 年的参保地领取；</li>
-                    <li>在各地累计缴费都不满 10 年的，转回户籍地领取。</li>
-                  </ol>
-                  <p className="text-muted">具体以当地社保经办机构为准。</p>
-                </div>
-              </Details>
-              </div>
-            </div>
-          </Card>
-          <p className="text-xs leading-relaxed text-muted">
-            数据：计发基数为各省最新公布值（{yearText} 年度）。{city.name}工作 · {CATEGORY_NAME[input.category]} · {input.birthYear} 年 {input.birthMonth} 月出生 · 算你自己的：{host}
-          </p>
         </div>
       </div>
+
+      <Card title="换个地方退休，每月差多少" subtitle="缴费记录不变，只换退休城市（按每月合计从高到低）" className="mt-5">
+        {tableBody(false)}
+        <div className="mt-4 max-w-3xl space-y-3 border-t border-line pt-4">
+          <Details summary="为什么不同地方差这么多">
+            <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-ink">
+              <li>
+                基础养老金 =（<b className="font-semibold">领取地</b>计发基数 + 本人指数化月平均缴费工资）÷ 2 × 缴费年限 × 1%。前一半完全看领取地的平均工资水平；个人账户养老金只看账户余额和计发月数，在哪领都一样。
+              </li>
+              <li>
+                在别处领时，按国办发〔2009〕66 号第七条，你各年度的缴费工资要按<b className="font-semibold">领取地</b>对应年度的平均工资重新折算指数：同样的工资，在平均工资低的地方折出的指数更高（这里封顶 3），在平均工资高的地方折出的指数更低。所以从高工资城市回低计发基数的地方领，少的主要是「计发基数」那一半；反过来去高计发基数的地方领，指数会被摊薄。
+              </li>
+              <li>计发基数每年随当地平均工资调整，所以越晚退休、地区间的差距越大（这里按假设的增长率外推）。</li>
+              <li>表里的折算用两地计发基数之比近似；各地经办对外地缴费年份的折算口径不完全一样，以领取地社保经办机构核定为准。</li>
+            </ul>
+          </Details>
+          <div id="receive-rules" className="scroll-mt-24">
+          <Details summary="领取地能自己选吗">
+            <div className="space-y-2 text-sm leading-relaxed text-ink">
+              <p>按《城镇企业职工基本养老保险关系转移接续暂行办法》（国办发〔2009〕66 号），退休时在哪领取待遇，大致这样定：</p>
+              <ol className="list-decimal space-y-1.5 pl-5">
+                <li>养老保险关系在户籍所在地的，在户籍地领取；</li>
+                <li>不在户籍地、但在最后参保地累计缴费满 10 年的，在最后参保地领取；</li>
+                <li>不在户籍地、最后参保地不满 10 年的，转回上一个缴费满 10 年的参保地领取；</li>
+                <li>在各地累计缴费都不满 10 年的，转回户籍地领取。</li>
+              </ol>
+              <p className="text-muted">具体以当地社保经办机构为准。</p>
+            </div>
+          </Details>
+          </div>
+        </div>
+      </Card>
+      <p className="mt-4 text-xs leading-relaxed text-muted">
+        数据：计发基数为各省最新公布值（{yearText} 年度）。{city.name}工作 · {CATEGORY_NAME[input.category]} · {input.birthYear} 年 {input.birthMonth} 月出生 · 算你自己的：{host}
+      </p>
 
       {showBar && (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] lg:hidden">

@@ -47,7 +47,7 @@ export function SplitBar({
         )}
       </div>
       <p className={`mt-2 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs leading-relaxed tabular-nums ${onDark ? "text-white/70" : "text-muted"}`}>
-        {lead && <span>{lead}</span>}
+        {lead && <span className="basis-full sm:basis-auto">{lead}</span>}
         {parts.map((p) => (
           <span key={p.key} className="inline-flex items-center gap-1">
             <i className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: p.color }} aria-hidden="true" />

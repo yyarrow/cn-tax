@@ -5,6 +5,7 @@ import { ExampleHint } from "./ExampleHint";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { bonusSeparateTax, bonusTrapZones, computeAll, getCity, round2, sadMonthly } from "@/lib/tax";
 import { findTrap } from "@/lib/tax/bonus";
+import { scrollToEl } from "@/lib/scroll";
 import { fmtMoney } from "@/lib/format";
 import { SITE, buildShareUrl } from "@/lib/share";
 import { bonusToProfile, buildBonusShareUrl, useBonusInput, wasBonusLoadedFromShare } from "@/lib/bonusStore";
@@ -80,8 +81,8 @@ export function BonusTool() {
         .join("\n")
     : "";
 
-  const scrollToResults = () => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  const scrollToInputs = () => inputsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollToResults = () => scrollToEl(resultsRef.current);
+  const scrollToInputs = () => scrollToEl(inputsRef.current);
 
   const showBar = !showShare;
 
@@ -349,12 +350,16 @@ export function BonusTool() {
       <MobileBar show={showBar}>
         <div className="min-w-0">
           <div className="truncate text-xs text-muted">{analysis ? `推荐：${bestName}` : "单独计税到手"}</div>
-          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-            <span className="text-lg font-semibold tabular-nums text-ink">
-              {analysis ? <AnimatedMoney value={bestNet} /> : sepOnly ? <AnimatedMoney value={sepOnlyNet} /> : "—"}
-            </span>
-            {analysis && analysis.saving > 1 && <span className="text-xs tabular-nums text-good-text">少交 {fmtMoney(analysis.saving)}</span>}
-          </div>
+          {analysis || sepOnly ? (
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+              <span className="text-lg font-semibold tabular-nums text-ink">
+                {analysis ? <AnimatedMoney value={bestNet} /> : <AnimatedMoney value={sepOnlyNet} />}
+              </span>
+              {analysis && analysis.saving > 1 && <span className="text-xs tabular-nums text-good-text">少交 {fmtMoney(analysis.saving)}</span>}
+            </div>
+          ) : (
+            <div className="text-sm leading-relaxed text-muted">填上年终奖就能算</div>
+          )}
         </div>
         <Button variant="primary" className="h-9 shrink-0" onClick={resultsVisible ? scrollToInputs : scrollToResults}>
           {resultsVisible ? "改输入" : "看结果"}

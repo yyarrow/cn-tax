@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useRef, useState, type FormEvent } from "react";
+import { useDialogExit } from "@/lib/dialogMotion";
 import { Button, inputCls } from "./ui";
 
 const MAX_MESSAGE = 1000;
@@ -42,12 +43,18 @@ export function FeedbackButton({ variant = "header", label }: { variant?: "heade
     textareaRef.current?.focus();
   };
 
+  /** 原生 close 事件：清理淡出标记、恢复滚动和焦点 */
   const onClose = () => {
+    delete dialogRef.current?.dataset.closing;
     document.body.style.overflow = "";
     triggerRef.current?.focus();
   };
 
-  const close = () => dialogRef.current?.close();
+  /** 取消 / 关闭 / Esc / 点遮罩都走这里：先淡出，再真正 close() */
+  const close = useDialogExit(
+    () => dialogRef.current,
+    () => dialogRef.current?.close(),
+  );
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -95,7 +102,7 @@ export function FeedbackButton({ variant = "header", label }: { variant?: "heade
 
   const trigger =
     variant === "link" ? (
-      <button ref={triggerRef} type="button" onClick={open} className="inline cursor-pointer text-accent-text hover:underline print:hidden">
+      <button ref={triggerRef} type="button" onClick={open} className="inline cursor-pointer rounded text-accent-text hover:underline print:hidden">
         {label ?? "意见反馈"}
       </button>
     ) : (
@@ -103,13 +110,13 @@ export function FeedbackButton({ variant = "header", label }: { variant?: "heade
         ref={triggerRef}
         type="button"
         onClick={open}
-        className="-mr-2 inline-flex min-h-11 shrink-0 items-center gap-1 self-start rounded-lg px-2 text-sm text-muted transition hover:text-ink sm:min-h-8 print:hidden"
+        className="-mr-2 inline-flex min-h-11 shrink-0 items-center gap-1 self-start rounded-lg px-2 text-sm text-muted max-sm:min-w-11 max-sm:justify-center transition-[color,transform] duration-150 hover:text-ink active:scale-[.98] sm:min-h-8 print:hidden"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.5-4.6A8 8 0 1 1 21 12Z" />
           <path d="M8.5 11h7M8.5 14h4" />
         </svg>
-        {label ?? "反馈"}
+        <span className="max-sm:sr-only">{label ?? "反馈"}</span>
       </button>
     );
 
@@ -120,18 +127,22 @@ export function FeedbackButton({ variant = "header", label }: { variant?: "heade
         ref={dialogRef}
         aria-labelledby={titleId}
         onClose={onClose}
+        onCancel={(e) => {
+          e.preventDefault();
+          close();
+        }}
         onClick={(e) => {
           // 点遮罩（dialog 自身，内容区已铺满）关闭
           if (e.target === e.currentTarget) close();
         }}
-        className="feedback-dialog m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-line bg-white p-0 text-ink shadow-xl backdrop:bg-ink/60 backdrop:backdrop-blur-sm print:hidden"
+        className="dlg-panel dlg-backdrop m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-line bg-white p-0 text-ink shadow-xl backdrop:bg-ink/60 backdrop:backdrop-blur-sm print:hidden"
       >
         <div className="p-5">
           {status === "done" ? (
             <div className="py-6 text-center" role="status">
-              <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-good/15 text-good-text">
+              <div className="check-pop mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-good/15 text-good-text">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="m5 12.5 4.5 4.5L19 7.5" />
+                  <path className="check-draw" d="m5 12.5 4.5 4.5L19 7.5" />
                 </svg>
               </div>
               <h2 id={titleId} className="mt-3 text-base font-semibold text-ink">
@@ -148,7 +159,7 @@ export function FeedbackButton({ variant = "header", label }: { variant?: "heade
               <h2 id={titleId} className="text-base font-semibold text-ink">
                 意见反馈
               </h2>
-              <p className="mt-1 text-sm text-muted">哪里算得不对、想要什么功能，都可以说。</p>
+              <p className="mt-1 text-sm leading-relaxed text-muted">哪里算得不对、想要什么功能，都可以说。</p>
 
               <div className="mt-4">
                 <label htmlFor={messageId} className="sr-only">
@@ -202,7 +213,7 @@ export function FeedbackButton({ variant = "header", label }: { variant?: "heade
               </div>
 
               {error && (
-                <p role="alert" className="mt-3 rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger-text">
+                <p role="alert" className="mt-3 rounded-lg bg-danger/10 px-3 py-2 text-sm leading-relaxed text-danger-text">
                   {error}
                 </p>
               )}
@@ -211,13 +222,9 @@ export function FeedbackButton({ variant = "header", label }: { variant?: "heade
                 <Button variant="ghost" onClick={close} className="h-9">
                   取消
                 </Button>
-                <button
-                  type="submit"
-                  disabled={sending || message.trim() === ""}
-                  className="inline-flex h-9 min-h-11 shrink-0 items-center whitespace-nowrap rounded-lg bg-accent-text px-5 text-sm font-medium text-white transition hover:bg-accent-text/90 disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-0"
-                >
+                <Button type="submit" variant="primary" disabled={sending || message.trim() === ""} className="h-9 px-5">
                   {sending ? "发送中…" : "发送"}
-                </button>
+                </Button>
               </div>
             </form>
           )}

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { MONTH_NAMES, computeAll, getCity, sadMonthly } from "@/lib/tax";
 import type { Profile } from "@/lib/tax";
 import { currentMonthFor, useProfile } from "@/lib/store";
+import { scrollToEl } from "@/lib/scroll";
 import { fmtMoney } from "@/lib/format";
 import { SITE, buildShareUrl } from "@/lib/share";
 import { Button, Card, CopyButton, Field, MobileBar, NumberInput } from "./ui";
@@ -129,8 +130,8 @@ export function SettlementTool() {
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
-  const scrollToResults = () => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  const scrollToInputs = () => inputsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollToResults = () => scrollToEl(resultsRef.current);
+  const scrollToInputs = () => scrollToEl(inputsRef.current);
 
   const today = new Date();
   const dateText = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
@@ -320,7 +321,7 @@ export function SettlementTool() {
             <span className={`h-1.5 w-1.5 rounded-full ${isRefund ? "bg-good" : isPay ? "bg-danger" : "bg-line"}`} aria-hidden="true" />
             {heroLabel}
           </div>
-          <div className="text-lg font-semibold tabular-nums text-ink">{heroValue}</div>
+          {hasIncome ? <div className="text-lg font-semibold tabular-nums text-ink">{heroValue}</div> : <div className="text-sm leading-relaxed text-muted">填上月薪就能算</div>}
         </div>
         <Button variant="primary" onClick={resultsVisible ? scrollToInputs : scrollToResults} className="h-9 shrink-0">
           {resultsVisible ? "改输入" : "看结果"}

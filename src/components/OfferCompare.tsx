@@ -5,6 +5,7 @@ import { ExampleHint } from "./ExampleHint";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { compareOffers, getCity, sadMonthly } from "@/lib/tax";
 import type { OfferInput, OfferResult } from "@/lib/tax";
+import { scrollToEl } from "@/lib/scroll";
 import { fmtMoney, fmtPct } from "@/lib/format";
 import { SITE, buildOfferShareUrl, buildShareUrl } from "@/lib/share";
 import { MAX_OFFERS, offerLabel, useOffers, wasLoadedFromShare } from "@/lib/offerStore";
@@ -81,8 +82,8 @@ export function OfferCompare() {
   const dateText = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
   const host = typeof window !== "undefined" ? window.location.host : new URL(SITE).host;
 
-  const scrollToResults = () => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  const scrollToInputs = () => inputsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollToResults = () => scrollToEl(resultsRef.current);
+  const scrollToInputs = () => scrollToEl(inputsRef.current);
 
   const showBar = !showShare;
 
@@ -321,10 +322,14 @@ export function OfferCompare() {
       <MobileBar show={showBar}>
         <div className="min-w-0">
           <div className="truncate text-xs text-muted">{tiedAtTop ? "最高全年到手（并列）" : `${winner.name} 全年到手`}</div>
-          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-            <span className="text-lg font-semibold tabular-nums text-ink">{hasIncome ? <AnimatedMoney value={winner.r.netTotal} /> : "—"}</span>
-            {runnerUp && gap > 1 && <span className="text-xs tabular-nums text-good-text">比另一份多 {fmtMoney(gap)}</span>}
-          </div>
+          {hasIncome ? (
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+              <span className="text-lg font-semibold tabular-nums text-ink"><AnimatedMoney value={winner.r.netTotal} /></span>
+              {runnerUp && gap > 1 && <span className="text-xs tabular-nums text-good-text">比另一份多 {fmtMoney(gap)}</span>}
+            </div>
+          ) : (
+            <div className="text-sm leading-relaxed text-muted">填上税前月薪就能比</div>
+          )}
         </div>
         <Button variant="primary" className="h-9 shrink-0" onClick={resultsVisible ? scrollToInputs : scrollToResults}>
           {resultsVisible ? "改输入" : "看结果"}

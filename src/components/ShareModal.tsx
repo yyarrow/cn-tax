@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import QRCode from "qrcode";
 import { SITE } from "@/lib/share";
 import { exportNodeAsPng, savePng } from "@/lib/exportImage";
+import { useDialogExit } from "@/lib/dialogMotion";
 import { Button, CopyButton } from "./ui";
 
 /**
@@ -70,6 +71,9 @@ export function ShareModal({
     };
   }, []);
 
+  /** Esc / 点背景 / 关闭按钮都走这里：先淡出再通知父组件卸载 */
+  const requestClose = useDialogExit(() => dialogRef.current, onClose);
+
   const exportPng = async () => {
     if (!rootRef.current || busy) return;
     setBusy(true);
@@ -90,12 +94,12 @@ export function ShareModal({
   };
 
   return (
-    <dialog ref={dialogRef} aria-label={title} className="report-modal fixed inset-0 z-50 m-0 h-full max-h-none w-full max-w-none overflow-y-auto border-0 bg-ink/60 p-0 text-ink backdrop-blur-sm" onClick={onClose} onCancel={(e) => {
+    <dialog ref={dialogRef} aria-label={title} className="report-modal dlg-scrim fixed inset-0 z-50 m-0 h-full max-h-none w-full max-w-none overflow-y-auto border-0 bg-ink/60 p-0 text-ink backdrop-blur-sm" onClick={requestClose} onCancel={(e) => {
       e.preventDefault();
       if (imageUrl) setImageUrl(null);
-      else onClose();
+      else requestClose();
     }}>
-      <div className="mx-auto my-6 w-full max-w-3xl px-4" onClick={(e) => e.stopPropagation()}>
+      <div className="dlg-panel mx-auto my-6 w-full max-w-3xl px-4" onClick={(e) => e.stopPropagation()}>
         <div className="report-toolbar mb-2 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/95 px-4 py-2.5 shadow-md">
           <span className="text-sm font-medium text-ink">报告预览</span>
           <div className="flex flex-wrap items-center gap-2">
@@ -111,7 +115,7 @@ export function ShareModal({
               {busy ? "导出中…" : "导出图片"}
             </Button>
             <CopyButton text={shareUrl} className="h-9" />
-            <Button variant="ghost" onClick={onClose} className="h-9">
+            <Button variant="ghost" onClick={requestClose} className="h-9">
               关闭
             </Button>
           </div>

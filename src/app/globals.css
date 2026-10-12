@@ -209,24 +209,84 @@ input[type="number"] {
     transform: translateY(-4px);
   }
 }
-.report-modal[open] {
-  animation: modal-backdrop-in 180ms var(--ease-out);
+/* 弹窗（ShareModal / 意见反馈共用）：
+   .dlg-scrim 是铺满屏的遮罩本体（ShareModal 的 dialog 自己），.dlg-backdrop 让 ::backdrop 做同样的事；
+   .dlg-panel 是内容面板。关闭时给 dialog 打上 data-closing，播 140ms 淡出后再真正 close()。 */
+.dlg-scrim,
+.dlg-backdrop::backdrop {
+  animation: dlg-scrim-in 180ms var(--ease-out);
 }
-.report-modal[open] > div {
-  animation: modal-in 180ms var(--ease-out);
+.dlg-panel {
+  animation: dlg-in 180ms var(--ease-out);
 }
-@keyframes modal-backdrop-in {
+dialog[data-closing].dlg-scrim,
+dialog[data-closing].dlg-backdrop::backdrop {
+  animation: dlg-scrim-out 140ms var(--ease-out) forwards;
+}
+dialog[data-closing] .dlg-panel,
+dialog[data-closing].dlg-panel {
+  animation: dlg-out 140ms var(--ease-out) forwards;
+}
+@keyframes dlg-scrim-in {
   from {
     background-color: transparent;
     -webkit-backdrop-filter: blur(0);
     backdrop-filter: blur(0);
   }
 }
-@keyframes modal-in {
+@keyframes dlg-scrim-out {
+  to {
+    background-color: transparent;
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
+  }
+}
+@keyframes dlg-in {
   from {
     opacity: 0;
     transform: scale(0.98);
   }
+}
+@keyframes dlg-out {
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+/* 提交成功的对勾：圆底轻弹出，勾线画出来 */
+.check-pop {
+  animation: check-pop 220ms var(--ease-out);
+}
+.check-draw {
+  stroke-dasharray: 24;
+  animation: check-draw 260ms var(--ease-out) 80ms backwards;
+}
+@keyframes check-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+@keyframes check-draw {
+  from {
+    stroke-dashoffset: 24;
+  }
+}
+
+/* 一次性提示收起：高度折叠，不让整页突然跳一下 */
+.collapse-grid {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 240ms var(--ease-out), opacity 200ms var(--ease-out);
+}
+.collapse-grid[data-collapsed="true"] {
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+.collapse-grid > * {
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* 图表：数据变了才动。.chart-armed 在挂载稳定后才加上，首屏不做生长动画 */
@@ -251,8 +311,8 @@ input[type="number"] {
 }
 
 @media print {
-  .report-modal[open],
-  .report-modal[open] > div {
+  .dlg-scrim,
+  .dlg-panel {
     animation: none !important;
   }
   @page {
@@ -294,26 +354,5 @@ input[type="number"] {
   }
   .report-section {
     break-inside: avoid;
-  }
-}
-
-/* 反馈弹窗：轻微淡入；减少动画偏好下不做过渡 */
-@media (prefers-reduced-motion: no-preference) {
-  .feedback-dialog[open] {
-    animation: feedback-in 160ms ease-out;
-  }
-  .feedback-dialog[open]::backdrop {
-    animation: feedback-fade 160ms ease-out;
-  }
-}
-@keyframes feedback-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px) scale(0.98);
-  }
-}
-@keyframes feedback-fade {
-  from {
-    opacity: 0;
   }
 }

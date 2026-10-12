@@ -4,6 +4,7 @@ import { ExampleHint } from "./ExampleHint";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { computeAll, getCity } from "@/lib/tax";
 import { currentMonthFor, useProfile } from "@/lib/store";
+import { scrollToEl } from "@/lib/scroll";
 import { fmtMoney } from "@/lib/format";
 import { Button, Card, Field, Hint, NumberInput, Details, MobileBar } from "./ui";
 import { AnimatedMoney } from "./AnimatedMoney";
@@ -41,8 +42,8 @@ export function App() {
     obs.observe(el);
     return () => obs.disconnect();
   }, [hasIncome]);
-  const scrollToResults = () => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  const scrollToInputs = () => inputsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollToResults = () => scrollToEl(resultsRef.current);
+  const scrollToInputs = () => scrollToEl(inputsRef.current);
 
   const settlement = result.annual.settlement;
   const settlementDot = settlement < -0.5 ? "bg-good" : settlement > 0.5 ? "bg-danger" : "bg-line";

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ExampleHint } from "./ExampleHint";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { MONTH_NAMES, computeAll, getCity, sadMonthly } from "@/lib/tax";
+import { scrollToEl } from "@/lib/scroll";
 import { fmtMoney } from "@/lib/format";
 import { SITE, buildShareUrl } from "@/lib/share";
 import { SALARY_SEGMENT_ID, buildSalaryShareUrl, salaryProfile, useSalary, type SalaryMode } from "@/lib/salaryStore";
@@ -80,8 +81,8 @@ export function SalaryTool() {
   const host = typeof window !== "undefined" ? window.location.host : new URL(SITE).host;
   const monthName = MONTH_NAMES[input.month - 1];
 
-  const scrollToResults = () => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  const scrollToInputs = () => inputsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollToResults = () => scrollToEl(resultsRef.current);
+  const scrollToInputs = () => scrollToEl(inputsRef.current);
 
   const showBar = !showShare;
   const housingPct = Math.round(input.housingRate * 1000) / 10;
@@ -360,10 +361,14 @@ export function SalaryTool() {
       <MobileBar show={showBar}>
         <div className="min-w-0">
           <div className="truncate text-xs text-muted">{monthName}到手</div>
-          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-            <span className="text-lg font-semibold tabular-nums text-ink">{ready ? <AnimatedMoney value={row.net} /> : "—"}</span>
-            <span className="text-xs tabular-nums text-muted">五险一金 {ready ? fmtMoney(row.social) : "—"}</span>
-          </div>
+          {ready ? (
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+              <span className="text-lg font-semibold tabular-nums text-ink"><AnimatedMoney value={row.net} /></span>
+              <span className="text-xs tabular-nums text-muted">五险一金 {fmtMoney(row.social)}</span>
+            </div>
+          ) : (
+            <div className="text-sm leading-relaxed text-muted">{inferring ? (input.monthlySalary > 0 ? "填上税后到手就能反推" : "填上税前月薪和税后到手就能反推") : "填上税前月薪就能算"}</div>
+          )}
         </div>
         <Button variant="primary" className="h-9 shrink-0" onClick={resultsVisible ? scrollToInputs : scrollToResults}>
           {resultsVisible ? "改输入" : "看结果"}

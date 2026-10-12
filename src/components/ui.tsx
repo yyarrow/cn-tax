@@ -51,7 +51,13 @@ export function Field({ label, hint, children, className = "" }: { label: ReactN
 }
 
 export const inputCls =
-  "h-11 w-full min-w-0 rounded-lg border border-line bg-white px-2.5 text-base text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:bg-paper disabled:text-muted sm:h-9 sm:text-sm";
+  "h-11 w-full min-w-0 rounded-lg border border-line bg-white px-2.5 text-base text-ink outline-none transition hover:border-muted/40 focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:bg-paper disabled:text-muted sm:h-9 sm:text-sm";
+
+/** 金额的「万」单位提示：40000 → 4 万，385000 → 38.5 万（保留 1 位小数，整数不带 .0） */
+function wanHint(v: number | undefined): string | null {
+  if (v === undefined || !Number.isFinite(v) || v < 10000) return null;
+  return `${(v / 10000).toFixed(1).replace(/\.0$/, "")} 万`;
+}
 
 /** 数字输入：本地保留字符串，避免输入过程被格式化打断 */
 export function NumberInput({
@@ -94,6 +100,8 @@ export function NumberInput({
       setText(String(value));
     }
   }
+  // 金额输入（带 ¥ 前缀）≥ 1 万时，在框内右侧提示几万，方便一眼看清位数
+  const unit = prefix === "¥" ? wanHint(value) : null;
   return (
     <div className={`relative ${className}`}>
       {prefix && <span className="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-sm text-muted">{prefix}</span>}
@@ -106,7 +114,7 @@ export function NumberInput({
         step={step}
         disabled={disabled}
         placeholder={placeholder}
-        className={`${inputCls} ${prefix ? "pl-7" : ""} ${suffix ? "pr-9" : ""} ${dense ? "h-8 px-1.5 text-[13px]" : ""}`}
+        className={`${inputCls} ${prefix ? "pl-7" : ""} ${suffix ? "pr-9" : ""} ${unit ? "pr-14" : ""} ${dense ? "h-8 px-1.5 text-[13px]" : ""}`}
         value={text}
         onFocus={(e) => {
           // 聚焦即全选，方便直接改数；再补一次是因为部分浏览器 mouseup 会取消选区
@@ -122,6 +130,11 @@ export function NumberInput({
         }}
       />
       {suffix && <span className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-xs text-muted">{suffix}</span>}
+      {unit && (
+        <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-xs tabular-nums text-muted">
+          {unit}
+        </span>
+      )}
     </div>
   );
 }

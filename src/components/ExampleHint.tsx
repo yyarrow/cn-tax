@@ -12,7 +12,9 @@ export function ExampleHint({ storageKeys, enabled = true, text = "当前为示�
       return true;
     }
   });
-  const ref = useRef<HTMLParagraphElement>(null);
+  /** 收起动画播完才卸载 */
+  const [gone, setGone] = useState(!visible);
+  const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const container = ref.current?.parentElement;
     if (!container) return;
@@ -24,10 +26,21 @@ export function ExampleHint({ storageKeys, enabled = true, text = "当前为示�
       container.removeEventListener("change", dismiss);
     };
   }, []);
-  if (!visible || !enabled) return null;
+  if (gone || !enabled) return null;
   return (
-    <p ref={ref} role="note" className="mb-5 rounded-xl border border-accent/20 bg-accent/5 px-4 py-2.5 text-sm leading-relaxed text-accent-text">
-      {text}
-    </p>
+    <div
+      ref={ref}
+      className="collapse-grid"
+      data-collapsed={!visible}
+      onTransitionEnd={(e) => {
+        if (!visible && e.target === e.currentTarget && e.propertyName === "grid-template-rows") setGone(true);
+      }}
+    >
+      <div>
+        <p role="note" className="mb-5 rounded-xl border border-accent/20 bg-accent/5 px-4 py-2.5 text-sm leading-relaxed text-accent-text">
+          {text}
+        </p>
+      </div>
+    </div>
   );
 }

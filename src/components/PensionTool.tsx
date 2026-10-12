@@ -15,6 +15,7 @@ import {
   type PensionCategory,
   type RegionPension,
 } from "@/lib/pension";
+import { scrollToEl } from "@/lib/scroll";
 import { fmtMoney } from "@/lib/format";
 import { SITE } from "@/lib/share";
 import { DEFAULT_WAGE_GROWTH, MAX_RECORDS, buildPensionShareUrl, todayYM, usePension, type PensionMode } from "@/lib/pensionStore";
@@ -232,8 +233,8 @@ export function PensionTool() {
   const dateText = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const host = typeof window !== "undefined" ? window.location.host : new URL(SITE).host;
 
-  const scrollToResults = () => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  const scrollToInputs = () => inputsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollToResults = () => scrollToEl(resultsRef.current);
+  const scrollToInputs = () => scrollToEl(inputsRef.current);
   const showBar = !showShare;
 
   const retireText = `${ret.year} 年 ${ret.month} 月`;
@@ -243,7 +244,7 @@ export function PensionTool() {
     const box = document.getElementById("receive-rules");
     const el = box?.querySelector("details");
     if (el) el.open = true;
-    box?.scrollIntoView({ behavior: "smooth", block: "center" });
+    scrollToEl(box, "center");
   };
 
   /** 「哪年退休，每月领多少」的图 + 结论：页面和分享弹层用同一份 */
@@ -588,7 +589,7 @@ export function PensionTool() {
                 const rc = getCity(r.cityId);
                 const filled = r.months > 0 && r.amount > 0;
                 return (
-                  <div key={r.id} className="rounded-xl border border-line p-3">
+                  <div key={r.id} className="rounded-xl bg-paper/70 p-3">
                     <div className="mb-2 flex items-center justify-between gap-2">
                       <span className="text-xs font-medium text-muted">参保地 {i + 1}</span>
                       {input.records.length > 1 && (
@@ -792,8 +793,14 @@ export function PensionTool() {
         <div className="min-w-0">
           <div className="truncate text-xs text-muted">退休时每月实发约</div>
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-            <span className="text-lg font-semibold tabular-nums text-ink">{refRow ? <AnimatedMoney value={refRow.total} /> : "—"}</span>
-            <span className="text-xs tabular-nums text-muted">{alreadyRetired ? "已到退休年龄" : `${retireText}起领`}</span>
+            {refRow ? (
+              <>
+                <span className="text-lg font-semibold tabular-nums text-ink"><AnimatedMoney value={refRow.total} /></span>
+                <span className="text-xs tabular-nums text-muted">{alreadyRetired ? "已到退休年龄" : `${retireText}起领`}</span>
+              </>
+            ) : (
+              <span className="text-sm leading-relaxed text-muted">填上缴费记录就能估算</span>
+            )}
           </div>
         </div>
         <Button variant="primary" className="h-9 shrink-0" onClick={resultsVisible ? scrollToInputs : scrollToResults}>

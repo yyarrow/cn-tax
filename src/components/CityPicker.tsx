@@ -159,7 +159,7 @@ export function CityPicker({
           inputRef.current?.blur();
         }}
         onMouseMove={() => i !== active && setActive(i)}
-        className={`flex cursor-pointer items-baseline justify-between gap-2 px-3 py-2.5 text-base sm:py-1.5 sm:text-sm ${
+        className={`flex cursor-pointer items-baseline justify-between gap-2 active:bg-accent/20 px-3 py-2.5 text-base sm:py-1.5 sm:text-sm ${
           i === active ? "bg-accent/10" : ""
         } ${selected ? "font-semibold text-accent-text" : "text-ink"}`}
       >
@@ -212,7 +212,7 @@ export function CityPicker({
         onClick={openList}
         onKeyDown={onKeyDown}
       />
-      <svg aria-hidden="true" viewBox="0 0 24 24" className={`pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted transition-transform duration-200 ease-[cubic-bezier(.2,.7,.2,1)] ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2">
+      <svg aria-hidden="true" viewBox="0 0 24 24" className={`pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted transition-transform duration-(--dur-base) ease-(--ease-out) ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M6 9l6 6 6-6" />
       </svg>
       <div

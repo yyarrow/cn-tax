@@ -2,8 +2,10 @@
 
 import { useReducedMotion } from "./useReducedMotion";
 
-/** 与 globals.css 里 .dlg-* 的淡出时长一致 */
-export const DIALOG_EXIT_MS = 140;
+import { MOTION_MS } from "./motion";
+
+/** 与 globals.css 里 .dlg-* 的淡出时长（--dur-exit）一致 */
+export const DIALOG_EXIT_MS = MOTION_MS.exit;
 
 /**
  * 弹窗关闭：先给 dialog 打上 data-closing 播淡出，再调用 done（真正 close() 或卸载）。

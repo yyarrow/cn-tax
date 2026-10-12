@@ -2,14 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { fmtMoney } from "@/lib/format";
+import { FLASH_DEBOUNCE_MS, MOTION_MS, RESTORE_WINDOW_MS } from "@/lib/motion";
 import { useArmed } from "@/lib/useArmed";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 
-const DURATION_MS = 300;
-/** 值稳定这么久才闪一次高亮（连续敲键盘时不会每个键都闪） */
-const FLASH_DEBOUNCE_MS = 180;
-/** 挂载后这段时间内的变化视为「恢复存档 / 分享链接预填」，直接到位，不补间也不闪 */
-const RESTORE_WINDOW_MS = 600;
+// 时长统一来自 src/lib/motion.ts（与 globals.css 的 CSS 变量一一对应）
+const DURATION_MS = MOTION_MS.slow;
 
 /**
  * 金额数字：值变化时在 ~300ms 内补间到新值（连续输入时持续跟随）；

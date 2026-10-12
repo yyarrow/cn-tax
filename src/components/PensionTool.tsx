@@ -245,6 +245,8 @@ export function PensionTool() {
     const el = box?.querySelector("details");
     if (el) el.open = true;
     scrollToEl(box, "center");
+    // 键盘用户：焦点跟过去，免得留在页头小链接上
+    el?.querySelector("summary")?.focus({ preventScroll: true });
   };
 
   /** 「哪年退休，每月领多少」的图 + 结论：页面和分享弹层用同一份 */
@@ -269,7 +271,7 @@ export function PensionTool() {
             className="mt-3"
             onDark
             segments={[
-              { key: "basic", label: refRow.transitional > 0 ? "基础养老金 + 过渡性" : "基础养老金", value: refRow.basic + refRow.transitional, color: "var(--accent)" },
+              { key: "basic", label: refRow.transitional > 0 ? "基础+过渡性" : "基础养老金", value: refRow.basic + refRow.transitional, color: "var(--accent)" },
               { key: "personal", label: "个人账户", value: refRow.personal, color: "var(--series-social)" },
             ]}
           />

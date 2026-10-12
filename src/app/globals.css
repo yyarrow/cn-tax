@@ -16,6 +16,13 @@
   --series-net: #2a78d6;
   --series-tax: #eb6834;
   --series-social: #1baf7a;
+  /* 动效参数：JS 侧对应 src/lib/motion.ts（tests/motion.test.ts 校验一致） */
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-exit: 140ms;
+  --dur-panel: 240ms;
+  --dur-slow: 300ms;
+  --dur-flash: 600ms;
   --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   /* <details> 的高度过渡需要 auto 也能插值（不支持的浏览器直接切换） */
   interpolate-size: allow-keywords;
@@ -37,6 +44,8 @@
 }
 
 html {
+  /* 触屏点按不要 iOS / Android 默认的灰色高亮；按下反馈由各控件自己的 :active 样式给 */
+  -webkit-tap-highlight-color: transparent;
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-sans-stack);
@@ -59,6 +68,9 @@ a:focus-visible {
   font-variant-numeric: tabular-nums;
 }
 /* 图表柱子是 <g tabindex=0>，自己没有焦点环，给命中区画一圈 */
+.chart-col:active > rect:first-child {
+  fill: rgb(0 0 0 / 0.1);
+}
 .chart-col:focus-visible > rect:first-child {
   stroke: var(--accent);
   stroke-width: 2px;
@@ -160,7 +172,7 @@ input[type="number"] {
   --flash-color: rgb(255 255 255 / 0.22);
 }
 .money-flash {
-  animation: money-flash 600ms var(--ease-out);
+  animation: money-flash var(--dur-flash) var(--ease-out);
 }
 @keyframes money-flash {
   from {
@@ -179,7 +191,7 @@ input[type="number"] {
   display: none;
 }
 .ui-details-chev {
-  transition: transform 200ms var(--ease-out);
+  transition: transform var(--dur-base) var(--ease-out);
 }
 .ui-details[open] > summary .ui-details-chev {
   transform: rotate(90deg);
@@ -189,8 +201,8 @@ input[type="number"] {
     block-size: 0;
     overflow: clip;
     transition:
-      block-size 240ms var(--ease-out),
-      content-visibility 240ms allow-discrete;
+      block-size var(--dur-panel) var(--ease-out),
+      content-visibility var(--dur-panel) allow-discrete;
   }
   .ui-details[open]::details-content {
     block-size: auto;
@@ -201,7 +213,7 @@ input[type="number"] {
 
 /* 浮层 */
 .pop-in {
-  animation: pop-in 120ms var(--ease-out);
+  animation: pop-in var(--dur-fast) var(--ease-out);
 }
 @keyframes pop-in {
   from {
@@ -211,21 +223,21 @@ input[type="number"] {
 }
 /* 弹窗（ShareModal / 意见反馈共用）：
    .dlg-scrim 是铺满屏的遮罩本体（ShareModal 的 dialog 自己），.dlg-backdrop 让 ::backdrop 做同样的事；
-   .dlg-panel 是内容面板。关闭时给 dialog 打上 data-closing，播 140ms 淡出后再真正 close()。 */
+   .dlg-panel 是内容面板。关闭时给 dialog 打上 data-closing，播 --dur-exit 淡出后再真正 close()。 */
 .dlg-scrim,
 .dlg-backdrop::backdrop {
-  animation: dlg-scrim-in 180ms var(--ease-out);
+  animation: dlg-scrim-in var(--dur-base) var(--ease-out);
 }
 .dlg-panel {
-  animation: dlg-in 180ms var(--ease-out);
+  animation: dlg-in var(--dur-base) var(--ease-out);
 }
 dialog[data-closing].dlg-scrim,
 dialog[data-closing].dlg-backdrop::backdrop {
-  animation: dlg-scrim-out 140ms var(--ease-out) forwards;
+  animation: dlg-scrim-out var(--dur-exit) var(--ease-out) forwards;
 }
 dialog[data-closing] .dlg-panel,
 dialog[data-closing].dlg-panel {
-  animation: dlg-out 140ms var(--ease-out) forwards;
+  animation: dlg-out var(--dur-exit) var(--ease-out) forwards;
 }
 @keyframes dlg-scrim-in {
   from {
@@ -256,11 +268,11 @@ dialog[data-closing].dlg-panel {
 
 /* 提交成功的对勾：圆底轻弹出，勾线画出来 */
 .check-pop {
-  animation: check-pop 220ms var(--ease-out);
+  animation: check-pop var(--dur-base) var(--ease-out);
 }
 .check-draw {
   stroke-dasharray: 24;
-  animation: check-draw 260ms var(--ease-out) 80ms backwards;
+  animation: check-draw var(--dur-panel) var(--ease-out) 80ms backwards;
 }
 @keyframes check-pop {
   from {
@@ -278,7 +290,7 @@ dialog[data-closing].dlg-panel {
 .collapse-grid {
   display: grid;
   grid-template-rows: 1fr;
-  transition: grid-template-rows 240ms var(--ease-out), opacity 200ms var(--ease-out);
+  transition: grid-template-rows var(--dur-panel) var(--ease-out), opacity var(--dur-base) var(--ease-out);
 }
 .collapse-grid[data-collapsed="true"] {
   grid-template-rows: 0fr;
@@ -292,11 +304,11 @@ dialog[data-closing].dlg-panel {
 /* 图表：数据变了才动。.chart-armed 在挂载稳定后才加上，首屏不做生长动画 */
 .chart-armed .chart-rect {
   transition:
-    y 300ms var(--ease-out),
-    height 300ms var(--ease-out);
+    y var(--dur-slow) var(--ease-out),
+    height var(--dur-slow) var(--ease-out);
 }
 .chart-armed .chart-move {
-  transition: transform 300ms var(--ease-out);
+  transition: transform var(--dur-slow) var(--ease-out);
 }
 
 @media (prefers-reduced-motion: reduce) {

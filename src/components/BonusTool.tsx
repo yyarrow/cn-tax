@@ -119,6 +119,7 @@ export function BonusTool() {
                 {input.bonus > 0 && (analysis || (sepOnly && k === "separate")) && (
                   <SplitBar
                     className="mt-2"
+                    stack
                     segments={[
                       { key: "net", label: "到手", value: shownNet, color: "var(--series-net)" },
                       { key: "tax", label: "个税", value: input.bonus - shownNet, color: "var(--series-tax)" },

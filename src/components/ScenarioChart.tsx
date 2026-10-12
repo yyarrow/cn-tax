@@ -175,8 +175,8 @@ export function ScenarioChart({
             <>
               <span className={`text-[13px] leading-tight ${isCur ? "font-semibold text-ink" : "text-muted"}`}>{p.label}</span>
               <span className="flex h-4 min-w-0 overflow-hidden" style={{ opacity: isCur || isFocus ? 1 : 0.72 }}>
-                <i className={`block h-full rounded-l-[3px] ${armed ? "transition-[width,margin] duration-300 ease-[cubic-bezier(.2,.7,.2,1)]" : ""}`} style={{ width: `${wPersonal}%`, background: gray ? GRAY_BOTTOM : "var(--series-social)" }} />
-                <i className={`block h-full rounded-r-[3px] ${armed ? "transition-[width,margin] duration-300 ease-[cubic-bezier(.2,.7,.2,1)]" : ""}`} style={{ width: `${wTop}%`, background: gray ? GRAY_TOP : "var(--accent)", marginLeft: wPersonal > 0 && wTop > 0 ? 1 : 0 }} />
+                <i className={`block h-full rounded-l-[3px] ${armed ? "transition-[width,margin] duration-(--dur-slow) ease-(--ease-out)" : ""}`} style={{ width: `${wPersonal}%`, background: gray ? GRAY_BOTTOM : "var(--series-social)" }} />
+                <i className={`block h-full rounded-r-[3px] ${armed ? "transition-[width,margin] duration-(--dur-slow) ease-(--ease-out)" : ""}`} style={{ width: `${wTop}%`, background: gray ? GRAY_TOP : "var(--accent)", marginLeft: wPersonal > 0 && wTop > 0 ? 1 : 0 }} />
               </span>
               <span className={`whitespace-nowrap text-right text-sm tabular-nums ${gray ? "text-muted" : "text-ink"} ${isCur ? "font-semibold" : ""}`}>{fmtMoney(p.total)}</span>
             </>
@@ -186,7 +186,7 @@ export function ScenarioChart({
               {inner}
             </div>
           ) : (
-            <button key={p.key} type="button" className={`${rowCls} cursor-pointer`} aria-pressed={isFocus} aria-label={ariaFor(p)} onClick={() => setActive(i)}>
+            <button key={p.key} type="button" className={`${rowCls} cursor-pointer transition-colors duration-(--dur-fast) active:bg-ink/10`} aria-pressed={isFocus} aria-label={ariaFor(p)} onClick={() => setActive(i)}>
               {inner}
             </button>
           );
@@ -223,6 +223,12 @@ export function ScenarioChart({
               onMouseEnter={select}
               onFocus={select}
               onClick={select}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  select();
+                }
+              }}
             >
               <rect x={padL + colW * i} y={0} width={colW} height={H} fill={isFocus ? "#00000008" : "transparent"} />
               {hPersonal > 0 && <rect className="chart-rect" x={x} y={base - hPersonal} width={barW} height={hPersonal} style={{ y: base - hPersonal, height: hPersonal }} fill={gray ? GRAY_BOTTOM : "var(--series-social)"} rx={3} />}

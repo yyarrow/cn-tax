@@ -71,7 +71,7 @@ export function RetirementAgeTool() {
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <Link
             href="/pension"
-            className="inline-flex min-h-11 items-center rounded-lg bg-accent-text px-4 text-sm font-medium text-white transition hover:bg-accent-text/90 sm:min-h-9"
+            className="inline-flex min-h-11 items-center rounded-lg bg-accent-text px-4 text-sm font-medium text-white transition-colors duration-(--dur-fast) hover:bg-[color-mix(in_oklab,var(--accent-text),black_14%)] sm:min-h-9"
           >
             算算到时候每月能领多少
           </Link>

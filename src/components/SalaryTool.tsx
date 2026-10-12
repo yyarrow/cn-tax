@@ -166,8 +166,8 @@ export function SalaryTool() {
           {result.rows.map((r) => {
             const on = r.month === input.month;
             const blank = !ready || r.isGap;
-            const cellCls = `flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-md border px-0 py-1 leading-tight tracking-tight transition ${
-              on ? "border-accent/50 bg-accent/10" : "border-transparent bg-paper hover:border-line"
+            const cellCls = `flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-md border px-0 py-1 leading-tight tracking-tight transition-colors duration-(--dur-fast) ${
+              on ? "border-accent/50 bg-accent/10" : "border-transparent bg-paper hover:border-line active:bg-ink/10"
             } ${r.isGap ? "opacity-50" : ""}`;
             const title = blank
               ? r.isGap

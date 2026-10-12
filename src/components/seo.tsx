@@ -26,7 +26,7 @@ function SiteNav({ current }: { current?: string }) {
             key={n.href}
             href={n.href}
             aria-current={active ? "page" : undefined}
-            className={`inline-flex min-h-11 items-center justify-center border-b-2 py-2 transition-colors duration-150 sm:mr-6 sm:inline-block sm:min-h-0 sm:last:mr-0 ${active ? "border-accent font-semibold text-ink" : "border-transparent text-muted hover:text-ink"}`}
+            className={`inline-flex min-h-11 items-center justify-center border-b-2 py-2 transition-colors duration-(--dur-fast) active:bg-ink/5 sm:mr-6 sm:inline-block sm:min-h-0 sm:last:mr-0 ${active ? "border-accent font-semibold text-ink" : "border-transparent text-muted hover:text-ink"}`}
           >
             {n.label}
           </Link>
@@ -44,7 +44,7 @@ export function Hero({ title, subtitle, current }: { title: string; subtitle: st
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.png" alt={SITE_NAME} width={40} height={40} className="h-10 w-10 rounded-xl" />
         <div className="min-w-0 flex-1">
-          <h1 className="text-[1.75rem] font-semibold tracking-[-0.01em] text-ink">{title}</h1>
+          <h1 className="text-balance text-2xl font-semibold tracking-[-0.01em] text-ink sm:text-[1.75rem]">{title}</h1>
           <p className="mt-0.5 text-sm text-muted">{subtitle}</p>
         </div>
         <FeedbackButton />

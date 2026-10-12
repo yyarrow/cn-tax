@@ -51,7 +51,7 @@ export function Field({ label, hint, children, className = "" }: { label: ReactN
 }
 
 export const inputCls =
-  "h-11 w-full min-w-0 rounded-lg border border-line bg-white px-2.5 text-base text-ink outline-none transition hover:border-muted/40 focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:bg-paper disabled:text-muted sm:h-9 sm:text-sm";
+  "h-11 w-full min-w-0 rounded-lg border border-line bg-white px-2.5 text-base text-ink outline-none transition-[border-color,box-shadow] duration-(--dur-fast) hover:border-muted/40 focus:border-accent focus:ring-2 focus:ring-accent/20 disabled:bg-paper disabled:text-muted sm:h-9 sm:text-sm";
 
 /** 金额的「万」单位提示：40000 → 4 万，385000 → 38.5 万（保留 1 位小数，整数不带 .0） */
 function wanHint(v: number | undefined): string | null {
@@ -197,7 +197,7 @@ export function Segmented<T extends string>({ value, options, onChange, label, c
       {thumb && (
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute left-0 top-0 rounded-md bg-white shadow-sm transition-[transform,width,height] duration-[220ms] ease-[cubic-bezier(.2,.7,.2,1)]"
+          className="pointer-events-none absolute left-0 top-0 rounded-md bg-white shadow-sm transition-[transform,width,height] duration-(--dur-base) ease-(--ease-out)"
           style={{ width: thumb.w, height: thumb.h, transform: `translate(${thumb.x}px, ${thumb.y}px)` }}
         />
       )}
@@ -220,7 +220,7 @@ export function Segmented<T extends string>({ value, options, onChange, label, c
               onChange(options[next].value);
               groupRef.current?.querySelectorAll<HTMLButtonElement>(":scope > button")[next]?.focus();
             }}
-            className={`relative min-h-11 rounded-md px-3 py-1 transition-colors duration-150 sm:min-h-0 ${selected ? `text-ink ${thumb ? "" : "bg-white shadow-sm"}` : "text-muted hover:text-ink"}`}
+            className={`relative min-h-11 rounded-md px-3 py-1 transition-colors duration-(--dur-fast) sm:min-h-0 ${selected ? `text-ink ${thumb ? "" : "bg-white shadow-sm"}` : "text-muted hover:text-ink active:bg-ink/5"}`}
           >
             {o.label}
           </button>
@@ -256,7 +256,7 @@ export function Button({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex h-8 min-h-11 shrink-0 items-center gap-1 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition-[background-color,color,transform,opacity] duration-150 ease-out enabled:active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-0 ${v} ${className}`}
+      className={`inline-flex h-8 min-h-11 shrink-0 items-center gap-1 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition-[background-color,color,transform,opacity] duration-(--dur-fast) ease-(--ease-out) enabled:active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-0 ${v} ${className}`}
     >
       {children}
     </button>
@@ -309,13 +309,42 @@ export function CopyButton({
   );
 }
 
-/** 手机底部结果条：出现 / 隐藏用上下滑动，隐藏时不可聚焦 */
+/** 触屏上正在往文字 / 数字框里输入：软键盘很可能已经弹出 */
+function useTouchTyping(): boolean {
+  const [typing, setTyping] = useState(false);
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function" || !window.matchMedia("(pointer: coarse)").matches) return;
+    const check = () => {
+      const el = document.activeElement;
+      const editable =
+        el instanceof HTMLTextAreaElement ||
+        (el instanceof HTMLInputElement && !["checkbox", "radio", "button", "submit", "range", "color", "file"].includes(el.type));
+      setTyping(editable);
+    };
+    // focusout 后下一个 focusin 才到：错开一拍再看，输入框之间切换时底部条不会闪
+    const onChange = () => setTimeout(check, 0);
+    document.addEventListener("focusin", onChange);
+    document.addEventListener("focusout", onChange);
+    return () => {
+      document.removeEventListener("focusin", onChange);
+      document.removeEventListener("focusout", onChange);
+    };
+  }, []);
+  return typing;
+}
+
+/**
+ * 手机底部结果条：出现 / 隐藏用上下滑动，隐藏时不可聚焦。
+ * 触屏上输入时（软键盘弹出）也收起，免得盖住正在填的输入框。
+ */
 export function MobileBar({ show = true, children }: { show?: boolean; children: ReactNode }) {
+  const typing = useTouchTyping();
+  show = show && !typing;
   return (
     <div
       inert={!show}
       aria-hidden={!show}
-      className={`fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] transition-transform duration-[260ms] ease-[cubic-bezier(.2,.7,.2,1)] lg:hidden ${show ? "translate-y-0" : "translate-y-full"}`}
+      className={`fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] transition-transform duration-(--dur-panel) ease-(--ease-out) lg:hidden ${show ? "translate-y-0" : "translate-y-full"}`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">{children}</div>
     </div>
@@ -340,7 +369,7 @@ export function Hint({ children }: { children: ReactNode }) {
 export function Details({ summary, children, open }: { summary: ReactNode; children: ReactNode; open?: boolean }) {
   return (
     <details className="ui-details group" open={open}>
-      <summary className="group/summary flex cursor-pointer select-none items-start gap-1 rounded text-xs font-medium leading-relaxed text-accent-text">
+      <summary className="group/summary flex cursor-pointer select-none items-start gap-1 rounded text-xs active:opacity-60 font-medium leading-relaxed text-accent-text">
         <svg aria-hidden="true" viewBox="0 0 24 24" className="ui-details-chev mt-[3px] h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M9 6l6 6-6 6" />
         </svg>

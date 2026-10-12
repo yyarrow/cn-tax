@@ -1,10 +1,12 @@
 "use client";
 
-import { useId, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { useDialogExit } from "@/lib/dialogMotion";
 import { Button, inputCls } from "./ui";
 
 const MAX_MESSAGE = 1000;
+/** 提交成功后自动关闭的等待时间；期间点了弹窗或按了键就取消 */
+const AUTO_CLOSE_MS = 2500;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type Status = "idle" | "sending" | "done";
@@ -55,6 +57,25 @@ export function FeedbackButton({ variant = "header", label }: { variant?: "heade
     () => dialogRef.current,
     () => dialogRef.current?.close(),
   );
+
+  // 成功态 2.5 秒后自动淡出关闭；用户碰了弹窗（点按 / 按键，含 Tab）就当作想继续看，取消自动关闭
+  const closeRef = useRef(close);
+  useEffect(() => {
+    closeRef.current = close;
+  });
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (status !== "done" || !dialog) return;
+    const timer = setTimeout(() => closeRef.current(), AUTO_CLOSE_MS);
+    const cancel = () => clearTimeout(timer);
+    dialog.addEventListener("pointerdown", cancel);
+    dialog.addEventListener("keydown", cancel);
+    return () => {
+      clearTimeout(timer);
+      dialog.removeEventListener("pointerdown", cancel);
+      dialog.removeEventListener("keydown", cancel);
+    };
+  }, [status]);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -110,7 +131,7 @@ export function FeedbackButton({ variant = "header", label }: { variant?: "heade
         ref={triggerRef}
         type="button"
         onClick={open}
-        className="-mr-2 inline-flex min-h-11 shrink-0 items-center gap-1 self-start rounded-lg px-2 text-sm text-muted max-sm:min-w-11 max-sm:justify-center transition-[color,transform] duration-150 hover:text-ink active:scale-[.98] sm:min-h-8 print:hidden"
+        className="-mr-2 inline-flex min-h-11 shrink-0 items-center gap-1 self-start rounded-lg px-2 text-sm text-muted max-sm:min-w-11 max-sm:justify-center transition-[color,transform] duration-(--dur-fast) hover:text-ink active:scale-[.98] sm:min-h-8 print:hidden"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.5-4.6A8 8 0 1 1 21 12Z" />

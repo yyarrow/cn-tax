@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode, type Ref, type SelectHTMLAttributes } from "react";
 import { MONTH_NAMES } from "@/lib/tax";
+import { clampNumber, formatNumeric, parseNumeric, sanitizeNumeric } from "@/lib/numericInput";
 
 export function Card({
   title,
@@ -59,7 +60,16 @@ function wanHint(v: number | undefined): string | null {
   return `${(v / 10000).toFixed(1).replace(/\.0$/, "")} 万`;
 }
 
-/** 数字输入：本地保留字符串，避免输入过程被格式化打断 */
+/** 数字输入框外壳：边框和焦点环画在外壳上，前缀 / 后缀 / 「万」提示与输入区并排，不会互相遮挡 */
+const numberShellCls =
+  "flex w-full min-w-0 items-center rounded-lg border border-line bg-white text-ink transition-[border-color,box-shadow] duration-(--dur-fast) hover:border-muted/40 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20";
+const numberShellSize = "h-11 gap-1.5 px-2.5 text-base sm:h-9 sm:text-sm";
+const numberShellDense = "h-8 gap-1 px-1.5 text-[13px]";
+
+/**
+ * 数字输入：普通文本框 + 数字键盘（不用 type=number——它会被鼠标滚轮改值、和页面滚动冲突，
+ * 还接受 e / + / - 这类字符）。本地保留字符串，输入过程中不被外部格式化或夹值打断，失焦时再校正。
+ */
 export function NumberInput({
   value,
   onChange,
@@ -88,53 +98,96 @@ export function NumberInput({
   dense?: boolean;
   ariaLabel?: string;
 }) {
-  const [text, setText] = useState(value === undefined || Number.isNaN(value) ? "" : String(value));
+  const [text, setText] = useState(() => formatNumeric(value));
   const [prevValue, setPrevValue] = useState(value);
-  // 外部 value 变化时同步本地文本（渲染期间派生状态，避免多余的 effect）
+  const [focused, setFocused] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  /** 本次聚焦是不是鼠标 / 手指点进来的（是的话不全选，让光标停在点的位置） */
+  const pointerFocus = useRef(false);
+  // 外部 value 变化时同步本地文本（渲染期派生）；正在输入时不打断，失焦再统一校正
   if (value !== prevValue) {
     setPrevValue(value);
-    const cur = parseFloat(text);
-    if (value === undefined) {
-      if (text !== "") setText("");
-    } else if (Number.isNaN(cur) || Math.abs(cur - value) > 1e-9) {
-      setText(String(value));
+    if (!focused) {
+      const cur = parseNumeric(text);
+      if (value === undefined ? text !== "" : cur === undefined || Math.abs(cur - value) > 1e-9) setText(formatNumeric(value));
     }
   }
-  // 金额输入（带 ¥ 前缀）≥ 1 万时，在框内右侧提示几万，方便一眼看清位数
-  const unit = prefix === "¥" ? wanHint(value) : null;
+  const emit = (n: number) => onChange(n);
+  const stepBy = (dir: 1 | -1) => {
+    if (!step) return;
+    const base = parseNumeric(text) ?? value ?? 0;
+    const next = clampNumber(Math.round((base + dir * step) * 100) / 100, min, max);
+    setText(formatNumeric(next));
+    emit(next);
+  };
+  // 金额输入（带 ¥ 前缀）≥ 1 万时，在框内右侧提示几万，方便一眼看清位数；正在输入时收起，把宽度让给数字
+  const unit = prefix === "¥" && !focused ? wanHint(value) : null;
   return (
-    <div className={`relative ${className}`}>
-      {prefix && <span className="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-sm text-muted">{prefix}</span>}
+    <div
+      className={`${numberShellCls} ${dense ? numberShellDense : numberShellSize} ${disabled ? "bg-paper text-muted" : ""} ${className}`}
+      onMouseDown={(e) => {
+        // 点到前缀 / 后缀 / 空白处也聚焦输入框
+        if (e.target !== inputRef.current) {
+          e.preventDefault();
+          pointerFocus.current = true;
+          inputRef.current?.focus();
+        }
+      }}
+    >
+      {prefix && <span className="shrink-0 text-sm text-muted">{prefix}</span>}
       <input
-        type="number"
+        ref={inputRef}
+        type="text"
         inputMode="decimal"
+        autoComplete="off"
+        autoCorrect="off"
+        spellCheck={false}
+        enterKeyHint="done"
         aria-label={ariaLabel}
-        min={min}
-        max={max}
-        step={step}
         disabled={disabled}
         placeholder={placeholder}
-        className={`${inputCls} ${prefix ? "pl-7" : ""} ${suffix ? "pr-9" : ""} ${unit ? "pr-14" : ""} ${dense ? "h-8 px-1.5 text-[13px]" : ""}`}
+        maxLength={13}
+        className="h-full w-full min-w-0 flex-1 bg-transparent text-ink outline-none placeholder:text-muted/70 disabled:text-muted"
         value={text}
+        onPointerDown={() => {
+          pointerFocus.current = true;
+        }}
         onFocus={(e) => {
-          // 聚焦即全选，方便直接改数；再补一次是因为部分浏览器 mouseup 会取消选区
-          const el = e.currentTarget;
-          el.select();
-          requestAnimationFrame(() => el.select());
+          setFocused(true);
+          // 只有用键盘 Tab 进来才全选（方便直接改数）；点进来的保持浏览器默认光标位置
+          if (!pointerFocus.current) e.currentTarget.select();
+          pointerFocus.current = false;
+        }}
+        onBlur={() => {
+          setFocused(false);
+          if (text === "" || value === undefined) return;
+          const clamped = clampNumber(value, min, max);
+          if (clamped !== value) emit(clamped);
+          setText(formatNumeric(clamped));
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+            if (!step) return;
+            e.preventDefault();
+            stepBy(e.key === "ArrowUp" ? 1 : -1);
+          } else if (e.key === "Enter") {
+            e.currentTarget.blur();
+          }
         }}
         onChange={(e) => {
-          setText(e.target.value);
-          const n = parseFloat(e.target.value);
-          if (!Number.isNaN(n)) onChange(n);
-          else if (e.target.value === "") onChange(0);
+          const clean = sanitizeNumeric(e.target.value);
+          setText(clean);
+          const n = parseNumeric(clean);
+          if (n !== undefined) emit(n);
+          else if (clean === "") emit(0);
         }}
       />
-      {suffix && <span className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-xs text-muted">{suffix}</span>}
       {unit && (
-        <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-xs tabular-nums text-muted">
+        <span aria-hidden="true" className="shrink-0 whitespace-nowrap text-xs tabular-nums text-muted">
           {unit}
         </span>
       )}
+      {suffix && <span className="shrink-0 whitespace-nowrap text-xs text-muted">{suffix}</span>}
     </div>
   );
 }

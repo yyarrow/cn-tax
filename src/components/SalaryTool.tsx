@@ -290,7 +290,7 @@ export function SalaryTool() {
 
       <ExampleHint storageKeys={["cn-tax-salary-v1", "cn-tax-profile-v1"]} enabled={!fromShare} />
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:grid-rows-[auto_1fr]">
         {/* 输入 */}
         <div className="min-w-0 space-y-3 lg:col-start-1 lg:row-start-1" ref={inputsRef}>
           <Card tone="input" className="p-4!">
@@ -351,7 +351,7 @@ export function SalaryTool() {
         </div>
 
         {/* 参考：与输入无关，始终完整显示 */}
-        <div className="lg:col-start-1 lg:row-start-2">
+        <div className="lg:col-start-1 lg:row-start-2 lg:self-start">
           <Card title={`${city.name} ${year} 年参考值`} subtitle="社保 / 公积金基数每年 7 月前后调整，实际以工资条为准">
             {referenceBody}
           </Card>

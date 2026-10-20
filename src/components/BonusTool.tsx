@@ -267,7 +267,7 @@ export function BonusTool() {
 
       <ExampleHint storageKeys={["cn-tax-bonus-v1", "cn-tax-profile-v1"]} enabled={!wasBonusLoadedFromShare()} />
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:grid-rows-[auto_1fr]">
         {/* 输入 */}
         <div className="min-w-0 space-y-3 lg:col-start-1 lg:row-start-1" ref={inputsRef}>
           <Card tone="input" className="p-4!">
@@ -326,7 +326,7 @@ export function BonusTool() {
         </div>
 
         {/* 参考：与输入无关，始终完整显示 */}
-        <div className="min-w-0 space-y-4 lg:col-start-1 lg:row-start-2">
+        <div className="min-w-0 space-y-4 lg:col-start-1 lg:row-start-2 lg:self-start">
           <Card title="陷阱区间" subtitle="单独计税跨档时多发反而少拿；表中行随你的年终奖高亮">
             {trapTable}
           </Card>

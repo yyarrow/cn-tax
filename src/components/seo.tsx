@@ -1,15 +1,16 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { FeedbackButton } from "./FeedbackButton";
 
+/** 分三组：两个主计算器 / 专题工具 / Offer 对比；桌面端组之间有细分隔线 */
 const SITE_NAV = [
-  { href: "/", label: "个税计算器" },
-  { href: "/bonus", label: "年终奖" },
-  { href: "/offer", label: "Offer 对比" },
-  { href: "/settlement", label: "汇算退税" },
-  { href: "/social-insurance", label: "税后工资" },
-  { href: "/pension", label: "养老金" },
+  { href: "/", label: "个税计算器", group: 0 },
+  { href: "/pension", label: "养老金", group: 0 },
+  { href: "/bonus", label: "年终奖", group: 1 },
+  { href: "/settlement", label: "汇算退税", group: 1 },
+  { href: "/social-insurance", label: "税后工资", group: 1 },
+  { href: "/offer", label: "Offer 对比", group: 2 },
 ];
 
 /** 全站导航：移动端换行展示全部入口，当前项用强调色下划线标出 */
@@ -19,17 +20,20 @@ function SiteNav({ current }: { current?: string }) {
       aria-label="站点导航"
       className="mt-4 grid grid-cols-3 border-b border-line text-sm sm:block"
     >
-      {SITE_NAV.map((n) => {
+      {SITE_NAV.map((n, i) => {
         const active = n.href === current;
+        const newGroup = i > 0 && SITE_NAV[i - 1].group !== n.group;
         return (
+          <Fragment key={n.href}>
+          {newGroup && <span aria-hidden="true" className="mr-6 hidden h-3.5 w-px translate-y-0.5 bg-line align-middle sm:inline-block" />}
           <Link
-            key={n.href}
             href={n.href}
             aria-current={active ? "page" : undefined}
             className={`inline-flex min-h-11 items-center justify-center border-b-2 py-2 transition-colors duration-(--dur-fast) active:bg-ink/5 sm:mr-6 sm:inline-block sm:min-h-0 sm:last:mr-0 ${active ? "border-accent font-semibold text-ink" : "border-transparent text-muted hover:text-ink"}`}
           >
             {n.label}
           </Link>
+          </Fragment>
         );
       })}
     </nav>
@@ -91,12 +95,12 @@ export function breadcrumbLd(items: { name: string; path: string }[]) {
 const RELATED: { href: string; label: string; desc: string }[] = [
   { href: "/", label: "个税计算器", desc: "按工作经历算全年个税、逐月预扣和汇算退补" },
   { href: "/bonus", label: "年终奖计算器", desc: "单独计税还是并入、陷阱区间、最优拆分" },
-  { href: "/offer", label: "Offer 税后对比", desc: "两三份 offer 并排算全年到手和差额" },
   { href: "/settlement", label: "汇算清缴退税计算器", desc: "今年能退多少、为什么、在个税 App 怎么办" },
   { href: "/social-insurance", label: "税后工资计算器", desc: "月薪到手拆分，或从到手反推五险一金" },
   { href: "/pension", label: "养老金计算器", desc: "延迟退休后每月能领多少，换个城市退休差多少" },
   { href: "/retirement-age", label: "延迟退休年龄计算器", desc: "输入出生年月，查几岁几月退休、能弹性提前多久，附完整对照表" },
   { href: "/pension-base", label: "各省养老金计发基数", desc: "31 省及部分城市的最新计发基数一览，看同样缴费换个地方差多少" },
+  { href: "/offer", label: "Offer 税后对比", desc: "两三份 offer 并排算全年到手和差额" },
 ];
 
 /** 文章末尾的相关工具（内链 + 描述性锚文本） */

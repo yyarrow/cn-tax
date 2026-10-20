@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ExampleHint } from "./ExampleHint";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { compareOffers, getCity, sadMonthly } from "@/lib/tax";
+import { BENEFIT_MAX, SOE_PRESET, compareOffers, getCity, sadMonthly } from "@/lib/tax";
 import type { OfferInput, OfferResult } from "@/lib/tax";
 import { scrollToEl } from "@/lib/scroll";
 import { fmtMoney, fmtPct } from "@/lib/format";
@@ -28,7 +28,46 @@ const ROWS: { label: string; bold?: boolean; value: (r: OfferResult, o: OfferInp
   { label: "综合税负", value: (r) => fmtPct(r.effectiveRate) },
   { label: "边际税率", value: (r) => fmtPct(r.marginalRate, 0) },
   { label: "年终奖计税方式", value: (r, o) => (o.bonus > 0 ? (r.bonusSeparate ? "单独" : "并入") : "—") },
+  { label: "公积金账户（个人 + 单位）", value: (r) => fmtMoney(r.accounts.housing) },
+  { label: "其中补充公积金", value: (r) => dashIfZero(r.accounts.housingSupplementary) },
+  {
+    label: "年金（个人 / 单位）",
+    value: (r) => (r.accounts.annuity > 0 ? `${fmtMoney(r.accounts.annuityPersonal)} / ${fmtMoney(r.accounts.annuityEmployer)}` : "—"),
+  },
+  { label: "其他现金补贴", value: (r) => dashIfZero(r.accounts.cashAllowance) },
+  { label: "非现金福利（估值）", value: (r) => dashIfZero(r.accounts.nonCash) },
+  { label: "全年总回报", bold: true, value: (r) => fmtMoney(r.totalReturn) },
 ];
+
+const pctOf = (rate?: number) => Math.round((rate ?? 0) * 1000) / 10;
+const clampPct = (v: number, max: number) => Math.min(max, Math.max(0, v / 100));
+const hasBenefits = (o: OfferInput) =>
+  !!(o.supplementaryHousingRate || o.annuityEmployerRate || o.annuityPersonalRate || o.cashAllowance || o.nonCashBenefit);
+
+function dashIfZero(n: number): string {
+  return n > 0 ? fmtMoney(n) : "—";
+}
+
+type Ranked = { name: string; r: OfferResult };
+
+/** 结论句：按到手和按总回报排名不同就两句并列，相同就一句 */
+function rankConclusion(list: Ranked[]): string | null {
+  if (list.length < 2) return null;
+  const byCash = [...list].sort((x, y) => y.r.netTotal - x.r.netTotal);
+  const byRet = [...list].sort((x, y) => y.r.totalReturn - x.r.totalReturn);
+  const cashGap = byCash[0].r.netTotal - byCash[1].r.netTotal;
+  const retGap = byRet[0].r.totalReturn - byRet[1].r.totalReturn;
+  const cashTie = cashGap <= 1;
+  const retTie = retGap <= 1;
+  const two = list.length === 2;
+  const lead = (sorted: Ranked[], gap: number) =>
+    two ? `${sorted[0].name} 多 ${fmtMoney(gap)} / 年` : `${sorted[0].name} 比 ${sorted[1].name} 多 ${fmtMoney(gap)} / 年`;
+  if (cashTie && retTie) return "按现金到手和按全年总回报，几份 offer 都基本一样。";
+  if (cashTie) return `按现金到手基本一样；算上公积金、年金和福利，${lead(byRet, retGap)}。`;
+  if (retTie) return `按现金到手，${lead(byCash, cashGap)}；算上公积金、年金和福利，基本一样。`;
+  if (byCash[0].r.id !== byRet[0].r.id) return `按现金到手，${lead(byCash, cashGap)}；算上公积金、年金和福利，${lead(byRet, retGap)}。`;
+  return `${byCash[0].name} 按现金到手和算上账户、福利都排第一：到手多 ${fmtMoney(cashGap)} / 年，总回报多 ${fmtMoney(retGap)} / 年。`;
+}
 
 /** 差距归因：总包差得多就是总包高，总包差不多就是五险一金 + 个税少 */
 function reasonFor(w: OfferResult, r: OfferResult, gap: number): string {
@@ -63,6 +102,7 @@ export function OfferCompare() {
   const runnerUp = ranked[1];
   const gap = runnerUp ? winner.r.netTotal - runnerUp.r.netTotal : 0;
   const tiedAtTop = withIncome.filter((x) => Math.abs(x.r.netTotal - winner.r.netTotal) <= 1).length > 1;
+  const conclusion = rankConclusion(withIncome);
   const splits = items.flatMap(({ r, name }) => (r.split && r.split.saving > 1 ? [{ id: r.id, name, split: r.split }] : []));
 
   const inputsRef = useRef<HTMLDivElement>(null);
@@ -102,7 +142,8 @@ export function OfferCompare() {
                   <Dot color={color} />
                   <span className="truncate">{name}</span>
                 </div>
-                <div className="mt-1 break-words text-2xl font-semibold sm:text-3xl tabular-nums text-ink">{hasIncome ? <AnimatedMoney value={r.netTotal} /> : "—"}</div>
+                <div className="mt-1 text-xs text-muted">全年到手</div>
+                <div className="break-words text-2xl font-semibold sm:text-3xl tabular-nums text-ink">{hasIncome ? <AnimatedMoney value={r.netTotal} /> : "—"}</div>
                 <div className="mt-1.5">
                   {!hasIncome ? (
                     <span className="text-xs text-muted">—</span>
@@ -118,6 +159,9 @@ export function OfferCompare() {
                 </div>
                 <div className="mt-1 text-xs tabular-nums text-muted">
                   {hasIncome ? `月均 ${fmtMoney(r.netMonthly)} · 综合税负 ${fmtPct(r.effectiveRate)}` : "月均 — · 综合税负 —"}
+                </div>
+                <div className="mt-2 border-t border-line pt-2 text-xs text-muted">
+                  全年总回报 <span className="text-sm font-semibold tabular-nums text-ink">{hasIncome ? fmtMoney(r.totalReturn) : "—"}</span>
                 </div>
               </div>
             );
@@ -136,7 +180,49 @@ export function OfferCompare() {
         </div>
       </section>
 
-      {/* 2. 逐项对比 */}
+      {/* 2. 全年总回报 */}
+      <section className="py-4">
+        <h3 className="text-sm font-semibold text-ink">全年总回报</h3>
+        <p className="mt-1 text-xs leading-relaxed text-muted">
+          = 全年到手 + 公积金（个人 + 单位）+ 年金（个人 + 单位）+ 非现金福利估值。公积金、年金是账户里的钱，取用受限：公积金一般用于买房 / 租房提取，年金退休后才能领。
+        </p>
+        <div className="mt-1 divide-y divide-line">
+          {items.map(({ r, name, color }) => (
+            <div key={r.id} className="py-2">
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <span className="inline-flex min-w-0 items-center gap-1.5 text-ink">
+                  <Dot color={color} />
+                  <span className="truncate">{name}</span>
+                </span>
+                <span className="shrink-0 font-semibold tabular-nums text-ink">{hasIncome ? fmtMoney(r.totalReturn) : "—"}</span>
+              </div>
+              {hasIncome && (
+                <div className="mt-0.5 pl-4 text-xs leading-relaxed tabular-nums text-muted">
+                  到手 {fmtMoney(r.netTotal)} + 公积金 {fmtMoney(r.accounts.housing)}
+                  {r.accounts.annuity > 0 && ` + 年金 ${fmtMoney(r.accounts.annuity)}`}
+                  {r.accounts.nonCash > 0 && ` + 非现金福利 ${fmtMoney(r.accounts.nonCash)}`}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        {hasIncome && conclusion && <p className="mt-2 text-sm leading-relaxed text-ink">{conclusion}</p>}
+        {items.some(({ r }) => r.overLimit.housingPersonal > 0) && (
+          <p className="mt-2 text-xs leading-relaxed text-muted">
+            {items.filter(({ r }) => r.overLimit.housingPersonal > 0).map(({ name, r }) => `${name}：基本 + 补充公积金个人比例超过 12%，超出的 ${fmtMoney(r.overLimit.housingPersonal)} / 年（单位同额）要并入工资计税，已计入个税。`).join("")}
+          </p>
+        )}
+        {items.some(({ r }) => r.overLimit.annuityPersonal > 0) && (
+          <p className="mt-1 text-xs leading-relaxed text-muted">
+            {items.filter(({ r }) => r.overLimit.annuityPersonal > 0).map(({ name, r }) => `${name}：个人年金超出税前扣除上限（月薪 4%，月薪最高按社平 3 倍计）的 ${fmtMoney(r.overLimit.annuityPersonal)} / 年不能抵税。`).join("")}
+          </p>
+        )}
+        {items.some(({ r }) => r.accounts.annuity > 0) && (
+          <p className="mt-1 text-xs leading-relaxed text-muted">年金在退休领取时再按规定计税，这里没有扣领取环节的税。</p>
+        )}
+      </section>
+
+      {/* 3. 逐项对比 */}
       <section className="py-4">
         <h3 className="text-sm font-semibold text-ink">逐项对比</h3>
         <p className="mt-1 text-xs text-muted sm:hidden">左右滑动查看全部对比列</p>
@@ -175,7 +261,7 @@ export function OfferCompare() {
         </div>
       </section>
 
-      {/* 3. 拆分建议 */}
+      {/* 4. 拆分建议 */}
       <section className="py-4">
         <h3 className="text-sm font-semibold text-ink">拆分建议</h3>
         {!hasIncome ? (
@@ -281,6 +367,55 @@ export function OfferCompare() {
                         className="w-28"
                       />
                     </Field>
+                  </Details>
+                </div>
+                <div className="mt-3">
+                  <Details summary={hasBenefits(o) ? "福利与账户（可选）· 已填" : "福利与账户（可选）"}>
+                    <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <Button variant="secondary" className="h-8" onClick={() => patchOffer(o.id, { ...SOE_PRESET })}>
+                        按事业单位 / 国企预填
+                      </Button>
+                      <span className="text-xs text-muted">公积金个人 12%，职业年金单位 8% / 个人 4%，可再改</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label="补充公积金比例" hint="个人和单位同比例；与基本合计超 12% 的部分要计税">
+                        <NumberInput
+                          value={pctOf(o.supplementaryHousingRate)}
+                          onChange={(v) => patchOffer(o.id, { supplementaryHousingRate: clampPct(v, BENEFIT_MAX.supplementaryHousing) })}
+                          max={BENEFIT_MAX.supplementaryHousing * 100}
+                          suffix="%"
+                          step={1}
+                          placeholder="0"
+                        />
+                      </Field>
+                      <div />
+                      <Field label="年金 · 单位比例" hint="企业 / 职业年金，按税前月薪，最高 8%">
+                        <NumberInput
+                          value={pctOf(o.annuityEmployerRate)}
+                          onChange={(v) => patchOffer(o.id, { annuityEmployerRate: clampPct(v, BENEFIT_MAX.annuityEmployer) })}
+                          max={BENEFIT_MAX.annuityEmployer * 100}
+                          suffix="%"
+                          step={1}
+                          placeholder="0"
+                        />
+                      </Field>
+                      <Field label="年金 · 个人比例" hint="最高 4%，4% 以内税前扣除，从到手里扣">
+                        <NumberInput
+                          value={pctOf(o.annuityPersonalRate)}
+                          onChange={(v) => patchOffer(o.id, { annuityPersonalRate: clampPct(v, BENEFIT_MAX.annuityPersonal) })}
+                          max={BENEFIT_MAX.annuityPersonal * 100}
+                          suffix="%"
+                          step={1}
+                          placeholder="0"
+                        />
+                      </Field>
+                      <Field label="其他现金补贴（元/年）" hint="餐补、交通、通讯、过节费等，按工资计税">
+                        <NumberInput value={o.cashAllowance ?? 0} onChange={(cashAllowance) => patchOffer(o.id, { cashAllowance })} prefix="¥" step={1000} />
+                      </Field>
+                      <Field label="非现金福利估值（元/年）" hint="体检、补充医疗、食堂、宿舍等，不计税、不进到手，只进总回报">
+                        <NumberInput value={o.nonCashBenefit ?? 0} onChange={(nonCashBenefit) => patchOffer(o.id, { nonCashBenefit })} prefix="¥" step={1000} />
+                      </Field>
+                    </div>
                   </Details>
                 </div>
               </Card>

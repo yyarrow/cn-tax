@@ -1,4 +1,4 @@
-import { estimatePension, type PensionInput } from "./engine";
+import { estimatePension, type FlexCost, type PensionInput } from "./engine";
 import { PENSION_REGIONS, type PensionRegion } from "./params";
 import { fmtAgeYM, retireAtAge, statutoryRetirement } from "./retirement";
 
@@ -19,6 +19,10 @@ export interface ScenarioPoint {
   /** 折合今天的钱 */
   totalToday: number;
   meetsMinimum: boolean;
+  /** 停缴情景且开了灵活就业续交：这个停缴点续交的花费 */
+  flexCost?: FlexCost;
+  /** 开了续交时，同一个停缴点「停缴后不再交」的结果，用来算续交多领多少 */
+  withoutFlex?: { total: number; meetsMinimum: boolean };
   /** 法定退休年龄 + 缴到退休 */
   isStatutory?: boolean;
   /** 等同于用户当前的方案（图里高亮） */
@@ -60,6 +64,7 @@ export function pensionScenarios(input: PensionInput, regions: PensionRegion[] =
       total: row?.total ?? 0,
       totalToday: row?.totalToday ?? 0,
       meetsMinimum: r.meetsMinimum,
+      flexCost: r.flexCost,
     };
   };
 
@@ -92,13 +97,19 @@ export function pensionScenarios(input: PensionInput, regions: PensionRegion[] =
   const ages: number[] = [];
   for (let a = first; a * 12 < statutoryTotal; a++) ages.push(a);
   const picked = ages.length > MAX_STOP_POINTS ? ages.filter((_, i) => i % 2 === 0) : ages;
-  const stop: ScenarioPoint[] = picked.map((a) => ({
-    ...calc({ stopAge: a, retireAgeMonths: undefined }),
-    key: `stop-${a}`,
-    label: `${a} 岁停缴`,
-    stopAge: a,
-    isCurrent: input.stopAge !== undefined && Math.abs(input.stopAge - a) < 1e-9,
-  }));
+  const stop: ScenarioPoint[] = picked.map((a) => {
+    const point = calc({ stopAge: a, retireAgeMonths: undefined });
+    // 开了续交：每个停缴点都按续交算，再带上「不续交」的对照
+    const without = input.flex ? calc({ stopAge: a, retireAgeMonths: undefined, flex: undefined }) : undefined;
+    return {
+      ...point,
+      key: `stop-${a}`,
+      label: `${a} 岁停缴`,
+      stopAge: a,
+      withoutFlex: without ? { total: without.total, meetsMinimum: without.meetsMinimum } : undefined,
+      isCurrent: input.stopAge !== undefined && Math.abs(input.stopAge - a) < 1e-9,
+    };
+  });
   stop.push({
     ...calc({ stopAge: undefined, retireAgeMonths: undefined }),
     key: "stop-none",

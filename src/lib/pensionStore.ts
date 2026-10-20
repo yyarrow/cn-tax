@@ -57,7 +57,9 @@ export interface PensionInput {
   deemedYears: number;
   /** 缴到多少岁；缺省 = 缴到退休 */
   stopAge?: number;
-  /** 社平年增长；缺省 = 领取地 region.growth ?? 0.03 */
+  /** 假设档位：选了档位就用档位的增长率 / 利率 / 通胀；手动改过任一项 = custom */
+  preset: AssumptionPreset;
+  /** 社平年增长；缺省 = 领取地 region.growth ?? DEFAULT_WAGE_GROWTH */
   wageGrowth?: number;
   /** 本人工资年增长；缺省 = 社平年增长 */
   salaryGrowth?: number;
@@ -66,7 +68,19 @@ export interface PensionInput {
   transitionCoef: number;
 }
 
-export const DEFAULT_WAGE_GROWTH = 0.03;
+export type AssumptionPreset = "conservative" | "neutral" | "optimistic" | "custom";
+
+/**
+ * 三档假设（2026-10 依据）：各省计发基数最近一年多涨 1%–2%（中位约 1.8%），北京 2022–2025 年均约 2.8%；
+ * 个人账户记账利率 2023 年 3.97%、2024 年 2.62%、2025 年 1.5%；CPI 近 20 年平均约 2%。
+ */
+export const ASSUMPTION_PRESETS: Record<Exclude<AssumptionPreset, "custom">, { label: string; wageGrowth: number; accountRate: number; inflation: number }> = {
+  conservative: { label: "保守", wageGrowth: 0.015, accountRate: 0.015, inflation: 0.02 },
+  neutral: { label: "中性", wageGrowth: 0.02, accountRate: 0.015, inflation: 0.02 },
+  optimistic: { label: "乐观", wageGrowth: 0.03, accountRate: 0.025, inflation: 0.02 },
+};
+
+export const DEFAULT_WAGE_GROWTH = ASSUMPTION_PRESETS.neutral.wageGrowth;
 
 /** 今天（年、月） */
 export function todayYM(): { year: number; month: number } {
@@ -112,6 +126,30 @@ export function newRecordId(): string {
 
 export function emptyRecord(cityId: string): PensionRecordInput {
   return { id: newRecordId(), cityId, months: 0, amount: 0 };
+}
+
+/**
+ * 假设参数：有档位就按档位取值；旧数据（没有 preset 字段）里增长率 / 利率 / 通胀都还是旧默认值的，迁到「中性」，
+ * 手动改过的保留为「自定义」。
+ */
+function assumptions(raw: Partial<PensionInput>): Pick<PensionInput, "preset" | "wageGrowth" | "accountRate" | "inflation"> {
+  const preset = raw.preset;
+  if (preset && preset !== "custom" && preset in ASSUMPTION_PRESETS) {
+    const p = ASSUMPTION_PRESETS[preset];
+    return { preset, wageGrowth: p.wageGrowth, accountRate: p.accountRate, inflation: p.inflation };
+  }
+  const custom = {
+    wageGrowth: optionalInRange(raw.wageGrowth, 0.2),
+    accountRate: inRange(raw.accountRate, 0, 0.2, ASSUMPTION_PRESETS.neutral.accountRate),
+    inflation: inRange(raw.inflation, 0, 0.2, ASSUMPTION_PRESETS.neutral.inflation),
+  };
+  if (preset === "custom") return { preset, ...custom };
+  const untouched = raw.wageGrowth === undefined && (raw.accountRate === undefined || raw.accountRate === 0.02) && (raw.inflation === undefined || raw.inflation === 0.02);
+  if (untouched) {
+    const p = ASSUMPTION_PRESETS.neutral;
+    return { preset: "neutral", wageGrowth: p.wageGrowth, accountRate: p.accountRate, inflation: p.inflation };
+  }
+  return { preset: "custom", ...custom };
 }
 
 function normalizeRecord(raw: unknown, fallbackCityId: string, index: number): PensionRecordInput {
@@ -170,10 +208,8 @@ export function normalize(raw: Partial<PensionInput> & LegacyFields): PensionInp
     records,
     deemedYears: inRange(raw.deemedYears, 0, 40, 0),
     stopAge: optionalInRange(raw.stopAge, 100),
-    wageGrowth: optionalInRange(raw.wageGrowth, 0.2),
+    ...assumptions(raw),
     salaryGrowth: optionalInRange(raw.salaryGrowth, 0.2),
-    accountRate: inRange(raw.accountRate, 0, 0.2, 0.02),
-    inflation: inRange(raw.inflation, 0, 0.2, 0.02),
     transitionCoef: inRange(raw.transitionCoef, 0, 0.05, 0.012),
   };
 }

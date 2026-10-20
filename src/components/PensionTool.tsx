@@ -18,7 +18,7 @@ import {
 import { scrollToEl } from "@/lib/scroll";
 import { fmtMoney } from "@/lib/format";
 import { SITE } from "@/lib/share";
-import { DEFAULT_WAGE_GROWTH, MAX_RECORDS, buildPensionShareUrl, todayYM, usePension, type PensionMode } from "@/lib/pensionStore";
+import { ASSUMPTION_PRESETS, DEFAULT_WAGE_GROWTH, MAX_RECORDS, buildPensionShareUrl, todayYM, usePension, type AssumptionPreset, type PensionMode } from "@/lib/pensionStore";
 import { Button, Card, CopyButton, Details, Field, Hint, MobileBar, MonthSelect, NumberInput, Segmented, Select, Stat } from "./ui";
 import { AnimatedMoney } from "./AnimatedMoney";
 import { SplitBar } from "./SplitBar";
@@ -176,6 +176,28 @@ export function PensionTool() {
   const result = estimatePension(engineInput, regions);
   const scenarios = pensionScenarios(engineInput, regions, receiveRegion?.id);
 
+  /** 同样的输入，按保守 / 乐观两档假设各算一遍，给出估算区间（同一口径：退休时每月实发） */
+  const presetTotal = (key: "conservative" | "optimistic") => {
+    const p = ASSUMPTION_PRESETS[key];
+    const rs = PENSION_REGIONS.map((r) => ({ ...r, growth: p.wageGrowth }));
+    const recs = pastRecords.map((r) => ({ ...r, region: r.region ? rs.find((x) => x.id === r.region!.id) : undefined }));
+    const res = estimatePension(
+      {
+        ...engineInput,
+        records: recs,
+        wageGrowth: p.wageGrowth,
+        salaryGrowth: input.salaryGrowth ?? p.wageGrowth,
+        accountRate: p.accountRate,
+        inflation: p.inflation,
+        homeRegion: insuredRegion ? rs.find((r) => r.id === insuredRegion.id) : undefined,
+      },
+      rs,
+    );
+    return res.byRegion.find((r) => r.region.id === receiveRegion?.id)?.total ?? res.byRegion[Math.floor(res.byRegion.length / 2)]?.total;
+  };
+  const rangeLow = presetTotal("conservative");
+  const rangeHigh = presetTotal("optimistic");
+
   const rows = result.byRegion;
   const median: RegionPension | undefined = rows[Math.floor(rows.length / 2)];
   const refRow: RegionPension | undefined = rows.find((r) => r.region.id === receiveRegion?.id) ?? median;
@@ -283,6 +305,11 @@ export function PensionTool() {
               {refRow.replacement > 0 && ` · 约为退休前缴费基数的 ${Math.round(refRow.replacement * 100)}%`}
             </p>
           )}
+          {rangeLow !== undefined && rangeHigh !== undefined && !alreadyRetired && (
+            <p>
+              按保守～乐观假设，退休时每月约 {fmtMoney(Math.min(rangeLow, rangeHigh))} ～ {fmtMoney(Math.max(rangeLow, rangeHigh))}
+            </p>
+          )}
           <p>
             {alreadyRetired ? "已到法定退休年龄" : `${retireText}起领`}，
             {fallbackRegion ? "暂无该地区计发基数，按全国平均估算" : `在 ${receiveLabel} 领`}
@@ -295,7 +322,7 @@ export function PensionTool() {
           <div
             className={`grid divide-y divide-line rounded-xl border border-line sm:divide-x sm:divide-y-0 ${refRow.transitional > 0 ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}
           >
-            <Stat label="基础养老金" value={<AnimatedMoney value={refRow.basic} />} sub={`计发基数 ${fmtMoney(refRow.baseAtRetirement)}（退休时）`} />
+            <Stat label="基础养老金" value={<AnimatedMoney value={refRow.basic} />} sub={`按退休时当地平均工资 ${fmtMoney(refRow.baseAtRetirement)}（计发基数）`} />
             <Stat label="个人账户养老金" value={<AnimatedMoney value={refRow.personal} />} sub={`余额 ÷ ${result.annuityMonths} 个月`} />
             {refRow.transitional > 0 && <Stat label="过渡性养老金" value={<AnimatedMoney value={refRow.transitional} />} sub={`视同缴费 ${input.deemedYears} 年`} />}
           </div>
@@ -345,9 +372,9 @@ export function PensionTool() {
   const regionHeader = (hiddenBelowLg = false) => (
     <div role="row" className={`${REGION_GRID} border-b border-line py-2 text-xs text-muted ${hiddenBelowLg ? "max-lg:hidden" : ""}`}>
       <div role="columnheader" className="min-w-0 font-medium">
-        退休城市<span className="sm:hidden">（计发基数 · 折算指数）</span>
+        退休城市<span className="sm:hidden">（平均工资 · 折算指数）</span>
       </div>
-      <div role="columnheader" className="hidden text-right font-medium sm:block">计发基数</div>
+      <div role="columnheader" className="hidden text-right font-medium sm:block">平均工资（计发基数）</div>
       <div role="columnheader" className="hidden text-right font-medium sm:block">折算指数</div>
       <div role="columnheader" className="text-right font-medium">
         每月合计<span className="sm:hidden"> / 差额</span>
@@ -683,19 +710,42 @@ export function PensionTool() {
           </Card>
 
           <Card tone="input">
-            <Details summary="假设（缴到几岁、工资增长、记账利率、通胀）">
+            <div className="mb-3 space-y-1.5">
+              <p className="text-xs font-medium text-muted">按哪种假设估算</p>
+              <Segmented
+                label="估算假设"
+                value={input.preset}
+                onChange={(preset: AssumptionPreset) => {
+                  if (preset === "custom") return patch({ preset });
+                  const p = ASSUMPTION_PRESETS[preset];
+                  patch({ preset, wageGrowth: p.wageGrowth, accountRate: p.accountRate, inflation: p.inflation });
+                }}
+                options={[
+                  { value: "conservative", label: "保守" },
+                  { value: "neutral", label: "中性" },
+                  { value: "optimistic", label: "乐观" },
+                  ...(input.preset === "custom" ? [{ value: "custom" as const, label: "自定义" }] : []),
+                ]}
+              />
+              <p className="text-xs leading-relaxed text-muted">
+                {input.preset === "custom"
+                  ? "你手动改过假设，按下面填的数字算。"
+                  : `平均工资每年涨 ${pctText(ASSUMPTION_PRESETS[input.preset].wageGrowth)}、记账利率 ${pctText(ASSUMPTION_PRESETS[input.preset].accountRate)}、物价每年涨 ${pctText(ASSUMPTION_PRESETS[input.preset].inflation)}。`}
+              </p>
+            </div>
+            <Details summary="细调假设（缴到几岁、工资增长、记账利率、通胀）">
               <div className="grid grid-cols-2 gap-3">
                 <Field label="缴到多少岁" hint="留空 = 缴到法定退休">
                   <NumberInput value={input.stopAge} placeholder="缴到退休" suffix="岁" max={70} step={1} onChange={(v) => patch({ stopAge: v > 0 ? v : undefined })} />
                 </Field>
-                <Field label="社平工资年增长" hint="默认 3%：各省计发基数近两年每年涨 1%–3%。计发基数也按它外推">
+                <Field label="当地平均工资年增长" hint="也是计发基数的增长。各省最近一年多涨 1%–2%（中位约 1.8%），北京 2022–2025 年均约 2.8%">
                   <NumberInput
                     value={input.wageGrowth === undefined ? undefined : toPct(input.wageGrowth)}
                     placeholder={`默认 ${toPct(receiveRegion?.growth ?? DEFAULT_WAGE_GROWTH)}`}
                     suffix="%"
                     max={20}
                     step={0.5}
-                    onChange={(v) => patch({ wageGrowth: v > 0 ? v / 100 : undefined })}
+                    onChange={(v) => patch({ preset: "custom", wageGrowth: v > 0 ? v / 100 : undefined })}
                   />
                 </Field>
                 <Field label="本人工资年增长" hint="留空 = 同社平，即缴费指数不变">
@@ -708,11 +758,11 @@ export function PensionTool() {
                     onChange={(v) => patch({ salaryGrowth: v > 0 ? v / 100 : undefined })}
                   />
                 </Field>
-                <Field label="个人账户记账利率" hint="全国统一公布：2023 年 3.97%、2024 年 2.62%、2025 年 1.5%，默认按 2%">
-                  <NumberInput value={toPct(input.accountRate)} suffix="%" max={20} step={0.5} onChange={(v) => patch({ accountRate: v / 100 })} />
+                <Field label="个人账户记账利率" hint="全国统一公布：2023 年 3.97%、2024 年 2.62%、2025 年 1.5%">
+                  <NumberInput value={toPct(input.accountRate)} suffix="%" max={20} step={0.5} onChange={(v) => patch({ preset: "custom", accountRate: v / 100 })} />
                 </Field>
-                <Field label="物价年涨幅（通胀）" hint="默认 2%：近 20 年 CPI 平均约 2%。只用于换算「相当于今天的」，不影响实际发多少">
-                  <NumberInput value={toPct(input.inflation)} suffix="%" max={20} step={0.5} onChange={(v) => patch({ inflation: v / 100 })} />
+                <Field label="物价年涨幅（通胀）" hint="近 20 年 CPI 平均约 2%。只用于换算「相当于今天的」，不影响实际发多少">
+                  <NumberInput value={toPct(input.inflation)} suffix="%" max={20} step={0.5} onChange={(v) => patch({ preset: "custom", inflation: v / 100 })} />
                 </Field>
               </div>
             </Details>
@@ -729,7 +779,10 @@ export function PensionTool() {
                   <li>退休那个月，社保按当时的计发基数、你的缴费年限和指数、个人账户余额，算出第一个月发多少——上面的大数字就是这个，是真正打到卡上的钱。</li>
                   <li>之后每年国家统一上调一次基本养老金（近几年在 2%–3% 左右），这里没算退休后的上调，所以越往后实际领到的会比首月更多。</li>
                   <li>「相当于今天的」只是把 {ret.year} 年的钱按每年物价上涨 {pctText(input.inflation)} 换算成现在的购买力，方便和你现在的工资比，不影响实际发多少。比如今天 100 元的东西，按每年涨 {pctText(input.inflation)}，{ret.year - today.year} 年后要 {Math.round(100 * Math.pow(1 + input.inflation, ret.year - today.year))} 元左右。</li>
-                  <li>为什么默认 2%：国家统计局的居民消费价格指数（CPI）近 20 年平均每年涨 2% 左右。你觉得会更高或更低，可以在左边「假设」里改；其他默认值（社平工资每年涨 3%、个人账户记账利率 2%）的来源也写在那里。</li>
+                  <li>为什么物价按每年 2%：国家统计局的居民消费价格指数（CPI）近 20 年平均每年涨 2% 左右。中性假设里平均工资每年也涨 2%，两者相同时，「相当于今天的」就约等于「按今天的工资水平算能拿多少」。</li>
+                  <li>
+                    计发基数是什么、为什么每年涨：它基本就是退休城市上一年职工的月平均工资，每年公布一次，跟着工资涨。比如北京：2022 年 11,082 元，2024 年 11,883 元，2025 年 12,049 元。退休时按那一年的值算，所以要往后推算；它只决定退休第一个月发多少，退休后的上调是国家每年统一宣布的。
+                  </li>
                 </ul>
               </Details>
             </div>

@@ -68,7 +68,7 @@ export function PensionExplainer() {
             color="var(--accent)"
             pay={["单位交 16%", "工资条上看不到，单位另外交"]}
             store={["统筹基金", "大家共用，不记在个人名下，所以 App 里查不到余额"]}
-            get={["基础养老金", "= 退休城市计发基数 ×（1 + 缴费指数）÷ 2 × 缴费年限 × 1%"]}
+            get={["基础养老金", "= 退休城市平均工资（计发基数）×（1 + 缴费指数）÷ 2 × 缴费年限 × 1%"]}
           />
         </div>
         <p className="mt-3 text-xs leading-relaxed text-muted">

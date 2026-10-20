@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { cleanBenefits } from "@/lib/tax";
 import type { OfferInput, Profile, SpecialDeductions } from "@/lib/tax";
 import { uid } from "./format";
 import { consumeSharedOffers } from "./share";
@@ -31,9 +32,30 @@ export function newOffer(over: Partial<OfferInput> = {}): OfferInput {
   };
 }
 
+/** 福利字段：旧数据 / 旧链接没有就是 0（不写进对象，保持分享链接短）；坏数据夹回合法范围 */
+function normalizeBenefits(o: Partial<OfferInput>): Partial<OfferInput> {
+  const b = cleanBenefits(o);
+  const out: Partial<OfferInput> = {};
+  if (b.suppRate > 0) out.supplementaryHousingRate = b.suppRate;
+  if (b.annuityEmployerRate > 0) out.annuityEmployerRate = b.annuityEmployerRate;
+  if (b.annuityPersonalRate > 0) out.annuityPersonalRate = b.annuityPersonalRate;
+  if (b.cashAllowance > 0) out.cashAllowance = b.cashAllowance;
+  if (b.nonCashBenefit > 0) out.nonCashBenefit = b.nonCashBenefit;
+  return out;
+}
+
 function normalize(o: Partial<OfferInput>, i: number): OfferInput {
+  const rest = { ...o };
+  delete rest.supplementaryHousingRate;
+  delete rest.annuityEmployerRate;
+  delete rest.annuityPersonalRate;
+  delete rest.cashAllowance;
+  delete rest.nonCashBenefit;
+  if (typeof rest.housingRate !== "number" || !Number.isFinite(rest.housingRate)) delete rest.housingRate;
+  else rest.housingRate = Math.min(0.2, Math.max(0, rest.housingRate));
   return newOffer({
-    ...o,
+    ...rest,
+    ...normalizeBenefits(o),
     id: o.id || uid(),
     name: typeof o.name === "string" ? o.name : `Offer ${LETTERS[i] ?? i + 1}`,
     monthlySalary: Math.max(0, Number(o.monthlySalary) || 0),

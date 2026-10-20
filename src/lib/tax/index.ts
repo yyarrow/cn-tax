@@ -97,5 +97,5 @@ export { CITY_PRESETS, HOT_CITY_IDS } from "./cities";
 export { annualTax, bonusSeparateTax, marginalRate, findBracket, round2 } from "./brackets";
 export { bonusTrapZones } from "./bonus";
 export { sadMonthly, annualOnlyDeductions, computeSocialBreakdown, inferMonthlyDeduction } from "./social";
-export { computeOffer, compareOffers, offerToProfile } from "./offer";
+export { computeOffer, compareOffers, offerToProfile, cleanBenefits, SOE_PRESET, BENEFIT_MAX, HOUSING_TAX_FREE_RATE, ANNUITY_DEDUCT_RATE } from "./offer";
 export type { OfferInput, OfferResult, OfferComparison } from "./offer";

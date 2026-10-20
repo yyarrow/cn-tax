@@ -33,6 +33,11 @@ export interface PensionInput {
   deemedYears?: number;
   /** 停缴年龄（岁，可小数），缺省 = 退休 */
   stopAge?: number;
+  /**
+   * 停缴后按灵活就业人员身份续交到退休：缴费基数 = 当月当地社平 × baseRatio（夹在 0.6–3，并夹进当年上下限）。
+   * 只有设置了 stopAge 且早于退休时才生效。费率 20% 全部自付，其中 8% 记入个人账户、12% 进统筹。
+   */
+  flex?: { baseRatio: number };
   /** 社平/计发基数年增长，如 0.04 */
   wageGrowth: number;
   /** 本人工资年增长 */
@@ -75,6 +80,18 @@ export interface RecordResult {
   amount: number;
 }
 
+/** 灵活就业续交的花费（名义金额） */
+export interface FlexCost {
+  /** 停缴当月（第一个续交月）自付额 = 基数 × 20% */
+  monthlyNow: number;
+  /** 续交期间自付总额 */
+  total: number;
+  /** 续交月数 */
+  months: number;
+  /** 其中记入个人账户的部分（8%，不含利息） */
+  toAccount: number;
+}
+
 export interface PensionResult {
   /** 实际采用的退休年龄（给了 retireAgeMonths 则是它，否则 = statutory） */
   retirement: StatutoryRetirement;
@@ -96,13 +113,20 @@ export interface PensionResult {
   annuityMonths: number;
   /** 个人账户养老金（月，名义） */
   personal: number;
-  /** 退休前最后一个月的缴费基数 */
+  /** 退休前最后一个月的在职缴费基数（不含灵活就业续交） */
   lastBase: number;
+  /** 开了灵活就业续交且确实续交了才有 */
+  flexCost?: FlexCost;
   /** 每个 region 一行，按 total 降序 */
   byRegion: RegionPension[];
 }
 
 const PERSONAL_RATE = 0.08;
+/** 灵活就业人员养老保险费率：20% 全部自付，8% 记入个人账户 */
+export const FLEX_TOTAL_RATE = 0.2;
+/** 灵活就业缴费基数占社平的下限 / 上限（60%–300%） */
+export const FLEX_MIN_RATIO = 0.6;
+export const FLEX_MAX_RATIO = 3;
 /** 折算到领取地后的平均缴费指数上限（同缴费基数 300% 封顶） */
 const MAX_INDEX = 3;
 
@@ -164,11 +188,33 @@ export function estimatePension(input: PensionInput, regions: PensionRegion[] = 
     balance = balance * (1 + monthlyRate) + base * PERSONAL_RATE;
     lastBase = base;
   }
-  // 停缴后到退休当月，账户继续计息
+  // 停缴后按灵活就业续交：从停缴月（或下个月，若已过停缴年龄）到退休前一个月，基数 = 当月社平 × baseRatio
   const monthsToRetire = Math.max(0, retireIdx - todayIdx);
-  for (let t = futureMonths + 1; t <= monthsToRetire; t++) balance *= 1 + monthlyRate;
+  const flexOn = input.flex !== undefined && input.stopAge !== undefined && stopIdx < retireIdx;
+  const flexMonths = flexOn ? Math.max(0, monthsToRetire - 1 - futureMonths) : 0;
+  let flexCost: FlexCost | undefined;
+  if (flexMonths > 0) {
+    const ratio = clamp(input.flex!.baseRatio, FLEX_MIN_RATIO, FLEX_MAX_RATIO);
+    let total = 0;
+    let toAccount = 0;
+    let monthlyNow = 0;
+    for (let t = futureMonths + 1; t <= futureMonths + flexMonths; t++) {
+      const wg = Math.pow(1 + wageGrowth, t / 12);
+      const base = clamp(socialAvg * wg * ratio, city.socialMin * wg, city.socialMax * wg);
+      const idx = base / (socialAvg * wg);
+      futureIdx.push(idx);
+      indexSum += idx;
+      balance = balance * (1 + monthlyRate) + base * PERSONAL_RATE;
+      total += base * FLEX_TOTAL_RATE;
+      toAccount += base * PERSONAL_RATE;
+      if (t === futureMonths + 1) monthlyNow = base * FLEX_TOTAL_RATE;
+    }
+    flexCost = { monthlyNow, total, months: flexMonths, toAccount };
+  }
+  // 最后一次缴费后到退休当月，账户继续计息
+  for (let t = futureMonths + flexMonths + 1; t <= monthsToRetire; t++) balance *= 1 + monthlyRate;
 
-  const totalMonths = pastMonths + futureMonths;
+  const totalMonths = pastMonths + futureMonths + flexMonths;
   const pastIndexSum = records.reduce((s, r) => s + r.index * r.months, 0);
   const avgIndex = totalMonths > 0 ? (pastIndexSum + indexSum) / totalMonths : 0;
   const years = totalMonths / 12 + deemedYears;
@@ -235,6 +281,7 @@ export function estimatePension(input: PensionInput, regions: PensionRegion[] = 
     annuityMonths: annuity,
     personal,
     lastBase,
+    flexCost,
     byRegion,
   };
 }

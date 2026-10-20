@@ -498,3 +498,128 @@ describe("pensionScenarios", () => {
     expect(flex.find((p) => p.isCurrent)!.total).toBeCloseTo(mid.total, 8);
   });
 });
+
+describe("停缴后按灵活就业续交", () => {
+  // flat：2028-06 起缴，2053-06 退休；50 岁停缴 = 2040-06 → 在职缴 144 个月，续交 2040-06 … 2053-05 共 156 个月
+  const stopped: PensionInput = { ...flat, stopAge: 50 };
+
+  it("不设 flex 时与原来完全一致，没有 flexCost", () => {
+    const r = estimatePension(stopped, oneRegion);
+    expect(r.totalMonths).toBe(144);
+    expect(r.flexCost).toBeUndefined();
+  });
+
+  it("续交月数 = 停缴到退休的月数；指数按 baseRatio；个人账户 += 8% × 基数 × 月数", () => {
+    const r = estimatePension({ ...stopped, flex: { baseRatio: 0.6 } }, oneRegion);
+    expect(r.flexCost?.months).toBe(156);
+    expect(r.totalMonths).toBe(144 + 156);
+    expect(r.years).toBe(25);
+    // 在职 144 个月指数 1，续交 156 个月指数 0.6
+    expect(r.avgIndex).toBeCloseTo((144 * 1 + 156 * 0.6) / 300, 10);
+    // 基数 = 社平 10000 × 0.6 = 6000
+    expect(r.accountAtRetirement).toBeCloseTo(10000 * 0.08 * 144 + 6000 * 0.08 * 156, 6);
+    const base = estimatePension(stopped, oneRegion);
+    expect(r.accountAtRetirement - base.accountAtRetirement).toBeCloseTo(0.08 * 6000 * 156, 6);
+    // 退休前最后一个在职基数不受续交影响
+    expect(r.lastBase).toBe(10000);
+    // 基础养老金 = 10000 × (1 + 平均指数) / 2 × 25 × 1%
+    expect(r.byRegion[0].basic).toBeCloseTo(((10000 * (1 + r.avgIndex)) / 2) * 25 * 0.01, 6);
+  });
+
+  it("flexCost：monthlyNow = 20% × 基数，total = 20% × 基数 × 月数，toAccount = 8% × 基数 × 月数", () => {
+    const r = estimatePension({ ...stopped, flex: { baseRatio: 1 } }, oneRegion);
+    expect(r.flexCost).toEqual({ monthlyNow: 2000, total: expect.closeTo(2000 * 156, 6), months: 156, toAccount: expect.closeTo(800 * 156, 6) });
+    expect(r.avgIndex).toBeCloseTo(1, 10);
+  });
+
+  it("基数随社平增长：第一个续交月用停缴当月的社平", () => {
+    const r = estimatePension({ ...stopped, wageGrowth: 0.04, salaryGrowth: 0.04, flex: { baseRatio: 0.6 } }, oneRegion);
+    // 停缴月 2040-06 距今天 2028-05 共 145 个月（t = 145）
+    expect(r.flexCost?.monthlyNow).toBeCloseTo(0.2 * 0.6 * 10000 * Math.pow(1.04, 145 / 12), 6);
+    // 每个续交月指数都是 0.6
+    const noGrowthIdx = (144 * 1 + 156 * 0.6) / 300;
+    expect(r.avgIndex).toBeCloseTo(noGrowthIdx, 10);
+  });
+
+  it("baseRatio 夹在 0.6–3，并夹进当年基数上下限", () => {
+    const low = estimatePension({ ...stopped, flex: { baseRatio: 0.2 } }, oneRegion);
+    expect(low.flexCost?.monthlyNow).toBeCloseTo(0.2 * 6000, 6);
+    const high = estimatePension({ ...stopped, flex: { baseRatio: 9 } }, oneRegion);
+    expect(high.flexCost?.monthlyNow).toBeCloseTo(0.2 * 30000, 6);
+    // 下限高于 60% 社平的城市：按下限缴，指数 0.7
+    const floor = estimatePension({ ...stopped, city: { socialMin: 7000, socialMax: 30000 }, flex: { baseRatio: 0.6 } }, oneRegion);
+    expect(floor.flexCost?.monthlyNow).toBeCloseTo(0.2 * 7000, 6);
+    expect(floor.avgIndex).toBeCloseTo((144 * 1 + 156 * 0.7) / 300, 10);
+  });
+
+  it("没设 stopAge，或 stopAge 不早于退休：flex 不生效", () => {
+    const none = estimatePension({ ...flat, flex: { baseRatio: 0.6 } }, oneRegion);
+    expect(none.flexCost).toBeUndefined();
+    expect(none.totalMonths).toBe(300);
+    expect(none.accountAtRetirement).toBeCloseTo(240000, 6);
+    const late = estimatePension({ ...flat, stopAge: 63, flex: { baseRatio: 0.6 } }, oneRegion);
+    expect(late.flexCost).toBeUndefined();
+    expect(late.totalMonths).toBe(300);
+    const later = estimatePension({ ...flat, stopAge: 70, flex: { baseRatio: 0.6 } }, oneRegion);
+    expect(later.flexCost).toBeUndefined();
+  });
+
+  it("续交后缴费年限满足最低要求", () => {
+    // 40 岁停缴 = 2030-06：在职 24 个月；不续交不满 240 个月，续交 276 个月后共 300 个月
+    const without = estimatePension({ ...flat, stopAge: 40 }, oneRegion);
+    expect(without.meetsMinimum).toBe(false);
+    const withFlex = estimatePension({ ...flat, stopAge: 40, flex: { baseRatio: 0.6 } }, oneRegion);
+    expect(withFlex.flexCost?.months).toBe(276);
+    expect(withFlex.totalMonths).toBe(300);
+    expect(withFlex.meetsMinimum).toBe(true);
+    expect(withFlex.shortfallMonths).toBe(0);
+  });
+
+  it("续交期间账户同样按记账利率计息，退休前一月缴的那笔到退休当月计一个月息", () => {
+    // 今天 2053-03、50 岁早已过 → 2053-04、2053-05 两个月都是续交，2053-06 退休
+    const r = estimatePension({ ...flat, today: { year: 2053, month: 3 }, stopAge: 50, accountRate: 0.03, records: [{ city, months: 120, amount: 100000 }], flex: { baseRatio: 0.6 } }, oneRegion);
+    const i = Math.pow(1.03, 1 / 12) - 1;
+    expect(r.flexCost?.months).toBe(2);
+    expect(r.accountAtRetirement).toBeCloseTo(((100000 * (1 + i) + 480) * (1 + i) + 480) * (1 + i), 6);
+  });
+
+  it("已过停缴年龄：从下个月起续交，已经退休则不续交", () => {
+    const r = estimatePension({ ...flat, stopAge: 30, flex: { baseRatio: 0.6 } }, oneRegion);
+    expect(r.flexCost?.months).toBe(300);
+    expect(r.totalMonths).toBe(300);
+    const retired = estimatePension({ ...flat, today: { year: 2060, month: 1 }, stopAge: 50, flex: { baseRatio: 0.6 } }, oneRegion);
+    expect(retired.flexCost).toBeUndefined();
+  });
+});
+
+describe("pensionScenarios · 续交", () => {
+  const scen = (patch: Partial<PensionInput> = {}) => pensionScenarios({ ...flat, ...patch }, oneRegion, "x");
+
+  it("开了续交：每个停缴点都按续交算，原本不满最低年限的点变成满足，并带 flexCost 与对照", () => {
+    const off = scen();
+    const on = scen({ flex: { baseRatio: 0.6 } });
+    expect(off.stop.some((p) => !p.meetsMinimum)).toBe(true);
+    expect(on.stop.every((p) => p.meetsMinimum)).toBe(true);
+    for (const p of on.stop.slice(0, -1)) {
+      expect(p.flexCost).toBeDefined();
+      expect(p.withoutFlex).toBeDefined();
+    }
+    // 对照 = 不开续交的同一个点
+    on.stop.slice(0, -1).forEach((p, i) => {
+      expect(p.withoutFlex?.total).toBeCloseTo(off.stop[i].total, 8);
+      expect(p.withoutFlex?.meetsMinimum).toBe(off.stop[i].meetsMinimum);
+    });
+    // 39 岁停缴：续交 288 个月
+    expect(on.stop[0].flexCost?.months).toBe(288);
+    expect(on.stop[0].total).toBeGreaterThan(off.stop[0].total);
+  });
+
+  it("缴到退休那一点不受续交影响；不开续交时没有 withoutFlex", () => {
+    const off = scen();
+    const on = scen({ flex: { baseRatio: 1 } });
+    const lastOn = on.stop[on.stop.length - 1];
+    expect(lastOn.flexCost).toBeUndefined();
+    expect(lastOn.total).toBeCloseTo(off.stop[off.stop.length - 1].total, 8);
+    expect(off.stop.every((p) => p.withoutFlex === undefined && p.flexCost === undefined)).toBe(true);
+  });
+});

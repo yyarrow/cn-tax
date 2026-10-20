@@ -57,6 +57,12 @@ export interface PensionInput {
   deemedYears: number;
   /** 缴到多少岁；缺省 = 缴到退休 */
   stopAge?: number;
+  /** 停缴后按灵活就业续交到退休（提前停缴视图的开关；旧数据缺字段 = 不续交） */
+  flexOn: boolean;
+  /** 续交基数档次：最低（60% 社平）/ 按社平（100%）/ 自定义 */
+  flexTier: FlexTier;
+  /** 续交基数 = 社平 × flexRatio；存的是原始输入（只夹上限），使用处再夹到 0.6–3 */
+  flexRatio: number;
   /** 假设档位：选了档位就用档位的增长率 / 利率 / 通胀；手动改过任一项 = custom */
   preset: AssumptionPreset;
   /** 社平年增长；缺省 = 领取地 region.growth ?? DEFAULT_WAGE_GROWTH */
@@ -67,6 +73,10 @@ export interface PensionInput {
   inflation: number;
   transitionCoef: number;
 }
+
+export type FlexTier = "min" | "avg" | "custom";
+
+export const FLEX_TIER_RATIO: Record<Exclude<FlexTier, "custom">, number> = { min: 0.6, avg: 1 };
 
 export type AssumptionPreset = "conservative" | "neutral" | "optimistic" | "custom";
 
@@ -114,6 +124,7 @@ function intInRange(v: unknown, lo: number, hi: number, fallback: number): numbe
 
 const CATEGORIES: PensionCategory[] = ["male", "female55", "female50"];
 const MODES: PensionMode[] = ["gross", "net", "pension"];
+const FLEX_TIERS: FlexTier[] = ["min", "avg", "custom"];
 
 /** 旧版（单一余额 + 缴费年限）字段，只在读取时迁移用 */
 type LegacyFields = { balance?: unknown; paidYears?: unknown; paidMonthsExtra?: unknown };
@@ -177,6 +188,14 @@ function uniqueIds(list: PensionRecordInput[]): PensionRecordInput[] {
   });
 }
 
+/** 续交设置：档次决定比例（最低 / 按社平固定），自定义才用输入的比例（打字时只夹上限，下限在使用处夹） */
+function flexFields(raw: Partial<PensionInput>): Pick<PensionInput, "flexOn" | "flexTier" | "flexRatio"> {
+  const flexTier = FLEX_TIERS.includes(raw.flexTier as FlexTier) ? (raw.flexTier as FlexTier) : "min";
+  const typed = optionalInRange(raw.flexRatio, 3);
+  const flexRatio = flexTier === "custom" ? (typed ?? 0.6) : FLEX_TIER_RATIO[flexTier];
+  return { flexOn: raw.flexOn === true, flexTier, flexRatio };
+}
+
 export function normalize(raw: Partial<PensionInput> & LegacyFields): PensionInput {
   const city = getCity(typeof raw.cityId === "string" ? raw.cityId : "");
   const receive = getCity(typeof raw.receiveCityId === "string" && raw.receiveCityId ? raw.receiveCityId : city.id);
@@ -208,6 +227,7 @@ export function normalize(raw: Partial<PensionInput> & LegacyFields): PensionInp
     records,
     deemedYears: inRange(raw.deemedYears, 0, 40, 0),
     stopAge: optionalInRange(raw.stopAge, 100),
+    ...flexFields(raw),
     ...assumptions(raw),
     salaryGrowth: optionalInRange(raw.salaryGrowth, 0.2),
     transitionCoef: inRange(raw.transitionCoef, 0, 0.05, 0.012),

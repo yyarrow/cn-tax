@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { fmtYearsMonths, type ScenarioPoint } from "@/lib/pension";
 import { fmtMoney } from "@/lib/format";
 import { useArmed } from "@/lib/useArmed";
+import { FlexSummary } from "./FlexSummary";
 
 export type ScenarioMode = "flex" | "stop";
 
@@ -37,12 +38,15 @@ export function ScenarioChart({
   points,
   mode,
   statutoryAge,
+  cityName,
   staticMode = false,
 }: {
   points: ScenarioPoint[];
   mode: ScenarioMode;
   /** 法定退休年龄文案，如 "63 岁" */
   statutoryAge: string;
+  /** 工作城市名（续交小结里「{当地}停缴当年标准」用） */
+  cityName: string;
   staticMode?: boolean;
 }) {
   const boxRef = useRef<HTMLDivElement>(null);
@@ -124,7 +128,9 @@ export function ScenarioChart({
   const note =
     mode === "flex"
       ? "弹性提前要满足最低缴费年限，最多提前 3 年且不低于原退休年龄；弹性延迟需本人自愿、单位同意，最多 3 年。"
-      : "停缴后账户余额继续计息，但缴费年限不再增加；仍须满足最低缴费年限才能按月领。";
+      : points.some((p) => p.flexCost)
+        ? "按灵活就业续交到退休：缴费年限继续增加，续交那几年的缴费指数按你选的基数档次计入；仍须满足最低缴费年限才能按月领。"
+        : "停缴后账户余额继续计息，但缴费年限不再增加；仍须满足最低缴费年限才能按月领。";
 
   // 坐标轴标签太挤时隔 stride 个显示一个（当前方案和选中的点一律显示，附近的让位）
   const stride = Math.max(1, Math.ceil((fs * 3.4) / colW));
@@ -279,6 +285,7 @@ export function ScenarioChart({
         )}
         <p className="text-xs leading-relaxed text-muted">{note}</p>
       </div>
+      {mode === "stop" && focus?.flexCost && <FlexSummary point={focus} cityName={cityName} />}
     </div>
   );
 }

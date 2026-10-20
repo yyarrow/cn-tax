@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { MONTH_NAMES, getCity, sadMonthly } from "@/lib/tax";
 import {
+  FLEX_MAX_RATIO,
+  FLEX_MIN_RATIO,
   PENSION_REGIONS,
   baseFromGross,
   baseFromNet,
@@ -18,7 +20,7 @@ import {
 import { scrollToEl } from "@/lib/scroll";
 import { fmtMoney } from "@/lib/format";
 import { SITE } from "@/lib/share";
-import { ASSUMPTION_PRESETS, DEFAULT_WAGE_GROWTH, MAX_RECORDS, buildPensionShareUrl, todayYM, usePension, type AssumptionPreset, type PensionMode } from "@/lib/pensionStore";
+import { ASSUMPTION_PRESETS, DEFAULT_WAGE_GROWTH, MAX_RECORDS, buildPensionShareUrl, todayYM, usePension, type AssumptionPreset, type FlexTier, type PensionMode } from "@/lib/pensionStore";
 import { Button, Card, CopyButton, Details, Field, Hint, MobileBar, MonthSelect, NumberInput, Segmented, Select, Stat } from "./ui";
 import { AnimatedMoney } from "./AnimatedMoney";
 import { SplitBar } from "./SplitBar";
@@ -166,6 +168,7 @@ export function PensionTool() {
     records: pastRecords,
     deemedYears: input.deemedYears,
     stopAge: input.stopAge && input.stopAge > 0 ? clamp(input.stopAge, 18, 70) : undefined,
+    flex: input.flexOn ? { baseRatio: clamp(input.flexRatio, FLEX_MIN_RATIO, FLEX_MAX_RATIO) } : undefined,
     wageGrowth,
     salaryGrowth,
     accountRate: input.accountRate,
@@ -278,8 +281,50 @@ export function PensionTool() {
       points={scenarioMode === "flex" ? scenarios.flex : scenarios.stop}
       mode={scenarioMode}
       statutoryAge={fmtAge(result.statutory.ageYears, result.statutory.ageMonths)}
+      cityName={city.name}
       staticMode={staticMode}
     />
+  );
+
+  /** 提前停缴视图：停缴后不再交 / 按灵活就业续交，以及续交基数档次 */
+  const flexBaseNow = clamp(socialAvg * clamp(input.flexRatio, FLEX_MIN_RATIO, FLEX_MAX_RATIO), city.socialMin, city.socialMax);
+  const flexControls = (
+    <div className="mb-4 space-y-2.5">
+      <Segmented
+        label="停缴之后"
+        value={input.flexOn ? "flex" : "none"}
+        options={[
+          { value: "none", label: "停缴后不再交" },
+          { value: "flex", label: "按灵活就业续交" },
+        ]}
+        onChange={(v) => patch({ flexOn: v === "flex" })}
+      />
+      {input.flexOn && (
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted">续交基数（占{city.name}社平的比例，在 60%–300% 之间自选）</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <Segmented
+              label="续交基数档次"
+              value={input.flexTier}
+              options={[
+                { value: "min" as FlexTier, label: "最低 60%" },
+                { value: "avg" as FlexTier, label: "按社平 100%" },
+                { value: "custom" as FlexTier, label: "自定义" },
+              ]}
+              onChange={(flexTier) => patch({ flexTier })}
+            />
+            {input.flexTier === "custom" && (
+              <div className="w-28">
+                <NumberInput value={toPct(input.flexRatio)} onChange={(v) => patch({ flexRatio: v / 100 })} min={60} max={300} step={10} suffix="%" ariaLabel="续交基数占社平的比例" />
+              </div>
+            )}
+          </div>
+          <p className="text-xs leading-relaxed text-muted">
+            {city.name}今年社平约 {fmtMoney(socialAvg)}，按 {pctText(clamp(input.flexRatio, FLEX_MIN_RATIO, FLEX_MAX_RATIO))} 缴，基数约 {fmtMoney(flexBaseNow)}。费率 20% 全部自付，其中 8% 记入个人账户、12% 进统筹。
+          </p>
+        </div>
+      )}
+    </div>
   );
 
   /** 头条 + 拆分 + 校验：页面和分享弹层用同一份 */
@@ -310,6 +355,7 @@ export function PensionTool() {
               按保守～乐观假设，退休时每月约 {fmtMoney(Math.min(rangeLow, rangeHigh))} ～ {fmtMoney(Math.max(rangeLow, rangeHigh))}
             </p>
           )}
+          {result.flexCost && engineInput.stopAge !== undefined && <p>按 {engineInput.stopAge} 岁停缴后灵活就业续交估算</p>}
           <p>
             {alreadyRetired ? "已到法定退休年龄" : `${retireText}起领`}，
             {fallbackRegion ? "暂无该地区计发基数，按全国平均估算" : `在 ${receiveLabel} 领`}
@@ -482,7 +528,7 @@ export function PensionTool() {
           <section className="report-section rounded-2xl border border-line bg-white p-5">{summaryBody}</section>
           <section className="report-section rounded-2xl border border-line bg-white p-5">
             <h2 className="text-base font-semibold text-ink">哪年退休，每月领多少</h2>
-            <p className="mb-3 mt-0.5 text-xs leading-relaxed text-muted">{scenarioMode === "flex" ? "法定退休年龄前后各 3 年，退休时每月实发" : "不同年龄停缴、按法定年龄退休，退休时每月实发"}</p>
+            <p className="mb-3 mt-0.5 text-xs leading-relaxed text-muted">{scenarioMode === "flex" ? "法定退休年龄前后各 3 年，退休时每月实发" : input.flexOn ? "不同年龄停缴后按灵活就业续交、按法定年龄退休，退休时每月实发" : "不同年龄停缴、按法定年龄退休，退休时每月实发"}</p>
             {scenarioBody(true)}
           </section>
           <section className="report-section rounded-2xl border border-line bg-white p-5">
@@ -803,6 +849,7 @@ export function PensionTool() {
               />
             }
           >
+            {scenarioMode === "stop" && flexControls}
             {scenarioBody(false)}
           </Card>
 

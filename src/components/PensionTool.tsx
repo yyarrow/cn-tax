@@ -29,10 +29,11 @@ import { ExampleHint } from "./ExampleHint";
 import { ScenarioChart, type ScenarioMode } from "./ScenarioChart";
 import { ShareModal } from "./ShareModal";
 
-const MODES: { value: PensionMode; label: string }[] = [
-  { value: "gross", label: "按税前工资" },
-  { value: "net", label: "税前 + 到手反推" },
-  { value: "pension", label: "按工资条养老扣款" },
+/** 窄屏时选项会折成两行：<wbr> 标出能断开的位置，不在词中间断 */
+const MODES: { value: PensionMode; label: ReactNode }[] = [
+  { value: "gross", label: <>按<wbr />税前工资</> },
+  { value: "net", label: <>税前 + 到手<wbr />反推</> },
+  { value: "pension", label: <>按工资条<wbr />养老扣款</> },
 ];
 
 const CATEGORIES: { value: PensionCategory; label: ReactNode }[] = [
@@ -103,7 +104,7 @@ function Row({ label, value, sub }: { label: ReactNode; value: ReactNode; sub?: 
 }
 
 /** 地区表一行的列：手机 = 名字 | 合计（两行），sm 起 = 名字 | 计发基数 | 指数 | 合计 | 差额 */
-const REGION_GRID = "grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 sm:gap-x-2 sm:grid-cols-[minmax(0,1fr)_5rem_3.25rem_5.25rem_5rem]";
+const REGION_GRID = "grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 sm:gap-x-2 sm:grid-cols-[minmax(0,1.6fr)_repeat(4,minmax(4.5rem,1fr))]";
 
 const CATEGORY_NAME: Record<PensionCategory, string> = { male: "男", female55: "女（原 55 岁退休）", female50: "女（原 50 岁退休）" };
 
@@ -420,7 +421,7 @@ export function PensionTool() {
       <div role="columnheader" className="min-w-0 font-medium">
         退休城市<span className="sm:hidden">（平均工资 · 折算指数）</span>
       </div>
-      <div role="columnheader" className="hidden text-right font-medium sm:block">平均工资（计发基数）</div>
+      <div role="columnheader" className="hidden whitespace-nowrap text-right font-medium sm:block">平均工资（计发基数）</div>
       <div role="columnheader" className="hidden text-right font-medium sm:block">折算指数</div>
       <div role="columnheader" className="text-right font-medium">
         每月合计<span className="sm:hidden"> / 差额</span>
@@ -511,7 +512,7 @@ export function PensionTool() {
   };
 
   return (
-    <div className={`app-root mx-auto max-w-6xl px-4 pt-4 sm:px-6 ${showBar ? "pb-24 lg:pb-10" : "pb-10"}`}>
+    <div className={`app-root mx-auto max-w-6xl px-4 pt-4 sm:px-6 pb-10`}>
       {fromShare && (
         <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm leading-relaxed text-ink">已按分享的数字预填，改成你自己的即可。</p>
       )}
@@ -596,7 +597,7 @@ export function PensionTool() {
           <Card tone="input" title="现在怎么缴" subtitle="用来推算你现在的缴费基数">
             <Segmented label="缴费基数的来源" value={input.mode} options={MODES} onChange={(mode) => patch({ mode })} />
             <p className="mt-2 text-xs text-muted">
-              按{city.name}的基数上下限 {fmtMoney(city.socialMin)}–{fmtMoney(city.socialMax)}（工作城市在页面右上角改）
+              按{city.name}的基数上下限 {fmtMoney(city.socialMin)}–{fmtMoney(city.socialMax)}（在上方「工作城市」里改）
             </p>
 
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
@@ -858,7 +859,7 @@ export function PensionTool() {
 
       <Card title="换个地方退休，每月差多少" subtitle="缴费记录不变，只换退休城市（按每月合计从高到低）" className="mt-5">
         {tableBody(false)}
-        <div className="mt-4 max-w-3xl space-y-3 border-t border-line pt-4">
+        <div className="mt-4 space-y-3 border-t border-line pt-4">
           <Details summary="为什么不同地方差这么多">
             <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-ink">
               <li>

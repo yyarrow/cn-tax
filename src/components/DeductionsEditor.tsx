@@ -10,7 +10,7 @@ export function DeductionsEditor({ d, onChange }: { d: SpecialDeductions; onChan
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
-        <Field label="住房" hint="租房或首套房贷利息，二选一">
+        <Field label="住房" hint="租房或首套房贷利息，二选一" className="col-span-2 sm:col-span-1">
           <Select value={d.housing} onChange={(e) => onChange({ housing: e.target.value as SpecialDeductions["housing"] })}>
             <option value="none">不计此项扣除</option>
             <option value="rent">租房</option>
@@ -18,7 +18,7 @@ export function DeductionsEditor({ d, onChange }: { d: SpecialDeductions; onChan
           </Select>
         </Field>
         {d.housing === "rent" ? (
-          <Field label="租房城市">
+          <Field label="租房城市" className="col-span-2 sm:col-span-1">
             <Select value={d.rentTier} onChange={(e) => onChange({ rentTier: Number(e.target.value) as 1 | 2 | 3 })}>
               <option value={1}>直辖市/省会/计划单列市（{SAD_STANDARD.rentTier1}/月）</option>
               <option value={2}>户籍人口 &gt; 100 万（{SAD_STANDARD.rentTier2}/月）</option>
@@ -26,9 +26,9 @@ export function DeductionsEditor({ d, onChange }: { d: SpecialDeductions; onChan
             </Select>
           </Field>
         ) : (
-          <div />
+          <div className="hidden sm:block" />
         )}
-        <Field label="赡养老人" hint="父母任一方满 60 岁即可">
+        <Field label="赡养老人" hint="父母任一方满 60 岁即可" className="col-span-2 sm:col-span-1">
           <Select value={d.elderly} onChange={(e) => onChange({ elderly: e.target.value as SpecialDeductions["elderly"] })}>
             <option value="none">不计此项扣除</option>
             <option value="only">独生子女（{SAD_STANDARD.elderlyOnly}/月）</option>
@@ -36,17 +36,17 @@ export function DeductionsEditor({ d, onChange }: { d: SpecialDeductions; onChan
           </Select>
         </Field>
         {d.elderly === "shared" ? (
-          <Field label="我分摊的金额" hint={`每月，不超过 ${SAD_STANDARD.elderlySharedMax}`}>
+          <Field label="我分摊的金额" hint={`每月，不超过 ${SAD_STANDARD.elderlySharedMax}`} className="col-span-2 sm:col-span-1">
             <NumberInput value={d.elderlySharedAmount} onChange={(v) => onChange({ elderlySharedAmount: Math.min(SAD_STANDARD.elderlySharedMax, v) })} prefix="¥" />
           </Field>
         ) : (
-          <div />
+          <div className="hidden sm:block" />
         )}
         <Field label="子女教育" hint="3 岁起到学历教育结束">
-          <NumberInput value={d.children} onChange={(children) => onChange({ children })} suffix="个" />
+          <NumberInput value={d.children} onChange={(children) => onChange({ children })} suffix="个孩子" />
         </Field>
         <Field label="3 岁以下婴幼儿" hint={`每个孩子 ${SAD_STANDARD.infant}/月`}>
-          <NumberInput value={d.infants} onChange={(infants) => onChange({ infants })} suffix="个" />
+          <NumberInput value={d.infants} onChange={(infants) => onChange({ infants })} suffix="个孩子" />
         </Field>
         <div className="col-span-2 space-y-1">
           <p className="text-xs font-medium text-muted">继续教育</p>
@@ -56,8 +56,8 @@ export function DeductionsEditor({ d, onChange }: { d: SpecialDeductions; onChan
             onChange={(continuingEducation) => onChange({ continuingEducation })}
             options={[
               { value: "none", label: "无" },
-              { value: "degree", label: `在职学历（${SAD_STANDARD.continuingEducationDegree}/月）` },
-              { value: "cert", label: `职业资格证（${SAD_STANDARD.continuingEducationCert}/年）` },
+              { value: "degree", label: <>在职学历<wbr />（{SAD_STANDARD.continuingEducationDegree}/月）</> },
+              { value: "cert", label: <>职业资格证<wbr />（{SAD_STANDARD.continuingEducationCert}/年）</> },
             ]}
           />
           <p className="text-xs text-muted">在职读学历或当年拿到证书</p>

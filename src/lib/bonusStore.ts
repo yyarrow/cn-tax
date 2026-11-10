@@ -22,6 +22,8 @@ const BONUS_KEY = "cn-tax-bonus-v1";
 /** 首页计算器的输入（src/lib/store.ts 的 KEY），只读取用于预填 */
 const PROFILE_KEY = "cn-tax-profile-v1";
 const HASH_KEY = "b";
+/** 首次打开时的示例年终奖 */
+export const EXAMPLE_BONUS = 50000;
 
 export function newBonusInput(over: Partial<BonusInput> = {}): BonusInput {
   return { cityId: "beijing", monthlySalary: 25000, bonus: 0, paidMonths: 12, ...over };
@@ -57,7 +59,9 @@ function defaultInput(p: Profile | null): BonusInput {
   return newBonusInput({
     cityId: p?.cityId || "beijing",
     monthlySalary: seg && seg.monthlySalary > 0 ? seg.monthlySalary : 25000,
-    bonus: seg?.bonus && seg.bonus > 0 ? seg.bonus : 0,
+    // 完全没填过任何东西时给一个示例年终奖（页面会提示"示例数据"），不然结果区一片空白；
+    // 首页填过但没写年终奖的，保持 0，免得被误认为是自己填的
+    bonus: seg?.bonus && seg.bonus > 0 ? seg.bonus : p ? 0 : EXAMPLE_BONUS,
   });
 }
 

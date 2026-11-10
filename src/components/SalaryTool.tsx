@@ -245,7 +245,7 @@ export function SalaryTool() {
   );
 
   return (
-    <div className={`app-root mx-auto max-w-6xl px-4 pt-4 sm:px-6 ${showBar ? "pb-24 lg:pb-10" : "pb-10"}`}>
+    <div className={`app-root mx-auto max-w-6xl px-4 pt-4 sm:px-6 pb-10`}>
       {fromShare && (
         <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm leading-relaxed text-ink">
           已按分享的数字预填，改成你自己的即可。
@@ -276,15 +276,6 @@ export function SalaryTool() {
         <CopyButton text={() => buildSalaryShareUrl(input)} className="h-9" />
         <Button variant="primary" className="h-9" onClick={() => setShowShare(true)}>
           分享报告
-        </Button>
-        <Button
-          variant="ghost"
-          className="h-9"
-          onClick={() => {
-            window.location.href = buildShareUrl(profile);
-          }}
-        >
-          看完整测算 →
         </Button>
       </div>
 
@@ -335,7 +326,8 @@ export function SalaryTool() {
 
           <p className="text-xs leading-relaxed text-muted">
             {year} 年口径 · 专项附加扣除沿用首页设置（每月 {fmtMoney(sad)}）。{" "}
-            <Link href="/#deductions" className="text-accent-text underline underline-offset-2">修改扣除</Link>
+            <Link href="/#deductions" className="text-accent-text underline underline-offset-2">修改扣除</Link><br />
+            <a href={buildShareUrl(profile)} className="text-accent-text underline underline-offset-2">在个税计算器里看全年逐月明细</a>
           </p>
         </div>
 

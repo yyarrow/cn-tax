@@ -54,7 +54,7 @@ export function Report({ profile, result, currentMonth, onClose }: { profile: Pr
         <Segmented label="报告内容" value={mode} onChange={setMode} options={[{ value: "brief", label: "摘要" }, { value: "full", label: "完整" }]} />
       }
     >
-      <Section title="全年测算" subtitle={currentMonth > 0 && currentMonth < 12 ? `按已填收入估算，${currentMonth + 1}–12 月为预测。` : undefined}>
+      <Section title="全年测算" subtitle={currentMonth > 0 && currentMonth < 12 ? `按已填收入估算，${currentMonth === 11 ? "12" : `${currentMonth + 1}–12`} 月为预测。` : undefined}>
         <Summary a={result.annual} />
       </Section>
 

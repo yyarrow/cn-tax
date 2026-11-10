@@ -224,7 +224,7 @@ export function BonusTool() {
   );
 
   return (
-    <div className={`app-root mx-auto max-w-6xl px-4 pt-4 sm:px-6 ${showBar ? "pb-24 lg:pb-10" : "pb-10"}`}>
+    <div className={`app-root mx-auto max-w-6xl px-4 pt-4 sm:px-6 pb-10`}>
       {wasBonusLoadedFromShare() && (
         <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm leading-relaxed text-ink">
           已按分享的数字预填，改成你自己的即可。
@@ -254,18 +254,9 @@ export function BonusTool() {
         <Button variant="primary" className="h-9" onClick={() => setShowShare(true)}>
           分享报告
         </Button>
-        <Button
-          variant="ghost"
-          className="h-9"
-          onClick={() => {
-            window.location.href = buildShareUrl(profile);
-          }}
-        >
-          看完整测算 →
-        </Button>
       </div>
 
-      <ExampleHint storageKeys={["cn-tax-bonus-v1", "cn-tax-profile-v1"]} enabled={!wasBonusLoadedFromShare()} />
+      <ExampleHint storageKeys={["cn-tax-bonus-v1", "cn-tax-profile-v1"]} enabled={!wasBonusLoadedFromShare()} text="当前为示例数据（月薪 2.5 万、年终奖 5 万）。改成你自己的城市、月薪和年终奖，再看结果。" />
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:grid-rows-[auto_1fr]">
         {/* 输入 */}
@@ -310,7 +301,8 @@ export function BonusTool() {
           </Card>
           <p className="text-xs leading-relaxed text-muted">
             {year} 年口径 · 专项附加扣除沿用首页设置（每月 {fmtMoney(sad)}）。{" "}
-            <Link href="/#deductions" className="text-accent-text underline underline-offset-2">修改扣除</Link>
+            <Link href="/#deductions" className="text-accent-text underline underline-offset-2">修改扣除</Link><br />
+            <a href={buildShareUrl(profile)} className="text-accent-text underline underline-offset-2">在个税计算器里看全年逐月明细</a>
           </p>
         </div>
 

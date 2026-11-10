@@ -6,7 +6,8 @@ import { computeAll, getCity } from "@/lib/tax";
 import { currentMonthFor, useProfile } from "@/lib/store";
 import { scrollToEl } from "@/lib/scroll";
 import { fmtMoney } from "@/lib/format";
-import { Button, Card, Field, Hint, NumberInput, Details, MobileBar } from "./ui";
+import { Button, Card, CopyButton, Field, Hint, NumberInput, Details, MobileBar } from "./ui";
+import { buildShareUrl } from "@/lib/share";
 import { AnimatedMoney } from "./AnimatedMoney";
 import { CityPicker } from "./CityPicker";
 import { Timeline } from "./Timeline";
@@ -51,7 +52,7 @@ export function App() {
   const showBar = hasIncome && !showReport;
 
   return (
-    <div className={`app-root mx-auto max-w-6xl px-4 pt-4 transition-opacity duration-(--dur-base) sm:px-6 ${showBar ? "pb-24 lg:pb-10" : "pb-10"} ${ready ? "opacity-100" : "opacity-0"}`}>
+    <div className={`app-root mx-auto max-w-6xl px-4 pt-4 transition-opacity duration-(--dur-base) sm:px-6 pb-10 ${ready ? "opacity-100" : "opacity-0"}`}>
       {preview && (
         <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm leading-relaxed text-ink">
           <span className="flex-1">这是链接带来的数据，只是预览，不会覆盖你自己填过的内容。可以直接改着看。</span>
@@ -71,6 +72,7 @@ export function App() {
         <Field label="工作城市">
           <CityPicker value={profile.cityId} onChange={(id) => setCity(id)} className="w-36" />
         </Field>
+        <CopyButton text={() => buildShareUrl(profile)} className="mt-5 h-9" />
         <Button variant="primary" onClick={() => setShowReport(true)} className="mt-5 h-9">
           分享报告
         </Button>
@@ -117,7 +119,7 @@ export function App() {
         {/* 结果列 */}
         <div className="min-w-0 space-y-5 lg:sticky lg:top-6 lg:self-start" id="results" ref={resultsRef}>
           <>
-              <Card title={`${profile.year} 年全年测算`} subtitle={currentMonth > 0 && currentMonth < 12 ? `按已填收入估算，${currentMonth + 1}–12 月为预测。` : undefined}>
+              <Card title={`${profile.year} 年全年测算`} subtitle={currentMonth > 0 && currentMonth < 12 ? `按已填收入估算，${currentMonth === 11 ? "12" : `${currentMonth + 1}–12`} 月为预测。` : undefined}>
                 {!hasIncome && <Hint>先在左侧填一段工作和税前月薪，下面的数字会实时更新。</Hint>}
                 <div className={hasIncome ? "" : "mt-3"}>
                   <Summary a={result.annual} />

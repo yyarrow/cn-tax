@@ -42,7 +42,7 @@ export function MonthlyChart({ rows, currentMonth, staticMode = false }: { rows:
   const compact = k > 1.5; // 手机：标注用短写
   const H = 220;
   const padL = 8;
-  const padB = 22;
+  const padB = fs + 10 * k; // 月份文字随屏幕放大，底部留白跟着放大，避免压到柱子
   // 顶部留白按实际需要算：截断段 + 标注文字，相邻两个月都有标注时再加一行
   const cappedFlags = rows.map((r) => !r.isGap && (bonusOfRow(r) > 0 || r.equity > 0));
   const anyCapped = cappedFlags.some(Boolean);
@@ -144,7 +144,7 @@ export function MonthlyChart({ rows, currentMonth, staticMode = false }: { rows:
                       )}
                     </>
                   )}
-                  <text x={x + barW / 2} y={H - 6} textAnchor="middle" fontSize={fs} fill={r.month === currentMonth ? "#16150f" : "#6b6a64"} fontWeight={r.month === currentMonth ? 600 : 400}>
+                  <text x={x + barW / 2} y={H - 6 * k} textAnchor="middle" fontSize={fs} fill={r.month === currentMonth ? "#16150f" : "#6b6a64"} fontWeight={r.month === currentMonth ? 600 : 400}>
                     {compact ? i + 1 : MONTH_NAMES[i]}
                   </text>
                 </g>

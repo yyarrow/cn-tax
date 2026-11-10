@@ -98,6 +98,11 @@ input[type="number"] {
   appearance: textfield;
 }
 
+/* 正文限宽：电脑上一行约 45 个字，表格同宽，整列在卡片里居中 */
+.article > * {
+  max-width: 48rem;
+  margin-inline: auto;
+}
 .article h2 {
   margin-top: 2rem;
   font-size: 1.125rem;

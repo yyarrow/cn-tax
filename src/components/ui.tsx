@@ -246,7 +246,7 @@ export function Segmented<T extends string>({ value, options, onChange, label, c
   }, [selIndex, options.length]);
 
   return (
-    <div ref={groupRef} className={`relative inline-flex flex-wrap rounded-lg border border-line bg-paper p-0.5 text-sm ${className}`} role="radiogroup" aria-label={label}>
+    <div ref={groupRef} className={`relative inline-flex max-w-full rounded-lg border border-line bg-paper p-0.5 text-sm ${className}`} role="radiogroup" aria-label={label}>
       {thumb && (
         <span
           aria-hidden="true"
@@ -273,7 +273,7 @@ export function Segmented<T extends string>({ value, options, onChange, label, c
               onChange(options[next].value);
               groupRef.current?.querySelectorAll<HTMLButtonElement>(":scope > button")[next]?.focus();
             }}
-            className={`relative min-h-11 rounded-md px-3 py-1 transition-colors duration-(--dur-fast) sm:min-h-0 ${selected ? `text-ink ${thumb ? "" : "bg-white shadow-sm"}` : "text-muted hover:text-ink active:bg-ink/5"}`}
+            className={`relative min-h-11 min-w-0 flex-auto text-balance break-keep rounded-md px-3 py-1 text-center leading-snug transition-colors duration-(--dur-fast) sm:min-h-0 ${selected ? `text-ink ${thumb ? "" : "bg-white shadow-sm"}` : "text-muted hover:text-ink active:bg-ink/5"}`}
           >
             {o.label}
           </button>

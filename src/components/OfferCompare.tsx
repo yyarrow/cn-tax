@@ -153,7 +153,7 @@ export function OfferCompare() {
                     <span className="inline-flex items-center rounded-full bg-good/10 px-2 py-0.5 text-xs font-medium text-good-text">到手最多</span>
                   ) : (
                     <span className="text-xs tabular-nums text-danger-text">
-                      比{winner.name}少 {fmtMoney(-delta)} / 年
+                      比 {winner.name} 少 {fmtMoney(-delta)} / 年
                     </span>
                   )}
                 </div>
@@ -286,7 +286,7 @@ export function OfferCompare() {
   );
 
   return (
-    <div className={`app-root mx-auto max-w-6xl px-4 pt-4 sm:px-6 ${showBar ? "pb-24 lg:pb-10" : "pb-10"}`}>
+    <div className={`app-root mx-auto max-w-6xl px-4 pt-4 sm:px-6 pb-10`}>
       {wasLoadedFromShare() && (
         <p className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm leading-relaxed text-ink">
           已按分享的 offer 预填，改成你自己的数字即可。
@@ -313,7 +313,7 @@ export function OfferCompare() {
         </Button>
       </div>
 
-      <ExampleHint storageKeys={["cn-tax-offers-v1", "cn-tax-profile-v1"]} enabled={!wasLoadedFromShare()} />
+      <ExampleHint storageKeys={["cn-tax-offers-v1", "cn-tax-profile-v1"]} enabled={!wasLoadedFromShare()} text="当前为示例数据：Offer B 按月薪涨 20%、不带年终奖预填。改成你手上两份 offer 的真实数字再比较。" />
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         {/* 输入列 */}

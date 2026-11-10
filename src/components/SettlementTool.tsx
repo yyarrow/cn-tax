@@ -228,7 +228,7 @@ export function SettlementTool() {
   );
 
   return (
-    <div className={`app-root mx-auto max-w-6xl px-4 pt-4 transition-opacity duration-(--dur-base) sm:px-6 ${showBar ? "pb-24 lg:pb-10" : "pb-10"} ${ready ? "opacity-100" : "opacity-0"}`}>
+    <div className={`app-root mx-auto max-w-6xl px-4 pt-4 transition-opacity duration-(--dur-base) sm:px-6 pb-10 ${ready ? "opacity-100" : "opacity-0"}`}>
       {preview && (
         <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm leading-relaxed text-ink">
           <span className="flex-1">这是链接带来的数据，只是预览，不会覆盖你自己填过的内容。可以直接改着看。</span>
@@ -263,15 +263,6 @@ export function SettlementTool() {
         <CopyButton text={() => buildShareUrl(profile, "settlement")} className="mt-5 h-9" />
         <Button variant="primary" onClick={() => setShowShare(true)} className="mt-5 h-9">
           分享报告
-        </Button>
-        <Button
-          variant="ghost"
-          onClick={() => {
-            window.location.href = buildShareUrl(profile, "settlement");
-          }}
-          className="mt-5 h-9"
-        >
-          看完整测算 →
         </Button>
         <Button variant="ghost" onClick={() => confirm("清空所有输入，恢复默认？") && reset()} className="mt-5 h-9">
           重置
@@ -312,6 +303,10 @@ export function SettlementTool() {
           <Card title={`${profile.year} 年汇算清缴预估`} subtitle="预扣金额由工作经历模拟，实际退补以申报结果为准。" action={<span className="text-xs text-muted">生成于 {dateText}</span>}>
             {resultsBody}
           </Card>
+          <p className="px-1 text-xs text-muted">
+            想看每个月扣了多少税？
+            <a href={buildShareUrl(profile, "settlement")} className="text-accent-text underline underline-offset-2">在个税计算器里看全年逐月明细</a>
+          </p>
         </div>
       </div>
 

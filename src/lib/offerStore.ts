@@ -78,16 +78,19 @@ function readProfile(): Profile | null {
   }
 }
 
-/** 默认两份 offer：A 用首页已填的现公司数据，B 复制 A 的月薪，用户只改差异 */
+/**
+ * 默认两份 offer：A 用首页已填的现公司数据（没填过就用示例：月薪 2.5 万 + 年终奖 5 万），
+ * B 默认按 A 的月薪涨 20%、不带年终奖，打开就能看出差别，用户再改成真实数字
+ */
 function defaultOffers(p: Profile | null): OfferInput[] {
   const seg = p?.segments?.find((s) => s.monthlySalary > 0) ?? p?.segments?.[0];
   const a = newOffer({
     name: seg?.name?.trim() ? "现公司" : "Offer A",
     cityId: p?.cityId || "beijing",
     monthlySalary: seg && seg.monthlySalary > 0 ? seg.monthlySalary : 25000,
-    bonus: seg?.bonus && seg.bonus > 0 ? seg.bonus : 0,
+    bonus: seg?.bonus && seg.bonus > 0 ? seg.bonus : p ? 0 : 50000,
   });
-  const b = newOffer({ name: "Offer B", cityId: a.cityId, monthlySalary: a.monthlySalary });
+  const b = newOffer({ name: "Offer B", cityId: a.cityId, monthlySalary: Math.round((a.monthlySalary * 1.2) / 500) * 500 });
   return [a, b];
 }
 

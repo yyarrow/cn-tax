@@ -35,9 +35,9 @@ export function RetirementAgeTool() {
   const ym = (x: { year: number; month: number }) => `${x.year} 年 ${x.month} 月`;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">
+    <div className="mx-auto max-w-6xl px-4 pb-6 pt-4 sm:px-6">
       <Card title="查你的退休年龄" subtitle="填出生年月和退休类别，按 2025 年起实施的渐进式延迟退休规则计算">
-        <div className="grid gap-4 sm:grid-cols-[auto_auto_1fr] sm:items-end">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-[8rem_7rem_1fr] sm:items-start">
           <Field label="出生年">
             <Select value={year} onChange={(e) => setYear(Number(e.target.value))} aria-label="出生年">
               {BIRTH_YEARS.map((y) => (
@@ -50,8 +50,8 @@ export function RetirementAgeTool() {
           <Field label="出生月">
             <MonthSelect value={month} onChange={setMonth} />
           </Field>
-          <Field label="退休类别" hint="女职工按岗位：管理和技术岗一般原 55 岁，生产操作岗一般原 50 岁">
-            <Segmented label="退休类别" value={category} options={CATEGORIES} onChange={setCategory} />
+          <Field label="退休类别" hint="女职工按岗位：管理和技术岗一般原 55 岁，生产操作岗一般原 50 岁" className="col-span-2 sm:col-span-1">
+            <Segmented label="退休类别" value={category} options={CATEGORIES} onChange={setCategory} className="self-start" />
           </Field>
         </div>
 
